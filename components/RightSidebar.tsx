@@ -16,7 +16,7 @@ const MUDRAS = [
 
 export default function RightSidebar({ activeGesture }: RightSidebarProps) {
     return (
-        <div className="absolute top-4 bottom-32 right-6 w-[280px] flex flex-col gap-3 z-20 pointer-events-none">
+        <div className="absolute top-4 bottom-32 right-6 w-[320px] flex flex-col gap-3 z-20 pointer-events-none">
 
             {/* Touch Nose Indicator (Premium & Popping) */}
             <div className="relative group overflow-hidden rounded-xl p-0.5 animate-pulse-slow">
@@ -77,10 +77,10 @@ export default function RightSidebar({ activeGesture }: RightSidebarProps) {
                             )}
 
                             <div className="flex flex-col pl-2">
-                                <span className={`text-base font-bold tracking-wide ${isActive ? "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" : "text-gray-200"}`}>
+                                <span className={`text-lg font-bold tracking-wide ${isActive ? "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" : "text-gray-200"}`}>
                                     {m.name}
                                 </span>
-                                <span className={`text-[11px] uppercase tracking-wider font-medium ${isActive ? "text-green-200" : "text-gray-400"}`}>
+                                <span className={`text-xs uppercase tracking-wider font-medium ${isActive ? "text-green-200" : "text-gray-400"}`}>
                                     {m.desc}
                                 </span>
                             </div>

@@ -62,6 +62,9 @@ export default function YogaCanvas() {
     const pranaRef = useRef(0); // Kumbhaka
     const namasteHoldTimeRef = useRef(0); // Screenshot Trigger
     const lastScreenshotTimeRef = useRef(0);
+    const lastDetectionTimeRef = useRef(0);
+    const lastHandResultsRef = useRef<any>(null);
+    const lastFaceResultsRef = useRef<any>(null);
 
     // Third Eye & Particles
     const thirdEyeRef = useRef({ dwellTime: 0, target: null as string | null });
@@ -314,10 +317,25 @@ export default function YogaCanvas() {
             ctx.drawImage(video, 0, 0, width, height);
             ctx.restore();
 
-            // 2. AI Detection
+            // 2. AI Detection (Throttled to ~30fps)
             const now = Date.now();
-            const handResults = handLandmarker.detectForVideo(video, now);
-            const faceResults = faceLandmarker.detectForVideo(video, now);
+            let handResults = { landmarks: [] as any[], worldLandmarks: [] as any[] };
+            let faceResults = { faceLandmarks: [] as any[] };
+
+            // Throttle detection to every 33ms (approx 30fps)
+            if (now - lastDetectionTimeRef.current > 33) {
+                handResults = handLandmarker.detectForVideo(video, now);
+                faceResults = faceLandmarker.detectForVideo(video, now);
+                lastDetectionTimeRef.current = now;
+
+                // Store results for rendering in between frames
+                lastHandResultsRef.current = handResults;
+                lastFaceResultsRef.current = faceResults;
+            } else {
+                // Use cached results for smooth rendering
+                handResults = lastHandResultsRef.current || { landmarks: [], worldLandmarks: [] };
+                faceResults = lastFaceResultsRef.current || { faceLandmarks: [] };
+            }
 
             let currentGesture = null;
             let isEyesClosed = false;
@@ -881,8 +899,8 @@ export default function YogaCanvas() {
             {/* Level Progress Bar (Top Right Center) */}
             <div className="absolute top-24 right-80 w-80 z-20 pointer-events-none flex flex-col items-end">
                 <div className="flex justify-between items-end mb-1 w-full">
-                    <span className="text-yellow-400 font-bold text-3xl tracking-widest drop-shadow-[0_0_10px_rgba(234,179,8,0.8)] animate-pulse">LEVEL {level}</span>
-                    <span className="text-yellow-200/80 font-mono text-sm tracking-widest">{Math.floor(levelProgress)}%</span>
+                    <span className="text-yellow-400 font-bold text-4xl tracking-widest drop-shadow-[0_0_10px_rgba(234,179,8,0.8)] animate-pulse">LEVEL {level}</span>
+                    <span className="text-yellow-200/80 font-mono text-lg tracking-widest">{Math.floor(levelProgress)}%</span>
                 </div>
                 <div className="h-8 w-full bg-black/80 border-2 border-yellow-500 rounded-lg overflow-hidden shadow-[0_0_25px_rgba(234,179,8,0.6)] relative backdrop-blur-sm">
                     {/* Background Glow */}
@@ -907,24 +925,24 @@ export default function YogaCanvas() {
 
                 {/* Mudra Required Warning */}
                 {warningMsg && (
-                    <div className="mt-2 bg-red-600/90 border-2 border-red-500 text-white px-4 py-1 font-bold text-sm tracking-widest uppercase shadow-[0_0_20px_rgba(220,38,38,0.6)] animate-bounce">
+                    <div className="mt-2 bg-red-600/90 border-2 border-red-500 text-white px-6 py-2 font-bold text-lg tracking-widest uppercase shadow-[0_0_20px_rgba(220,38,38,0.6)] animate-bounce">
                         {warningMsg}
                     </div>
                 )}
 
                 {/* Level Titles */}
                 {level >= 6 && level <= 10 && (
-                    <div className="mt-2 text-yellow-300 font-bold text-lg tracking-[0.2em] drop-shadow-[0_0_10px_rgba(255,215,0,0.8)] animate-pulse">
+                    <div className="mt-2 text-yellow-300 font-bold text-2xl tracking-[0.2em] drop-shadow-[0_0_10px_rgba(255,215,0,0.8)] animate-pulse">
                         YOG GURU
                     </div>
                 )}
                 {level >= 11 && level <= 15 && (
-                    <div className="mt-2 text-cyan-300 font-bold text-lg tracking-[0.2em] drop-shadow-[0_0_10px_rgba(0,255,255,0.8)] animate-pulse">
+                    <div className="mt-2 text-cyan-300 font-bold text-2xl tracking-[0.2em] drop-shadow-[0_0_10px_rgba(0,255,255,0.8)] animate-pulse">
                         TRUE YOGI
                     </div>
                 )}
                 {level >= 16 && (
-                    <div className="mt-2 text-purple-300 font-bold text-xl tracking-[0.2em] drop-shadow-[0_0_15px_rgba(255,0,255,0.8)] animate-pulse">
+                    <div className="mt-2 text-purple-300 font-bold text-3xl tracking-[0.2em] drop-shadow-[0_0_15px_rgba(255,0,255,0.8)] animate-pulse">
                         MASTER YOGI 🏆
                     </div>
                 )}
@@ -960,15 +978,15 @@ export default function YogaCanvas() {
 
             {/* Center Title & Hint Overlay */}
             <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-center z-20 pointer-events-none">
-                <h1 className="text-yellow-400 font-bold text-3xl uppercase tracking-widest drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] mb-1">
+                <h1 className="text-yellow-400 font-bold text-5xl uppercase tracking-widest drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] mb-2">
                     AI ChakraFlow
                 </h1>
-                <div className="text-yellow-200 text-sm font-mono tracking-wider uppercase mb-4">
+                <div className="text-yellow-200 text-lg font-mono tracking-wider uppercase mb-6">
                     Meditation & Mudra Engine
                 </div>
-                <div className="bg-black/60 backdrop-blur-md border border-yellow-500/50 px-6 py-2 rounded-full inline-block shadow-[0_0_20px_rgba(234,179,8,0.3)]">
-                    <span className="text-yellow-300 font-bold">Hint: </span>
-                    <span className="text-white">Try Gyan Mudra for Crown Chakra</span>
+                <div className="bg-black/60 backdrop-blur-md border border-yellow-500/50 px-8 py-3 rounded-full inline-block shadow-[0_0_20px_rgba(234,179,8,0.3)]">
+                    <span className="text-yellow-300 font-bold text-lg">Hint: </span>
+                    <span className="text-white text-lg">Try Gyan Mudra for Crown Chakra</span>
                 </div>
             </div>
 

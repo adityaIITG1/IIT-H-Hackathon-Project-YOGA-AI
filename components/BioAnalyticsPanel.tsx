@@ -122,7 +122,7 @@ export default function BioAnalyticsPanel({
 
                 // Label
                 ctx.fillStyle = 'rgba(200, 200, 200, 1)';
-                ctx.font = '10px sans-serif';
+                ctx.font = '12px sans-serif';
                 ctx.fillText(label, x + 5, y + 15);
 
                 if (style === 'bars') {
@@ -190,10 +190,10 @@ export default function BioAnalyticsPanel({
                 }
             };
 
-            const graphH = 48; // Compacted height
-            const gap = 8; // Compacted gap
-            const startY = 130; // Moved up
-            const panelW = 420; // Increased width
+            const graphH = 55; // Increased height
+            const gap = 12; // Increased gap
+            const startY = 140; // Moved up
+            const panelW = 480; // Increased width
             const graphW = panelW - 40;
             const graphX = 20;
 
@@ -211,9 +211,9 @@ export default function BioAnalyticsPanel({
             drawGraph(`HRV Index: ${hrvIndex} ms`, hrvIndexDataRef.current, graphX, startY + (graphH + gap) * 4, graphW, graphH, 'rgb(200, 255, 200)', 'area');
 
             // --- NADI PARIKSHA (Tiny Graphs) ---
-            const tgY = startY + (graphH + gap) * 5 + 15;
+            const tgY = startY + (graphH + gap) * 5 + 20;
             ctx.fillStyle = '#ffffff';
-            ctx.font = '10px sans-serif';
+            ctx.font = '12px sans-serif';
             ctx.fillText("Nadi Pariksha (Doshas):", graphX, tgY);
 
             const drawTinyBar = (label: string, data: number[], x: number, y: number, color: string) => {
@@ -330,7 +330,7 @@ export default function BioAnalyticsPanel({
             const currentText = insightText.substring(0, Math.floor(typingCharCountRef.current));
 
             // Text Bubble
-            ctx.font = '12px sans-serif';
+            ctx.font = '14px sans-serif';
             const textMetrics = ctx.measureText(currentText);
             const tw = textMetrics.width;
             const bx = botX - tw / 2; // Center above bot
@@ -355,7 +355,7 @@ export default function BioAnalyticsPanel({
     }, [beatDetected, energyLevel, stressLevel, focusScore, hrvIndex, doshas, insightText, finding]);
 
     return (
-        <div className="relative w-[420px] h-[680px] bg-[#05080f] border-2 border-[#00d7ff] rounded-lg overflow-hidden shadow-[0_0_30px_rgba(0,215,255,0.3)]">
+        <div className="relative w-[480px] h-[720px] bg-[#05080f] border-2 border-[#00d7ff] rounded-lg overflow-hidden shadow-[0_0_30px_rgba(0,215,255,0.3)]">
             {/* Header */}
             <div className="absolute top-5 left-0 w-full text-center">
                 <h3 className="text-[#00ffff] font-sans text-sm font-bold tracking-widest">BIO-ANALYTICS ENGINE</h3>
@@ -379,8 +379,8 @@ export default function BioAnalyticsPanel({
             {/* Canvas Layer */}
             <canvas
                 ref={canvasRef}
-                width={420}
-                height={680}
+                width={480}
+                height={720}
                 className="absolute top-0 left-0 w-full h-full pointer-events-none"
             />
 
