@@ -366,15 +366,15 @@ export default function YogaCanvas() {
             if (now - lastDetectionTimeRef.current > 66) {
                 lastDetectionTimeRef.current = now;
 
-                // Create/Update Offscreen Canvas for AI (360p)
+                // Create/Update Offscreen Canvas for AI (320p - Ultra Performance)
                 if (!offscreenCanvasRef.current) {
                     offscreenCanvasRef.current = document.createElement('canvas');
-                    offscreenCanvasRef.current.width = 640;
-                    offscreenCanvasRef.current.height = 360;
+                    offscreenCanvasRef.current.width = 320;
+                    offscreenCanvasRef.current.height = 180;
                 }
                 const offCtx = offscreenCanvasRef.current.getContext('2d');
                 if (offCtx) {
-                    offCtx.drawImage(video, 0, 0, 640, 360);
+                    offCtx.drawImage(video, 0, 0, 320, 180);
 
                     // Interleaved Detection: Alternate between Hand and Face
                     if (detectionCycleRef.current === 0) {
@@ -434,7 +434,8 @@ export default function YogaCanvas() {
                             ctx.shadowColor = "#00ff00"; // Green
                             ctx.shadowBlur = 20;
 
-                            // Spawn Nature Particles
+                            // Spawn Nature Particles (DISABLED)
+                            /*
                             if (Math.random() < 0.2) {
                                 particlesRef.current.push({
                                     x: cx, y: cy,
@@ -445,6 +446,7 @@ export default function YogaCanvas() {
                                     color: "rgba(50, 205, 50, 0.8)"
                                 });
                             }
+                            */
                         } else if (g === "Apana Mudra" && apanaImg.complete) {
                             ctx.drawImage(apanaImg, cx - size / 2, cy - size / 2, size, size);
                             ctx.shadowColor = "#8b0000"; // Dark Red
@@ -454,7 +456,8 @@ export default function YogaCanvas() {
                             ctx.shadowColor = "#00bfff"; // Deep Sky Blue
                             ctx.shadowBlur = 20;
 
-                            // Spawn Water Particles
+                            // Spawn Water Particles (DISABLED)
+                            /*
                             if (Math.random() < 0.3) {
                                 particlesRef.current.push({
                                     x: cx, y: cy,
@@ -465,6 +468,7 @@ export default function YogaCanvas() {
                                     color: "rgba(0, 191, 255, 0.8)"
                                 });
                             }
+                            */
                         }
 
                         ctx.restore();
@@ -498,7 +502,8 @@ export default function YogaCanvas() {
                 }
             }
 
-            // --- ELEMENTAL PARTICLES UPDATE & DRAW ---
+            // --- ELEMENTAL PARTICLES UPDATE & DRAW (DISABLED) ---
+            /*
             if (particlesRef.current.length > 0) {
                 ctx.save();
                 particlesRef.current.forEach((p, i) => {
@@ -521,6 +526,7 @@ export default function YogaCanvas() {
                 particlesRef.current = particlesRef.current.filter(p => p.life > 0);
                 ctx.restore();
             }
+            */
 
             // Face Logic
             if (faceResults.faceLandmarks && faceResults.faceLandmarks.length > 0) {
