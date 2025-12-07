@@ -20,17 +20,18 @@ export function LinkedInShowcase() {
 
                     <GlassCard className="p-0 overflow-hidden relative group">
                         {/* Banner */}
-                        <div className="h-32 md:h-48 bg-gradient-to-r from-blue-600 to-blue-800 relative overflow-hidden">
-                            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop')] bg-cover bg-center opacity-30" />
+                        <div className="h-32 md:h-48 bg-gradient-to-r from-[#0077b5] to-[#00a0dc] relative overflow-hidden">
+                            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop')] bg-cover bg-center opacity-40 mix-blend-overlay" />
                         </div>
 
                         <div className="px-6 md:px-8 pb-8 relative">
                             {/* Profile Picture */}
-                            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-black bg-gray-800 absolute -top-16 md:-top-20 overflow-hidden">
-                                {/* Placeholder for user image - using a generic avatar or the uploaded one if available */}
-                                <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-4xl">
-                                    👨‍💻
-                                </div>
+                            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-black bg-gray-800 absolute -top-16 md:-top-20 overflow-hidden shadow-2xl group-hover:scale-105 transition-transform duration-500">
+                                <img
+                                    src="/profile.jpg"
+                                    alt="Aditya Kumar Singh"
+                                    className="w-full h-full object-cover"
+                                />
                             </div>
 
                             {/* Profile Info */}
@@ -38,7 +39,9 @@ export function LinkedInShowcase() {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <h3 className="text-2xl md:text-3xl font-bold text-white">Aditya Kumar Singh</h3>
-                                        <span className="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded-full border border-blue-500/50">✓</span>
+                                        <span className="bg-blue-500/10 text-blue-400 text-[10px] px-2 py-0.5 rounded-full border border-blue-500/30 flex items-center gap-1">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" /> Verified
+                                        </span>
                                     </div>
                                     <p className="text-gray-300 mt-1 max-w-2xl">
                                         Data Science & AI Undergraduate (IIT Guwahati + AKTU) | Building ETL Pipelines & Scalable Systems | Aspiring Data Engineer 🚀

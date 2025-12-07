@@ -4,8 +4,8 @@ import { Hero } from "../components/hero";
 import { About } from "../components/about";
 import { Projects } from "../components/projects";
 import { Contact } from "../components/contact";
-import { GithubShowcase } from "../components/github-showcase";
-import { LinkedInShowcase } from "../components/linkedin-showcase";
+import { ProjectShowcase } from "../components/project-showcase";
+
 import { SpotlightEffect } from "../components/spotlight-effect";
 import { AiChatbot } from "../components/ai-chatbot";
 import { VoiceControl } from "../components/voice-control";
@@ -20,8 +20,7 @@ export default function Home() {
       <AiChatbot />
       <Hero />
       <About />
-      <LinkedInShowcase />
-      <GithubShowcase />
+      <ProjectShowcase />
       <Projects />
       <Contact />
 

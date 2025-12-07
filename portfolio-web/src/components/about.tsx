@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { GlassCard } from "./ui/glass-card";
 import { Code, Cpu, Globe, Zap, MapPin, GraduationCap } from "lucide-react";
 import { VideoGallery } from "./video-gallery";
+import { TechStack3D } from "./tech-stack-3d";
+import { Timeline } from "./timeline";
 
 const stats = [
     { label: "Projects Delivered", value: "5+" },
@@ -101,18 +103,16 @@ export function About() {
                                 </div>
                                 <div>
                                     <h3 className="text-2xl font-bold">Aditya Kumar Singh</h3>
-                                    <p className="text-primary font-medium">Data Science & AI Undergraduate | Building ETL Pipelines & Scalable Systems ⚡</p>
+                                    <p className="text-primary font-medium">Gen AI Prompt Engineer | YouTuber @ BS IITIAN | Aspiring Data Scientist ⚡</p>
                                     <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
                                         <MapPin className="w-4 h-4" /> Prayagraj, Uttar Pradesh
                                     </div>
                                 </div>
                             </div>
 
-                            <p className="text-gray-300 mb-6 leading-relaxed">
-                                <strong>Verified Dual-Degree Scholar: IIT Guwahati (Data Science) & AKTU (CSE).</strong>
-                                <br /><br />
-                                Pursuing a rigorous parallel education: building foundational CS theory via B.Tech at AKTU while specializing in advanced AI/Data Science at IIT Guwahati. Verified student with a focus on scalable Data Engineering and Machine Learning pipelines. Bridging the gap between academic research and production-grade software engineering.
-                            </p>
+                            <div className="mb-8">
+                                <Timeline />
+                            </div>
 
                             <div className="mb-6">
                                 <h4 className="text-lg font-semibold mb-2 flex items-center gap-2">
@@ -121,11 +121,11 @@ export function About() {
                                 <ul className="space-y-2 text-sm text-gray-300">
                                     <li className="flex items-start gap-2">
                                         <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                                        <span>BSc Hons in Data Science & AI - IIT Guwahati (2nd Year)</span>
+                                        <span>B.Tech in CSE (AI & ML) - AKTU (2024-2028)</span>
                                     </li>
                                     <li className="flex items-start gap-2">
                                         <span className="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5 shrink-0" />
-                                        <span>B.Tech in CSE (AI & ML) - AKTU</span>
+                                        <span>BSc Hons in Data Science & AI - IIT Guwahati</span>
                                     </li>
                                 </ul>
                             </div>
@@ -177,18 +177,9 @@ export function About() {
                             ))}
                         </div>
 
-                        <GlassCard>
-                            <h4 className="text-lg font-semibold mb-4">Tech Stack</h4>
-                            <div className="flex flex-wrap gap-2">
-                                {skills.map((skill) => (
-                                    <span
-                                        key={skill}
-                                        className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors"
-                                    >
-                                        {skill}
-                                    </span>
-                                ))}
-                            </div>
+                        <GlassCard className="overflow-hidden">
+                            <h4 className="text-lg font-semibold mb-4">Tech Stack (Interactive)</h4>
+                            <TechStack3D />
                         </GlassCard>
                     </div>
                 </div>

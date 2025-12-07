@@ -20,10 +20,41 @@ export function Hero() {
     return (
         <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
             {/* Background Elements */}
+            {/* Background Elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
                 <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob" />
                 <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-secondary/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000" />
                 <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-accent/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000" />
+
+                {/* Neural Network Effect */}
+                <svg className="absolute inset-0 w-full h-full opacity-30 pointer-events-none">
+                    {particles.map((p, i) => (
+                        particles.map((p2, j) => {
+                            if (i < j) {
+                                const dx = p.x - p2.x;
+                                const dy = p.y - p2.y;
+                                const distance = Math.sqrt(dx * dx + dy * dy);
+                                if (distance < 20) {
+                                    return (
+                                        <motion.line
+                                            key={`${i}-${j}`}
+                                            x1={`${p.x}%`}
+                                            y1={`${p.y}%`}
+                                            x2={`${p2.x}%`}
+                                            y2={`${p2.y}%`}
+                                            stroke="white"
+                                            strokeWidth="1"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: (20 - distance) / 20 * 0.5 }}
+                                            transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+                                        />
+                                    );
+                                }
+                            }
+                            return null;
+                        })
+                    ))}
+                </svg>
 
                 {/* Particle Effects */}
                 {particles.map((p, i) => (
@@ -37,13 +68,14 @@ export function Hero() {
                             scale: p.scale,
                         }}
                         animate={{
-                            y: [0, -100],
-                            opacity: [0.2, 0.5, 0.2],
+                            y: [0, -20, 0],
+                            x: [0, Math.random() * 10 - 5, 0],
+                            opacity: [0.2, 0.8, 0.2],
                         }}
                         transition={{
                             duration: p.duration,
                             repeat: Infinity,
-                            ease: "linear",
+                            ease: "easeInOut",
                         }}
                         style={{
                             width: p.size + "px",
@@ -60,18 +92,29 @@ export function Hero() {
                     transition={{ duration: 0.5 }}
                 >
                     <span className="inline-block py-1 px-3 rounded-full bg-white/10 border border-white/20 text-sm font-medium mb-6 backdrop-blur-md">
-                        🚀 Aspiring Data Science & AI ML Engineer
+                        🚀 Gen AI Prompt Engineer & Aspiring Data Scientist
                     </span>
                 </motion.div>
 
-                <motion.h1
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className="text-5xl md:text-7xl font-bold mb-6 tracking-tight"
+                    className="perspective-1000"
                 >
-                    Hi, I'm <span className="text-gradient">Aditya</span>
-                </motion.h1>
+                    <motion.h1
+                        className="text-5xl md:text-8xl font-bold mb-6 tracking-tight"
+                        whileHover={{
+                            rotateX: 10,
+                            rotateY: -10,
+                            scale: 1.05,
+                            textShadow: "0px 10px 20px rgba(0,0,0,0.5)"
+                        }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                    >
+                        Hi, I'm <span className="text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-gradient-x">Aditya</span>
+                    </motion.h1>
+                </motion.div>
 
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}

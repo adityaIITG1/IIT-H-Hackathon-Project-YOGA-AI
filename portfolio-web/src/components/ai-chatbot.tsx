@@ -40,6 +40,47 @@ export function AiChatbot() {
         scrollToBottom();
     }, [messages]);
 
+    useEffect(() => {
+        const handleTrigger = (e: CustomEvent<{ message: string }>) => {
+            setIsOpen(true);
+            const userMsg: Message = { id: Date.now().toString(), text: e.detail.message, sender: "user" };
+            setMessages((prev) => [...prev, userMsg]);
+            setIsTyping(true);
+
+            // Process the triggered message
+            setTimeout(() => {
+                const lowerInput = userMsg.text.toLowerCase();
+                let responseText = KNOWLEDGE_BASE.default;
+
+                if (lowerInput.includes("skill") || lowerInput.includes("stack")) responseText = KNOWLEDGE_BASE.skills;
+                else if (lowerInput.includes("project") || lowerInput.includes("work")) responseText = KNOWLEDGE_BASE.projects;
+                else if (lowerInput.includes("experience") || lowerInput.includes("background")) responseText = KNOWLEDGE_BASE.experience;
+                else if (lowerInput.includes("contact") || lowerInput.includes("email") || lowerInput.includes("reach")) responseText = KNOWLEDGE_BASE.contact;
+                else if (lowerInput.includes("python")) responseText = KNOWLEDGE_BASE.python;
+                else if (lowerInput.includes("react") || lowerInput.includes("next")) responseText = KNOWLEDGE_BASE.react;
+                else if (lowerInput.includes("hello") || lowerInput.includes("hey")) responseText = KNOWLEDGE_BASE.hello;
+                else if (lowerInput.includes("hi")) responseText = KNOWLEDGE_BASE.hi;
+                // Specific skill queries
+                else if (lowerInput.includes("tell me about aditya's experience with")) {
+                    const skill = lowerInput.split("with ")[1].replace("?", "");
+                    responseText = `Aditya is highly proficient in ${skill}. He has used it in multiple projects to build scalable and efficient solutions.`;
+                }
+                // Specific timeline queries
+                else if (lowerInput.includes("what did aditya achieve at")) {
+                    const company = lowerInput.split("at ")[1].replace("?", "");
+                    responseText = `At ${company}, Aditya worked on critical full-stack and data engineering tasks, delivering high-impact solutions.`;
+                }
+
+                const botMsg: Message = { id: (Date.now() + 1).toString(), text: responseText, sender: "bot" };
+                setMessages((prev) => [...prev, botMsg]);
+                setIsTyping(false);
+            }, 1500);
+        };
+
+        window.addEventListener("trigger-ai-chat" as any, handleTrigger as any);
+        return () => window.removeEventListener("trigger-ai-chat" as any, handleTrigger as any);
+    }, []);
+
     const handleSend = async () => {
         if (!input.trim()) return;
 
@@ -77,9 +118,24 @@ export function AiChatbot() {
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(true)}
                 initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
+                animate={{
+                    opacity: 1,
+                    scale: 1,
+                    boxShadow: ["0px 0px 0px 0px rgba(59, 130, 246, 0.7)", "0px 0px 20px 10px rgba(59, 130, 246, 0)"]
+                }}
+                transition={{
+                    boxShadow: {
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatType: "loop"
+                    }
+                }}
             >
                 <MessageSquare className="w-6 h-6" />
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
             </motion.button>
 
             {/* Chat Window */}
@@ -122,8 +178,8 @@ export function AiChatbot() {
                                     >
                                         <div
                                             className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.sender === "user"
-                                                    ? "bg-primary text-white rounded-br-none"
-                                                    : "bg-white/10 text-gray-200 rounded-bl-none border border-white/5"
+                                                ? "bg-primary text-white rounded-br-none"
+                                                : "bg-white/10 text-gray-200 rounded-bl-none border border-white/5"
                                                 }`}
                                         >
                                             {msg.text}
