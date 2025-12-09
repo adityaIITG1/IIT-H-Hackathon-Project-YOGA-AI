@@ -60,10 +60,20 @@ export function GuidedTour() {
                         animate={{
                             opacity: 1,
                             y: 0,
-                            boxShadow: ["0 0 0 rgba(139, 92, 246, 0)", "0 0 20px rgba(139, 92, 246, 0.5)", "0 0 0 rgba(139, 92, 246, 0)"]
+                            scale: [1, 1.05, 1],
+                            boxShadow: [
+                                "0 0 0px rgba(255, 255, 255, 0)",
+                                "0 0 20px rgba(139, 92, 246, 0.8)",
+                                "0 0 0px rgba(255, 255, 255, 0)"
+                            ]
                         }}
                         exit={{ opacity: 0, y: 20 }}
                         transition={{
+                            scale: {
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            },
                             boxShadow: {
                                 duration: 2,
                                 repeat: Infinity,
@@ -71,11 +81,13 @@ export function GuidedTour() {
                             }
                         }}
                         onClick={startTour}
-                        className="fixed bottom-8 right-8 z-50 bg-gradient-to-r from-primary to-secondary text-white font-bold px-8 py-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center gap-3 group border border-white/20"
+                        className="fixed bottom-8 right-8 z-50 bg-white text-black font-extrabold px-8 py-4 rounded-full shadow-[0_0_30px_rgba(139,92,246,0.6)] hover:shadow-[0_0_50px_rgba(139,92,246,0.9)] hover:scale-110 transition-all duration-300 flex items-center gap-3 group border-4 border-primary/20"
                     >
-                        <Compass className="w-6 h-6 animate-pulse" />
-                        <span className="text-lg">Start Tour</span>
-                        <div className="absolute inset-0 rounded-full bg-white/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="relative">
+                            <Compass className="w-6 h-6 animate-[spin_3s_linear_infinite] text-primary" />
+                            <div className="absolute inset-0 bg-primary/20 blur-md rounded-full animate-pulse" />
+                        </div>
+                        <span className="text-xl tracking-wide">Start Tour</span>
                     </motion.button>
                 )}
             </AnimatePresence>
