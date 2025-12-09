@@ -24,6 +24,7 @@ const skills = [
 export function TechStack3D() {
     const sceneRef = useRef<HTMLDivElement>(null);
     const engineRef = useRef<Matter.Engine | null>(null);
+    const renderRef = useRef<Matter.Render | null>(null);
 
     useEffect(() => {
         if (!sceneRef.current) return;
@@ -35,12 +36,15 @@ export function TechStack3D() {
         const Mouse = Matter.Mouse;
         const MouseConstraint = Matter.MouseConstraint;
 
+        // Create engine
         const engine = Engine.create();
         engineRef.current = engine;
 
+        // Get dimensions
         const width = sceneRef.current.clientWidth;
-        const height = 400;
+        const height = 400; // Fixed height from container
 
+        // Create renderer
         const render = Render.create({
             element: sceneRef.current,
             engine: engine,
@@ -49,19 +53,33 @@ export function TechStack3D() {
                 height,
                 wireframes: false,
                 background: "transparent",
+                pixelRatio: window.devicePixelRatio, // Sharper rendering
             },
         });
+        renderRef.current = render;
 
-        // Boundaries
-        const ground = Bodies.rectangle(width / 2, height + 30, width, 60, { isStatic: true, render: { fillStyle: "transparent" } });
-        const leftWall = Bodies.rectangle(-30, height / 2, 60, height, { isStatic: true, render: { fillStyle: "transparent" } });
-        const rightWall = Bodies.rectangle(width + 30, height / 2, 60, height, { isStatic: true, render: { fillStyle: "transparent" } });
+        // Create Boundaries
+        const ground = Bodies.rectangle(width / 2, height + 30, width, 60, {
+            isStatic: true,
+            render: { fillStyle: "transparent" }
+        });
+        const leftWall = Bodies.rectangle(-30, height / 2, 60, height * 2, {
+            isStatic: true,
+            render: { fillStyle: "transparent" }
+        });
+        const rightWall = Bodies.rectangle(width + 30, height / 2, 60, height * 2, {
+            isStatic: true,
+            render: { fillStyle: "transparent" }
+        });
 
-        // Skill Balls
+        // Add walls to world
+        World.add(engine.world, [ground, leftWall, rightWall]);
+
+        // Create Skill Balls
         const balls = skills.map((skill) => {
             const radius = 30 + Math.random() * 20;
             return Bodies.circle(
-                Math.random() * width,
+                Math.random() * width * 0.8 + width * 0.1, // Keep within center 80% initially
                 -Math.random() * 500 - 50, // Start above screen
                 radius,
                 {
@@ -72,12 +90,12 @@ export function TechStack3D() {
                         strokeStyle: "#ffffff",
                         lineWidth: 2,
                     },
-                    label: skill.name, // Store name for custom rendering if needed (canvas text is tricky in simple matter render)
+                    label: skill.name,
                 }
             );
         });
 
-        World.add(engine.world, [ground, leftWall, rightWall, ...balls]);
+        World.add(engine.world, balls);
 
         // Mouse Control
         const mouse = Mouse.create(render.canvas);
@@ -90,61 +108,108 @@ export function TechStack3D() {
                 },
             },
         });
+
+        // Remove wheel scroll capture
+        const mouseElement = mouse.element;
+        // @ts-ignore - mousewheel is internal to Matter.js Mouse
+        const mouseWheelHandler = mouse.mousewheel;
+        if (mouseWheelHandler) {
+            mouseElement.removeEventListener("mousewheel", mouseWheelHandler);
+            mouseElement.removeEventListener("DOMMouseScroll", mouseWheelHandler);
+        }
+
         World.add(engine.world, mouseConstraint);
         render.mouse = mouse;
 
-        // Click Handler for AI Integration
+        // Click Handler
         Matter.Events.on(mouseConstraint, "mousedown", (event) => {
             const mousePosition = event.mouse.position;
             const bodies = Matter.Composite.allBodies(engine.world);
             const clickedBody = Matter.Query.point(bodies, mousePosition)[0];
 
             if (clickedBody && clickedBody.label) {
-                const event = new CustomEvent("trigger-ai-chat", {
+                const customEvent = new CustomEvent("trigger-ai-chat", {
                     detail: { message: `Tell me about Aditya's experience with ${clickedBody.label}?` }
                 });
-                window.dispatchEvent(event);
+                window.dispatchEvent(customEvent);
             }
         });
 
-        // Custom Rendering for Text (Hack to draw text on bodies)
+        // Custom Rendering for Text
         Matter.Events.on(render, "afterRender", () => {
             const context = render.context;
-            context.font = "bold 12px Arial";
+            context.font = "bold 14px sans-serif";
             context.textAlign = "center";
             context.textBaseline = "middle";
             context.fillStyle = "white";
 
             balls.forEach((ball, index) => {
                 const { x, y } = ball.position;
+                const angle = ball.angle;
+
                 context.save();
                 context.translate(x, y);
-                context.rotate(ball.angle);
+                context.rotate(angle);
+                // Shadow for better visibility
+                context.shadowColor = "rgba(0,0,0,0.5)";
+                context.shadowBlur = 4;
                 context.fillText(skills[index].name, 0, 0);
                 context.restore();
             });
         });
 
+        // Run
         Engine.run(engine);
         Render.run(render);
 
+        // Resize Handler
+        const handleResize = () => {
+            if (!sceneRef.current || !renderRef.current || !engineRef.current) return;
+
+            const newWidth = sceneRef.current.clientWidth;
+            const newHeight = 400; // Keep fixed height consistent
+
+            renderRef.current.canvas.width = newWidth;
+            renderRef.current.canvas.height = newHeight;
+
+            // Reposition boundaries
+            Matter.Body.setPosition(ground, { x: newWidth / 2, y: newHeight + 30 });
+            Matter.Body.setPosition(rightWall, { x: newWidth + 30, y: newHeight / 2 });
+            // Left wall stays at -30
+
+            // Update render bounds
+            // @ts-ignore - bounds is writable in practice though typed weirdly sometimes
+            renderRef.current.bounds.max.x = newWidth;
+            // @ts-ignore
+            renderRef.current.bounds.max.y = newHeight;
+            renderRef.current.options.width = newWidth;
+            renderRef.current.options.height = newHeight;
+        };
+
+        window.addEventListener("resize", handleResize);
+
         return () => {
-            Render.stop(render);
-            World.clear(engine.world, false);
-            Engine.clear(engine);
-            render.canvas.remove();
-            render.canvas = null as any;
-            render.context = null as any;
-            render.textures = {};
+            window.removeEventListener("resize", handleResize);
+            if (renderRef.current) {
+                Render.stop(renderRef.current);
+                if (renderRef.current.canvas) {
+                    renderRef.current.canvas.remove();
+                }
+            }
+            if (engineRef.current) {
+                Engine.clear(engineRef.current);
+                World.clear(engineRef.current.world, false);
+            }
         };
     }, []);
 
     return (
         <div className="w-full h-[400px] relative overflow-hidden rounded-2xl bg-white/5 border border-white/10">
             <div ref={sceneRef} className="w-full h-full" />
-            <div className="absolute top-4 left-0 w-full text-center pointer-events-none">
+            <div className="absolute top-4 left-0 w-full text-center pointer-events-none select-none">
                 <p className="text-sm text-gray-400">Drag and throw the skills!</p>
             </div>
         </div>
     );
 }
+

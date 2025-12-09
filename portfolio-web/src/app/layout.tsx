@@ -15,8 +15,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Aditya Kumar Singh | AI Engineer",
-  description: "Portfolio of Aditya Kumar Singh, AI Engineer and Full Stack Developer.",
+  description: "Portfolio of Aditya Kumar Singh, AI Engineer and Data Scientist.",
 };
+
+import { NeuralBackground } from "../components/neural-background";
+import { CustomCursor } from "../components/ui/custom-cursor";
+import { SystemStatus } from "../components/system-status";
+import { AiContextMenu } from "../components/ui/ai-context-menu";
 
 export default function RootLayout({
   children,
@@ -26,8 +31,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="scroll-smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
       >
+        <NeuralBackground />
+        <CustomCursor />
+        {/* <SystemStatus /> Removed per user request */}
+        <AiContextMenu />
         <Navbar />
         {children}
       </body>

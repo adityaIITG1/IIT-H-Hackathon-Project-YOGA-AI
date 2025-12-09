@@ -7,6 +7,11 @@ import { VideoGallery } from "./video-gallery";
 
 const projectVideos = [
     {
+        id: "ipcPGVNjQjA",
+        title: "IIT Guwahati Live Project",
+        description: "Real-time performance and AI integration demo."
+    },
+    {
         id: "7IIGeClYXvQ",
         title: "Project Demo 1",
         description: "Showcasing the core features and user interface of the project."

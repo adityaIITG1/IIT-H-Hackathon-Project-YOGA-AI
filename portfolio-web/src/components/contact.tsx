@@ -1,10 +1,44 @@
 "use client";
 
+import { useRef, useState } from "react";
+import emailjs from "@emailjs/browser";
+
 import { motion } from "framer-motion";
 import { GlassCard } from "./ui/glass-card";
 import { Mail, MapPin, Send, Linkedin } from "lucide-react";
 
 export function Contact() {
+    const form = useRef<HTMLFormElement>(null);
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
+    const [error, setError] = useState(false);
+
+    const sendEmail = (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setSuccess(false);
+        setError(false);
+
+        if (!form.current) return;
+
+        // REPLACE THESE WITH YOUR ACTUAL EMAILJS KEYS
+        // Get them from: https://dashboard.emailjs.com/admin
+        const SERVICE_ID = "service_b7ug4eh";
+        const TEMPLATE_ID = "template_4scanid";
+        const PUBLIC_KEY = "KLgvyqra8AbpRU5cP";
+
+        emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form.current, PUBLIC_KEY)
+            .then((result) => {
+                setSuccess(true);
+                setLoading(false);
+                if (form.current) form.current.reset();
+            }, (error) => {
+                setError(true);
+                setLoading(false);
+                console.error("EmailJS Error:", error.text);
+            });
+    };
+
     return (
         <section id="contact" className="py-20 relative">
             <div className="container mx-auto px-6">
@@ -70,13 +104,15 @@ export function Contact() {
                         viewport={{ once: true }}
                     >
                         <GlassCard>
-                            <form className="space-y-6">
+                            <form ref={form} onSubmit={sendEmail} className="space-y-6">
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label htmlFor="name" className="text-sm font-medium text-gray-300">Name</label>
                                         <input
                                             type="text"
+                                            name="name"
                                             id="name"
+                                            required
                                             className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
                                             placeholder="John Doe"
                                         />
@@ -85,7 +121,9 @@ export function Contact() {
                                         <label htmlFor="email" className="text-sm font-medium text-gray-300">Email</label>
                                         <input
                                             type="email"
+                                            name="email"
                                             id="email"
+                                            required
                                             className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
                                             placeholder="john@example.com"
                                         />
@@ -94,17 +132,28 @@ export function Contact() {
                                 <div className="space-y-2">
                                     <label htmlFor="message" className="text-sm font-medium text-gray-300">Message</label>
                                     <textarea
+                                        name="message"
                                         id="message"
                                         rows={4}
+                                        required
                                         className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none"
                                         placeholder="Your message..."
                                     />
                                 </div>
+
+                                {success && (
+                                    <p className="text-green-400 text-sm">Message sent successfully! I'll get back to you soon.</p>
+                                )}
+                                {error && (
+                                    <p className="text-red-400 text-sm">Something went wrong. Please try again or email me directly.</p>
+                                )}
+
                                 <button
                                     type="submit"
-                                    className="w-full py-3 px-6 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                                    disabled={loading}
+                                    className="w-full py-3 px-6 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
                                 >
-                                    Send Message <Send className="w-4 h-4" />
+                                    {loading ? 'Sending...' : 'Send Message'} <Send className="w-4 h-4" />
                                 </button>
                             </form>
                         </GlassCard>

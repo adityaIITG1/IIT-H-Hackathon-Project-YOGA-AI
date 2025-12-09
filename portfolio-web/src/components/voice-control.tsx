@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, Command } from "lucide-react";
 
 // Add type definition for Web Speech API
 declare global {
@@ -11,6 +11,17 @@ declare global {
         webkitSpeechRecognition: any;
     }
 }
+
+const sectionKeywords = [
+    { id: "home", keywords: ["home", "top", "intro", "start", "beginning"] },
+    { id: "about", keywords: ["about", "myself", "bio", "profile", "who are you"] },
+    { id: "certificates", keywords: ["certificate", "certification", "achievement", "award", "degree"] },
+    { id: "tech-stack", keywords: ["tech", "skill", "stack", "technology", "tool", "language"] },
+    { id: "python-libraries", keywords: ["python", "library", "framework", "pandas", "numpy"] },
+    { id: "project-showcase", keywords: ["showcase", "featured", "best project", "highlight"] },
+    { id: "projects", keywords: ["project", "work", "portfolio", "creation", "app"] },
+    { id: "contact", keywords: ["contact", "email", "touch", "message", "reach"] },
+];
 
 export function VoiceControl() {
     const [isListening, setIsListening] = useState(false);
@@ -24,7 +35,7 @@ export function VoiceControl() {
         }
 
         const recognition = new window.webkitSpeechRecognition();
-        recognition.continuous = false;
+        recognition.continuous = false; // Changed to false to avoid repeated triggers
         recognition.interimResults = false;
         recognition.lang = "en-US";
 
@@ -35,7 +46,8 @@ export function VoiceControl() {
 
         recognition.onend = () => {
             setIsListening(false);
-            setTimeout(() => setFeedback(""), 2000);
+            // Don't clear feedback immediately so user can see what was heard
+            setTimeout(() => setFeedback(""), 3000);
         };
 
         recognition.onresult = (event: any) => {
@@ -44,49 +56,60 @@ export function VoiceControl() {
             handleCommand(command);
         };
 
+        const handleCommand = (command: string) => {
+            setFeedback(`Heard: "${command}"`);
+
+            // Check for scroll commands
+            let foundSection = false;
+            for (const section of sectionKeywords) {
+                if (section.keywords.some(keyword => command.includes(keyword))) {
+                    const element = document.getElementById(section.id);
+                    if (element) {
+                        element.scrollIntoView({ behavior: "smooth", block: "start" });
+                        setFeedback(`Navigating to ${section.id.replace('-', ' ')}...`);
+                        foundSection = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!foundSection) {
+                setFeedback("Command not understood. Try 'Go to About'...");
+            }
+        };
+
         if (isListening) {
-            recognition.start();
-        } else {
-            recognition.stop();
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error("Recognition already started");
+            }
         }
 
+        // Cleanup function
         return () => {
-            recognition.stop();
+            // We don't stop recognition here to allow toggle logic to work cleanly
+            // relying on state is better
+            recognition.onend = null; // Prevent loops
+            if (isListening) recognition.stop();
         };
     }, [isListening]);
-
-    const handleCommand = (command: string) => {
-        setFeedback(`Heard: "${command}"`);
-
-        if (command.includes("home") || command.includes("top")) {
-            document.getElementById("home")?.scrollIntoView({ behavior: "smooth" });
-        } else if (command.includes("about") || command.includes("me")) {
-            document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
-        } else if (command.includes("project") || command.includes("work")) {
-            document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
-        } else if (command.includes("contact") || command.includes("email")) {
-            document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-        } else if (command.includes("github") || command.includes("code")) {
-            document.getElementById("github")?.scrollIntoView({ behavior: "smooth" });
-        } else {
-            setFeedback("Command not recognized");
-        }
-    };
 
     const toggleListening = () => {
         setIsListening(!isListening);
     };
 
     return (
-        <div className="fixed bottom-6 left-6 z-50">
+        <div className="fixed bottom-8 left-8 z-50">
             <AnimatePresence>
                 {feedback && (
                     <motion.div
-                        initial={{ opacity: 0, y: 10, x: 50 }}
+                        initial={{ opacity: 0, y: 10, x: 20 }}
                         animate={{ opacity: 1, y: 0, x: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="absolute bottom-16 left-0 bg-black/80 text-white px-4 py-2 rounded-lg text-sm whitespace-nowrap backdrop-blur-md border border-white/10"
+                        className="absolute bottom-20 left-0 bg-black/80 text-white px-6 py-3 rounded-xl text-sm whitespace-nowrap backdrop-blur-md border border-white/10 shadow-xl flex items-center gap-3"
                     >
+                        <Command className="w-4 h-4 text-primary" />
                         {feedback}
                     </motion.div>
                 )}
@@ -94,9 +117,9 @@ export function VoiceControl() {
 
             <motion.button
                 onClick={toggleListening}
-                className={`p-4 rounded-full shadow-lg transition-colors ${isListening
-                        ? "bg-red-500 text-white animate-pulse"
-                        : "bg-white/10 text-white hover:bg-white/20 backdrop-blur-md border border-white/10"
+                className={`p-4 rounded-full shadow-2xl transition-all duration-300 border ${isListening
+                    ? "bg-red-500 text-white animate-pulse border-red-400 shadow-red-500/50"
+                    : "bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border-white/10 hover:border-primary/50"
                     }`}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}

@@ -18,11 +18,8 @@ interface VideoGalleryProps {
 export function VideoGallery({ videos, title }: VideoGalleryProps) {
     const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
 
-    // Ensure the requested video is first
-    const sortedVideos = [
-        { id: "ipcPGVNjQjA", title: "IIT Guwahati Live Project", description: "Real-time performance and AI integration demo." },
-        ...videos.filter(v => v.id !== "ipcPGVNjQjA")
-    ];
+    // Use props directly instead of forcing a specific video
+    const sortedVideos = videos;
 
     return (
         <div className="w-full py-10">

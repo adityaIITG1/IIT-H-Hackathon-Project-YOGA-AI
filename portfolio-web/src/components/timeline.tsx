@@ -23,7 +23,7 @@ const experiences = [
         year: "2024",
         title: "Dual Degree Student",
         company: "AKTU & IIT Guwahati",
-        description: "Pursuing B.Tech in CSE (AI & ML) at AKTU (2nd Year) while simultaneously mastering Data Science at IIT Guwahati.",
+        description: "Pursuing B.Tech in CSE (AI & ML) at AKTU while simultaneously pursuing BS (Hons.) in Data Science & AI from IIT Guwahati (Regular degree in distance mode).",
         color: "text-green-400",
         glow: "shadow-[0_0_20px_rgba(74,222,128,0.5)]"
     }

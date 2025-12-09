@@ -1,25 +1,32 @@
-import { CinematicIntro } from "../components/cinematic-intro";
+import { IntroSequence } from "../components/intro-sequence";
 import { GuidedTour } from "../components/guided-tour";
 import { Hero } from "../components/hero";
 import { About } from "../components/about";
 import { Projects } from "../components/projects";
 import { Contact } from "../components/contact";
 import { ProjectShowcase } from "../components/project-showcase";
+import { TechStack } from "../components/tech-stack";
+import { PythonLibraries } from "../components/python-libraries";
 
 import { SpotlightEffect } from "../components/spotlight-effect";
 import { AiChatbot } from "../components/ai-chatbot";
 import { VoiceControl } from "../components/voice-control";
 
+import { Certificates } from "../components/certificates";
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground overflow-hidden">
-      <CinematicIntro />
+      <IntroSequence />
       <GuidedTour />
       <SpotlightEffect />
       <VoiceControl />
       <AiChatbot />
       <Hero />
       <About />
+      <Certificates />
+      <TechStack />
+      <PythonLibraries />
       <ProjectShowcase />
       <Projects />
       <Contact />

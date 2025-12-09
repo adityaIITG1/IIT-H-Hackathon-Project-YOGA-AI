@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { GlassCard } from "./ui/glass-card";
 import { Github, ExternalLink, Terminal, ArrowRight, Sparkles, Brain, Zap, Globe } from "lucide-react";
 
@@ -31,48 +31,49 @@ class SuperPrompt:
 const projects = [
     {
         title: "SustainifyAI",
-        description: "Bridging the gap between raw climate data and actionable governance. AI-driven insights for regions facing rapid environmental changes.",
+        description: "AI-driven climate analytics platform bridging the gap between raw data and actionable governance. Empowering regions with predictive insights for environmental resilience.",
         tags: ["Python", "AI", "Climate Data", "Governance"],
         color: "from-green-400 to-emerald-600",
         icon: <Globe className="w-6 h-6 text-white" />,
         link: "https://github.com/adityaIITG1/SustainifyAI"
     },
     {
-        title: "Digital Kuthputli",
-        description: "AI-Powered Rajasthani Puppetry. A puppet that comes alive through your bare hands using Computer Vision, preserving cultural heritage with tech.",
+        title: "Cash Flowcrew",
+        description: "The Savings Machine. Automated financial intelligence system that optimizes cash flow and savings strategies using predictive algorithms.",
+        tags: ["Finance", "Automation", "Predictive AI", "Savings"],
+        color: "from-green-500 to-teal-700",
+        icon: <Zap className="w-6 h-6 text-white" />,
+        link: "https://github.com/adityaIITG1" // Placeholder if specific repo not known, or user can update
+    },
+    {
+        title: "Digital Kuthputhli",
+        description: "Reviving Rajasthani puppetry with Computer Vision. Control digital puppets with bare hands, preserving cultural heritage through immersive tech.",
         tags: ["Python", "Computer Vision", "MediaPipe", "Culture Tech"],
         color: "from-orange-400 to-red-600",
-        icon: <Zap className="w-6 h-6 text-white" />,
+        icon: <Sparkles className="w-6 h-6 text-white" />,
         link: "https://github.com/adityaIITG1/Digital_Kuthputli"
     },
     {
-        title: "AstraPredictor",
-        description: "Military logistics forecasting system. Predicts supply needs (fuel, food, meds) for terrains like Siachen and Thar Desert using AI.",
-        tags: ["Python", "Predictive AI", "Logistics", "Defense"],
-        color: "from-blue-500 to-indigo-700",
-        icon: <Brain className="w-6 h-6 text-white" />,
-        link: "https://github.com/adityaIITG1/AstraPredictor"
-    },
-    {
-        title: "Personality Predictor",
-        description: "AI system that predicts Big 5 personality traits from Resumes (CV) using NLP and Machine Learning. Streamlining HR processes.",
-        tags: ["Python", "NLP", "Machine Learning", "Psychology"],
-        color: "from-purple-400 to-pink-600",
-        icon: <Sparkles className="w-6 h-6 text-white" />,
-        link: "https://github.com/adityaIITG1/personality-predictor"
-    },
-    {
-        title: "Touchless Cursor",
-        description: "Control your computer mouse with hand gestures. A CV-based accessibility tool for touchless interaction.",
+        title: "Touchless Air cursor",
+        description: "Next-gen HCI tool allowing full mouse control via hand gestures. Accessibility focused, enabling touchless interaction for a hygienic and futuristic experience.",
         tags: ["Python", "OpenCV", "HCI", "Accessibility"],
         color: "from-cyan-400 to-blue-600",
         icon: <Terminal className="w-6 h-6 text-white" />,
         link: "https://github.com/adityaIITG1/Touchless_Cursor"
+    },
+    {
+        title: "AstraPredictor",
+        description: "Military logistics forecasting for extreme terrains. AI models predicting supply chain needs for high-altitude operations.",
+        tags: ["Python", "Predictive AI", "Logistics", "Defense"],
+        color: "from-blue-500 to-indigo-700",
+        icon: <Brain className="w-6 h-6 text-white" />,
+        link: "https://github.com/adityaIITG1/AstraPredictor"
     }
 ];
 
 export function ProjectShowcase() {
     const [typedCode, setTypedCode] = useState("");
+    const [hoveredProject, setHoveredProject] = useState<string | null>(null);
 
     useEffect(() => {
         let i = 0;
@@ -84,8 +85,22 @@ export function ProjectShowcase() {
         return () => clearInterval(interval);
     }, []);
 
+    // Hover Redirect Logic
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (hoveredProject) {
+            timer = setTimeout(() => {
+                const project = projects.find(p => p.title === hoveredProject);
+                if (project && project.link) {
+                    window.open(project.link, '_blank');
+                }
+            }, 2500); // 2.5 seconds delay
+        }
+        return () => clearTimeout(timer);
+    }, [hoveredProject]);
+
     return (
-        <section id="projects" className="py-20 relative overflow-hidden">
+        <section id="project-showcase" className="py-20 relative overflow-hidden">
             <div className="container mx-auto px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -160,10 +175,36 @@ export function ProjectShowcase() {
                             key={project.title}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
+                            whileHover={{ y: -10, rotateX: 2, rotateY: -2, scale: 1.02 }}
                             viewport={{ once: true }}
-                            transition={{ delay: index * 0.1 }}
+                            transition={{ delay: index * 0.1, type: "spring", stiffness: 300 }}
+                            onMouseEnter={() => setHoveredProject(project.title)}
+                            onMouseLeave={() => setHoveredProject(null)}
+                            className="relative perspective-1000"
                         >
-                            <GlassCard className="h-full p-0 overflow-hidden group" hoverEffect>
+                            {/* Glow Effect */}
+                            <AnimatePresence>
+                                {hoveredProject === project.title && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        className={`absolute -inset-2 bg-gradient-to-r ${project.color} rounded-xl blur-lg opacity-50 z-[-1]`}
+                                    />
+                                )}
+                            </AnimatePresence>
+
+                            <GlassCard className="h-full p-0 overflow-hidden group relative" hoverEffect>
+                                {/* Progress Bar for Redirect */}
+                                {hoveredProject === project.title && (
+                                    <motion.div
+                                        initial={{ width: "0%" }}
+                                        animate={{ width: "100%" }}
+                                        transition={{ duration: 2.5, ease: "linear" }}
+                                        className="absolute top-0 left-0 h-1 bg-white z-50"
+                                    />
+                                )}
+
                                 {/* Visual Header */}
                                 <div className={`h-48 bg-gradient-to-br ${project.color} relative p-6 flex flex-col justify-between`}>
                                     <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
@@ -195,14 +236,21 @@ export function ProjectShowcase() {
                                             </span>
                                         ))}
                                     </div>
-                                    <a
-                                        href={project.link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:gap-3 transition-all"
-                                    >
-                                        View Project <ArrowRight className="w-4 h-4" />
-                                    </a>
+                                    <div className="flex items-center justify-between">
+                                        <a
+                                            href={project.link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:gap-3 transition-all"
+                                        >
+                                            View Project <ArrowRight className="w-4 h-4" />
+                                        </a>
+                                        {hoveredProject === project.title && (
+                                            <span className="text-xs text-gray-500 animate-pulse">
+                                                Opening in 2.5s...
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </GlassCard>
                         </motion.div>

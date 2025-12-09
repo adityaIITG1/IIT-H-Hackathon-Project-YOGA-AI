@@ -40,6 +40,18 @@ export function AiChatbot() {
         scrollToBottom();
     }, [messages]);
 
+    // Proactive Greeting Removed per user request
+    /*
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (!isOpen) {
+                setIsOpen(true);
+            }
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, []);
+    */
+
     useEffect(() => {
         const handleTrigger = (e: CustomEvent<{ message: string }>) => {
             setIsOpen(true);
