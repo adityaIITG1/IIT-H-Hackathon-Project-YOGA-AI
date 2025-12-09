@@ -212,7 +212,7 @@ export function AiChatbot() {
         <>
             {/* Positioned Responsive: Bottom-Right on Mobile (Stack above Tour), Bottom-Left on Desktop */}
             <motion.button
-                className="fixed bottom-24 right-8 md:bottom-8 md:left-32 z-50 group"
+                className="fixed bottom-24 right-8 md:right-auto md:bottom-8 md:left-32 z-50 group"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(true)}
