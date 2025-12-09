@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, X, Send, Bot, User } from "lucide-react";
+import { MessageSquare, X, Send, Bot, Sparkles, Hand } from "lucide-react";
 import { GlassCard } from "./ui/glass-card";
 
 interface Message {
@@ -11,22 +11,84 @@ interface Message {
     sender: "user" | "bot";
 }
 
-const KNOWLEDGE_BASE = {
-    default: "I'm Aditya's AI assistant. I can tell you about his skills, projects, or experience. Try asking 'What are his skills?' or 'Tell me about Yoga AI'.",
-    skills: "Aditya is a pro at Python, React, Next.js, and Generative AI. He's also a Prompt Engineering wizard!",
-    projects: "He has built amazing projects like Yoga AI (Computer Vision), Generative Art Engine, and this premium portfolio!",
-    experience: "He is a Dual Degree student at IIT Guwahati and AKTU, with over 2 years of experience in building AI-driven systems.",
-    contact: "You can reach him at iitianadityakumarsingh@gmail.com or connect on LinkedIn.",
-    python: "Yes! He has extensive experience with Python, especially for AI/ML and backend development.",
-    react: "He builds stunning UIs using React, Next.js, and Framer Motion (like this chatbot!).",
-    hello: "Hi there! How can I help you explore Aditya's portfolio?",
-    hi: "Hello! Ask me anything about Aditya.",
+// 🧠 The "LLM" Brain - Expanded Knowledge Base
+const PORTFOLIO_BRAIN = [
+    {
+        keywords: ["yoga", "pose", "correction", "cv", "computer vision", "health", "fitness"],
+        response: "The Yoga AI project is a flagship Computer Vision application. It uses MediaPipe and Python to detect 33+ body landmarks in real-time. It analyzes your posture (Asanas) and provides instant audio-visual feedback to correct your form. It's like having a personal yoga instructor in your pocket!"
+    },
+    {
+        keywords: ["skill", "stack", "technology", "tech", "react", "next", "python", "frontend", "backend"],
+        response: "Aditya is a full-stack wizard! 🧙‍♂️\n\n**Frontend:** React, Next.js, TypeScript, Tailwind, Framer Motion.\n**Backend:** Python, FastAPI, Node.js.\n**AI/ML:** TensorFlow, PyTorch, OpenCV, MediaPipe, LangChain.\n**Tools:** Docker, Git, AWS."
+    },
+    {
+        keywords: ["contact", "email", "reach", "hire", "job", "freelance"],
+        response: "You should definitely get in touch! You can email him at **iitianadityakumarsingh@gmail.com** or connect via LinkedIn. He's always open to exciting collaborations and opportunities."
+    },
+    {
+        keywords: ["about", "who", "bio", "background", "education", "study", "college"],
+        response: "Aditya is a Dual Degree student pursuing a BS in Data Science & AI at **IIT Guwahati** and B.Tech in CSE at AKTU. He combines academic rigor with practical engineering skills to build 'SOLID' software."
+    },
+    {
+        keywords: ["prompt", "engineer", "gpt", "llm", "generative"],
+        response: "Prompt Engineering is one of his supermarkets. He treats prompts as code, designing complex chains-of-thought to get the best out of LLMs. He's built several RAG systems and autonomous agents."
+    },
+    {
+        keywords: ["project", "work", "portfolio", "built"],
+        response: "Here are some highlights:\n1. **Yoga AI**: Real-time posture correction.\n2. **SustainifyAI**: Climate analytics platform.\n3. **Cash Flowcrew**: Automated financial intelligence.\n4. **Digital Kuthputhli**: Gesture-controlled digital puppetry.\n\nWhich one would you like to know more about?"
+    },
+    {
+        keywords: ["hello", "hi", "hey", "start", "greeting"],
+        response: "Hello! 👋 I'm the AI Assistant for this portfolio. I've been trained on Aditya's resume and codebase. Ask me anything about his projects, skills, or experience!"
+    },
+    {
+        keywords: ["sustainify", "climate", "analytics"],
+        response: "SustainifyAI is a powerful platform bridging raw climate data with actionable governance. It helps regions predict environmental challenges and building resilience using AI models."
+    },
+    {
+        keywords: ["fun", "hobby", "interest", "outside"],
+        response: "When not coding, Aditya loves exploring the intersection of art and tech (Generative Art), creating content for his YouTube channel, and practicing the very Yoga he builds apps for!"
+    }
+];
+
+// Fuzzy matching logic to simulate "understanding"
+const findSmartResponse = (input: string): string => {
+    const lowerInput = input.toLowerCase();
+
+    // 1. Direct Keyword Scoring
+    let bestMatch: typeof PORTFOLIO_BRAIN[0] | null = null;
+    let maxScore = 0;
+
+    PORTFOLIO_BRAIN.forEach((topic) => {
+        let score = 0;
+        topic.keywords.forEach(word => {
+            if (lowerInput.includes(word)) score += 1;
+        });
+
+        if (score > maxScore) {
+            maxScore = score;
+            bestMatch = topic;
+        }
+    });
+
+    if (maxScore > 0 && bestMatch) {
+        return bestMatch.response;
+    }
+
+    // 2. Fallback "Smart" Responses
+    const fallbacks = [
+        "That's a great question. While my database is focused on Aditya's professional profile, I can tell you he's a problem solver at heart. Ask me about his *Yoga AI* project!",
+        "I'm tuning my neural networks... 🧠 I don't have a specific answer for that, but I know Aditya loves tackling new challenges. Want to hear about his *Tech Stack*?",
+        "Interesting query! To keep things relevant to his work, try asking about his *Skills*, *Projects*, or *Education*."
+    ];
+
+    return fallbacks[Math.floor(Math.random() * fallbacks.length)];
 };
 
 export function AiChatbot() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
-        { id: "1", text: "Hi! I'm Aditya's AI Assistant. Ask me anything!", sender: "bot" },
+        { id: "1", text: "Hi! I'm Aditya's AI Assistant. 🤖 Ask me anything about his work!", sender: "bot" },
     ]);
     const [input, setInput] = useState("");
     const [isTyping, setIsTyping] = useState(false);
@@ -38,60 +100,7 @@ export function AiChatbot() {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
-
-    // Proactive Greeting Removed per user request
-    /*
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (!isOpen) {
-                setIsOpen(true);
-            }
-        }, 5000);
-        return () => clearTimeout(timer);
-    }, []);
-    */
-
-    useEffect(() => {
-        const handleTrigger = (e: CustomEvent<{ message: string }>) => {
-            setIsOpen(true);
-            const userMsg: Message = { id: Date.now().toString(), text: e.detail.message, sender: "user" };
-            setMessages((prev) => [...prev, userMsg]);
-            setIsTyping(true);
-
-            // Process the triggered message
-            setTimeout(() => {
-                const lowerInput = userMsg.text.toLowerCase();
-                let responseText = KNOWLEDGE_BASE.default;
-
-                if (lowerInput.includes("skill") || lowerInput.includes("stack")) responseText = KNOWLEDGE_BASE.skills;
-                else if (lowerInput.includes("project") || lowerInput.includes("work")) responseText = KNOWLEDGE_BASE.projects;
-                else if (lowerInput.includes("experience") || lowerInput.includes("background")) responseText = KNOWLEDGE_BASE.experience;
-                else if (lowerInput.includes("contact") || lowerInput.includes("email") || lowerInput.includes("reach")) responseText = KNOWLEDGE_BASE.contact;
-                else if (lowerInput.includes("python")) responseText = KNOWLEDGE_BASE.python;
-                else if (lowerInput.includes("react") || lowerInput.includes("next")) responseText = KNOWLEDGE_BASE.react;
-                else if (lowerInput.includes("hello") || lowerInput.includes("hey")) responseText = KNOWLEDGE_BASE.hello;
-                else if (lowerInput.includes("hi")) responseText = KNOWLEDGE_BASE.hi;
-                // Specific skill queries
-                else if (lowerInput.includes("tell me about aditya's experience with")) {
-                    const skill = lowerInput.split("with ")[1].replace("?", "");
-                    responseText = `Aditya is highly proficient in ${skill}. He has used it in multiple projects to build scalable and efficient solutions.`;
-                }
-                // Specific timeline queries
-                else if (lowerInput.includes("what did aditya achieve at")) {
-                    const company = lowerInput.split("at ")[1].replace("?", "");
-                    responseText = `At ${company}, Aditya worked on critical full-stack and data engineering tasks, delivering high-impact solutions.`;
-                }
-
-                const botMsg: Message = { id: (Date.now() + 1).toString(), text: responseText, sender: "bot" };
-                setMessages((prev) => [...prev, botMsg]);
-                setIsTyping(false);
-            }, 1500);
-        };
-
-        window.addEventListener("trigger-ai-chat" as any, handleTrigger as any);
-        return () => window.removeEventListener("trigger-ai-chat" as any, handleTrigger as any);
-    }, []);
+    }, [messages, isTyping]);
 
     const handleSend = async () => {
         if (!input.trim()) return;
@@ -101,81 +110,86 @@ export function AiChatbot() {
         setInput("");
         setIsTyping(true);
 
-        // Simulate AI processing
+        // Simulate "Thinking" delay
+        const delay = Math.random() * 1000 + 1000; // 1-2 seconds
+
         setTimeout(() => {
-            const lowerInput = userMsg.text.toLowerCase();
-            let responseText = KNOWLEDGE_BASE.default;
-
-            if (lowerInput.includes("skill") || lowerInput.includes("stack")) responseText = KNOWLEDGE_BASE.skills;
-            else if (lowerInput.includes("project") || lowerInput.includes("work")) responseText = KNOWLEDGE_BASE.projects;
-            else if (lowerInput.includes("experience") || lowerInput.includes("background")) responseText = KNOWLEDGE_BASE.experience;
-            else if (lowerInput.includes("contact") || lowerInput.includes("email") || lowerInput.includes("reach")) responseText = KNOWLEDGE_BASE.contact;
-            else if (lowerInput.includes("python")) responseText = KNOWLEDGE_BASE.python;
-            else if (lowerInput.includes("react") || lowerInput.includes("next")) responseText = KNOWLEDGE_BASE.react;
-            else if (lowerInput.includes("hello") || lowerInput.includes("hey")) responseText = KNOWLEDGE_BASE.hello;
-            else if (lowerInput.includes("hi")) responseText = KNOWLEDGE_BASE.hi;
-
+            const responseText = findSmartResponse(userMsg.text);
             const botMsg: Message = { id: (Date.now() + 1).toString(), text: responseText, sender: "bot" };
             setMessages((prev) => [...prev, botMsg]);
             setIsTyping(false);
-        }, 1000);
+        }, delay);
     };
 
     return (
         <>
-            {/* Floating Button */}
+            {/* 
+                Positioned Bottom-Left (near Mic)
+                Mic is likely around left-8, so we position this at left-28 to be close but distinct.
+            */}
             <motion.button
-                className="fixed bottom-6 right-6 p-4 rounded-full bg-gradient-to-r from-primary to-secondary text-white shadow-lg z-50 hover:scale-110 transition-transform"
+                className="fixed bottom-8 left-32 z-50 group"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(true)}
                 initial={{ opacity: 0, scale: 0 }}
-                animate={{
-                    opacity: 1,
-                    scale: 1,
-                    boxShadow: ["0px 0px 0px 0px rgba(59, 130, 246, 0.7)", "0px 0px 20px 10px rgba(59, 130, 246, 0)"]
-                }}
-                transition={{
-                    boxShadow: {
-                        duration: 2,
-                        repeat: Infinity,
-                        repeatType: "loop"
-                    }
-                }}
+                animate={{ opacity: 1, scale: 1 }}
             >
-                <MessageSquare className="w-6 h-6" />
-                <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                </span>
+                {/* The "Robot" Container */}
+                <div className="relative bg-black border border-primary/50 p-3 rounded-2xl shadow-[0_0_20px_rgba(139,92,246,0.5)] flex items-center gap-2 overflow-hidden">
+                    {/* Animated Gradient Background */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/20 animate-gradient-x" />
+
+                    {/* Robot Icon */}
+                    <div className="relative z-10 p-2 bg-gradient-to-br from-primary to-secondary rounded-xl">
+                        <Bot className="w-6 h-6 text-white" />
+                    </div>
+
+                    {/* Chat Bubble / "Hi" Text */}
+                    <div className="relative z-10 flex flex-col items-start pr-2">
+                        <span className="text-xs font-bold text-white leading-none">AI Chat</span>
+                        <span className="text-[10px] text-green-400 font-mono leading-none mt-1 flex items-center gap-1">
+                            Online <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                        </span>
+                    </div>
+
+                    {/* Waving Hand Badge */}
+                    <motion.div
+                        className="absolute -top-2 -right-2 bg-white text-black text-xs px-2 py-0.5 rounded-full border border-black z-20 shadow-lg flex items-center gap-1 font-bold"
+                        animate={{ rotate: [0, 15, -15, 0] }}
+                        transition={{ repeat: Infinity, duration: 2, repeatDelay: 1 }}
+                    >
+                        Hi! 👋
+                    </motion.div>
+                </div>
             </motion.button>
 
-            {/* Chat Window */}
+            {/* Chat Window - Moved to Bottom Left to match button */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        initial={{ opacity: 0, y: 20, scale: 0.9, x: -100 }}
+                        animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
                         exit={{ opacity: 0, y: 20, scale: 0.9 }}
-                        className="fixed bottom-24 right-6 w-80 md:w-96 z-50"
+                        className="fixed bottom-28 left-8 w-80 md:w-96 z-50 origin-bottom-left"
                     >
-                        <GlassCard className="flex flex-col h-[500px] border-primary/30 shadow-2xl overflow-hidden p-0">
+                        <GlassCard className="flex flex-col h-[500px] border-primary/30 shadow-2xl overflow-hidden p-0 bg-black/90 backdrop-blur-xl">
                             {/* Header */}
-                            <div className="p-4 bg-gradient-to-r from-primary/20 to-secondary/20 border-b border-white/10 flex justify-between items-center">
+                            <div className="p-4 bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-white/10 flex justify-between items-center">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-full bg-primary/20">
+                                    <div className="p-2 rounded-xl bg-primary/20 border border-primary/30">
                                         <Bot className="w-5 h-5 text-primary" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-white">Aditya AI</h3>
-                                        <p className="text-xs text-green-400 flex items-center gap-1">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /> Online
-                                        </p>
+                                        <h3 className="font-bold text-white flex items-center gap-2">
+                                            Aditya AI <Sparkles className="w-3 h-3 text-yellow-400" />
+                                        </h3>
+                                        <p className="text-xs text-secondary/80">Powered by Portfolio-GPT</p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={() => setIsOpen(false)}
-                                    className="p-1 rounded-full hover:bg-white/10 transition-colors"
+                                    className="p-2 rounded-full hover:bg-white/10 transition-colors"
                                 >
                                     <X className="w-5 h-5 text-gray-400" />
                                 </button>
@@ -189,21 +203,28 @@ export function AiChatbot() {
                                         className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
                                     >
                                         <div
-                                            className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.sender === "user"
-                                                ? "bg-primary text-white rounded-br-none"
-                                                : "bg-white/10 text-gray-200 rounded-bl-none border border-white/5"
+                                            className={`max-w-[85%] p-3.5 rounded-2xl text-sm leading-relaxed ${msg.sender === "user"
+                                                ? "bg-gradient-to-br from-primary to-primary/80 text-white rounded-br-none shadow-lg shadow-primary/20"
+                                                : "bg-[#1a1a1a] text-gray-200 rounded-bl-none border border-white/10 shadow-md"
                                                 }`}
                                         >
-                                            {msg.text}
+                                            {msg.sender === "bot" && (
+                                                <div className="mb-1 text-[10px] font-bold text-primary/80 uppercase tracking-wider flex items-center gap-1">
+                                                    <Bot className="w-3 h-3" /> AI Assistant
+                                                </div>
+                                            )}
+                                            {/* Render Markdown-like formatting simply */}
+                                            <div dangerouslySetInnerHTML={{ __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>') }} />
                                         </div>
                                     </div>
                                 ))}
                                 {isTyping && (
                                     <div className="flex justify-start">
-                                        <div className="bg-white/10 p-3 rounded-2xl rounded-bl-none border border-white/5 flex gap-1">
-                                            <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" />
-                                            <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce delay-100" />
-                                            <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce delay-200" />
+                                        <div className="bg-[#1a1a1a] p-4 rounded-2xl rounded-bl-none border border-white/10 flex gap-2 items-center">
+                                            <span className="text-xs text-gray-500 mr-2">Thinking...</span>
+                                            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" />
+                                            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce delay-100" />
+                                            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce delay-200" />
                                         </div>
                                     </div>
                                 )}
@@ -211,7 +232,7 @@ export function AiChatbot() {
                             </div>
 
                             {/* Input */}
-                            <div className="p-4 border-t border-white/10 bg-black/20">
+                            <div className="p-4 border-t border-white/10 bg-black/40">
                                 <form
                                     onSubmit={(e) => {
                                         e.preventDefault();
@@ -223,12 +244,12 @@ export function AiChatbot() {
                                         type="text"
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}
-                                        placeholder="Ask about Aditya..."
-                                        className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors"
+                                        placeholder="Ask me anything..."
+                                        className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all placeholder:text-gray-600"
                                     />
                                     <button
                                         type="submit"
-                                        className="p-2 rounded-full bg-primary text-white hover:bg-primary/80 transition-colors disabled:opacity-50"
+                                        className="p-3 rounded-xl bg-primary text-white hover:bg-primary/80 transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 shadow-lg shadow-primary/20"
                                         disabled={!input.trim() || isTyping}
                                     >
                                         <Send className="w-5 h-5" />
