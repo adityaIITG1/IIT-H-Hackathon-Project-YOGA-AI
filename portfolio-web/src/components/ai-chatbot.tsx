@@ -24,6 +24,14 @@ const KNOWLEDGE_GRAPH = [
         ]
     },
     {
+        id: "education",
+        patterns: ["education", "college", "degree", "university", "study", "iit", "aktu", "guwahati", "btech", "dual degree", "analyze this role"],
+        responses: [
+            "Aditya is pursuing a unique **Dual Degree** path! 🎓\n\n1. **BS in Data Science & AI** from **IIT Guwahati** (2024-2028)\n2. **B.Tech in CSE (AI & ML)** from **AKTU** (2024-2028)\n\nHe is managing both full-time degrees simultaneously, proving his dedication and time management skills! 🚀",
+            "He is a student at both **IIT Guwahati** (Data Science) and **AKTU** (CSE). This dual-track education gives him a strong foundation in both theoretical AI and practical software engineering."
+        ]
+    },
+    {
         id: "skills",
         patterns: ["skill", "stack", "technology", "tech", "coding", "language", "proficient", "what do you know"],
         responses: [
@@ -84,6 +92,38 @@ const KNOWLEDGE_GRAPH = [
         patterns: ["hobby", "fun", "interest", "free time", "game", "painting", "art"],
         responses: [
             "When AFK (Away From Keyboard), Aditya loves **Generative Art**, teaching tech on YouTube, and actually doing the Yoga poses his AI corrects! 🎨🧘‍♂️"
+        ]
+    },
+    {
+        id: "philosophy",
+        patterns: ["philosophy", "motto", "belief", "quote", "perspective", "coding style", "humor"],
+        responses: [
+            "\"Code is like humor. When you have to explain it, it’s bad.\" – Cory House. 🎭\nAditya lives by this. He writes clean, self-documenting code that speaks for itself.",
+            "He believes in bridging the gap between **Complex AI** and **User-Friendly Interfaces**. Technology should be powerful yet accessible."
+        ]
+    },
+    {
+        id: "tech_deep_dive",
+        patterns: ["why nextjs", "why next.js", "why python", "why react", "why typescript", "tech choice", "backend"],
+        responses: [
+            "**Why Next.js?** ⚡ For its server-side rendering and edge capabilities. It makes his AI apps blazing fast and SEO-friendly.\n**Why Python?** 🐍 It's the lingua franca of AI. He uses it for everything from Computer Vision (OpenCV) to Data Analysis (Pandas).",
+            "He matches the best tool for the job: **React/Next.js** for a premium frontend experience, and **Python/FastAPI** for heavy-lifting AI on the backend."
+        ]
+    },
+    {
+        id: "vision",
+        patterns: ["future", "goal", "aspiration", "learning", "next step", "aim", "ambition"],
+        responses: [
+            "Aditya is currently diving deep into **Advanced Computer Vision** and **Generative AI**. 🚀 His goal is to build autonomous agents that can see, understand, and act in the real world.",
+            "He aims to contribute to **Open Source AI** and democratize access to powerful tools like Yoga AI."
+        ]
+    },
+    {
+        id: "open_source",
+        patterns: ["open source", "contribution", "collaborate", "team", "community", "github"],
+        responses: [
+            "Aditya is big on Open Source! 🤝 He actively looks for collaborations in **AI/ML** projects. Check out his GitHub to see his latest commits and contributions.",
+            "Yes! 👯 He is currently looking to collaborate on **Open Source AI Projects**. If you have an exciting idea, reach out!"
         ]
     }
 ];
