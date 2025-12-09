@@ -220,26 +220,26 @@ export function AiChatbot() {
                 animate={{ opacity: 1, scale: 1 }}
             >
                 {/* The "Robot" Container */}
-                <div className="relative bg-black border border-primary/50 p-3 rounded-2xl shadow-[0_0_20px_rgba(139,92,246,0.5)] flex items-center gap-2 overflow-hidden hover:shadow-[0_0_30px_rgba(139,92,246,0.8)] transition-shadow">
+                <div className="relative bg-black border border-primary/50 p-2 rounded-2xl shadow-[0_0_20px_rgba(139,92,246,0.5)] flex items-center gap-2 overflow-hidden hover:shadow-[0_0_30px_rgba(139,92,246,0.8)] transition-shadow">
                     {/* Animated Gradient Background */}
                     <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/20 animate-gradient-x" />
 
                     {/* Robot Icon */}
-                    <div className="relative z-10 p-2 bg-gradient-to-br from-primary to-secondary rounded-xl">
-                        <BrainCircuit className="w-6 h-6 text-white animate-pulse" />
+                    <div className="relative z-10 p-1.5 bg-gradient-to-br from-primary to-secondary rounded-xl">
+                        <BrainCircuit className="w-5 h-5 text-white animate-pulse" />
                     </div>
 
                     {/* Chat Bubble / "Hi" Text */}
-                    <div className="relative z-10 flex flex-col items-start pr-2">
-                        <span className="text-xs font-bold text-white leading-none">AI Chat</span>
-                        <span className="text-[10px] text-green-400 font-mono leading-none mt-1 flex items-center gap-1">
-                            Ready <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                    <div className="relative z-10 flex flex-col items-start pr-1">
+                        <span className="text-[10px] font-bold text-white leading-none">AI Chat</span>
+                        <span className="text-[9px] text-green-400 font-mono leading-none mt-1 flex items-center gap-1">
+                            Ready <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
                         </span>
                     </div>
 
                     {/* Waving Hand Badge */}
                     <motion.div
-                        className="absolute -top-2 -right-2 bg-white text-black text-xs px-2 py-0.5 rounded-full border border-black z-20 shadow-lg flex items-center gap-1 font-bold"
+                        className="absolute -top-1 -right-1 bg-white text-black text-[10px] px-1.5 py-0 rounded-full border border-black z-20 shadow-lg flex items-center gap-0.5 font-bold"
                         animate={{ rotate: [0, 15, -15, 0] }}
                         transition={{ repeat: Infinity, duration: 2, repeatDelay: 1 }}
                     >
