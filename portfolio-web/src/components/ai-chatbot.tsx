@@ -19,7 +19,7 @@ const PORTFOLIO_BRAIN = [
     },
     {
         keywords: ["skill", "stack", "technology", "tech", "react", "next", "python", "frontend", "backend"],
-        response: "Aditya is a full-stack wizard! 🧙‍♂️\n\n**Frontend:** React, Next.js, TypeScript, Tailwind, Framer Motion.\n**Backend:** Python, FastAPI, Node.js.\n**AI/ML:** TensorFlow, PyTorch, OpenCV, MediaPipe, LangChain.\n**Tools:** Docker, Git, AWS."
+        response: "Aditya is a **Prompt Engineer** and **Data Science & AI/ML Aspirant** with exceptional prompting skills for coding! 🚀\n\n**Core Focus:** Generative AI, Computer Vision, Data Science.\n**Tech Stack:** Python, TensorFlow, PyTorch, MediaPipe, LangChain.\n**Web:** Next.js, React (for showcasing AI)."
     },
     {
         keywords: ["contact", "email", "reach", "hire", "job", "freelance"],
@@ -88,7 +88,7 @@ const findSmartResponse = (input: string): string => {
 export function AiChatbot() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
-        { id: "1", text: "Hi! I'm Aditya's AI Assistant. 🤖 Ask me anything about his work!", sender: "bot" },
+        { id: "1", text: "Hi! I'm Aditya's AI Assistant. 🤖 Powered by OpenAI. Ask me anything!", sender: "bot" },
     ]);
     const [input, setInput] = useState("");
     const [isTyping, setIsTyping] = useState(false);
@@ -102,6 +102,49 @@ export function AiChatbot() {
         scrollToBottom();
     }, [messages, isTyping]);
 
+    // Listen for custom event from Voice Control
+    useEffect(() => {
+        const handleTrigger = (e: CustomEvent<{ message: string }>) => {
+            setIsOpen(true);
+            const userText = e.detail.message;
+            if (!userText) return;
+
+            // Add user message
+            const userMsg: Message = { id: Date.now().toString(), text: userText, sender: "user" };
+            setMessages((prev) => [...prev, userMsg]);
+            setIsTyping(true);
+
+            // Call API
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userText }),
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    const botMsg: Message = {
+                        id: (Date.now() + 1).toString(),
+                        text: data.reply,
+                        sender: "bot"
+                    };
+                    setMessages((prev) => [...prev, botMsg]);
+                })
+                .catch(err => {
+                    const errorMsg: Message = {
+                        id: (Date.now() + 1).toString(),
+                        text: "⚠️ I'm having trouble connecting to my brain right now.",
+                        sender: "bot"
+                    };
+                    setMessages((prev) => [...prev, errorMsg]);
+                })
+                .finally(() => setIsTyping(false));
+        };
+
+        window.addEventListener("trigger-ai-chat" as any, handleTrigger as any);
+        return () => window.removeEventListener("trigger-ai-chat" as any, handleTrigger as any);
+    }, []);
+
     const handleSend = async () => {
         if (!input.trim()) return;
 
@@ -110,15 +153,35 @@ export function AiChatbot() {
         setInput("");
         setIsTyping(true);
 
-        // Simulate "Thinking" delay
-        const delay = Math.random() * 1000 + 1000; // 1-2 seconds
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userMsg.text }),
+            });
 
-        setTimeout(() => {
-            const responseText = findSmartResponse(userMsg.text);
-            const botMsg: Message = { id: (Date.now() + 1).toString(), text: responseText, sender: "bot" };
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error);
+
+            const botMsg: Message = {
+                id: (Date.now() + 1).toString(),
+                text: data.reply,
+                sender: "bot"
+            };
             setMessages((prev) => [...prev, botMsg]);
+
+        } catch (error) {
+            console.error(error);
+            const errorMsg: Message = {
+                id: (Date.now() + 1).toString(),
+                text: "⚠️ I'm having trouble connecting my brain...",
+                sender: "bot"
+            };
+            setMessages((prev) => [...prev, errorMsg]);
+        } finally {
             setIsTyping(false);
-        }, delay);
+        }
     };
 
     return (

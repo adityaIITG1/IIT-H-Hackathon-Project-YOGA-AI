@@ -74,7 +74,12 @@ export function VoiceControl() {
             }
 
             if (!foundSection) {
-                setFeedback("Command not understood. Try 'Go to About'...");
+                // Pass the useless/unknown query to the AI Chatbot
+                setFeedback("Asking AI Assistant...");
+                const event = new CustomEvent("trigger-ai-chat", {
+                    detail: { message: command }
+                });
+                window.dispatchEvent(event);
             }
         };
 
