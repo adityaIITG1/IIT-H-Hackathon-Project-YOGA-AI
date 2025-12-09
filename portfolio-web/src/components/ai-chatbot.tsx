@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, X, Send, Bot, Sparkles, Hand } from "lucide-react";
+import { MessageSquare, X, Send, Bot, Sparkles, Hand, BrainCircuit } from "lucide-react";
 import { GlassCard } from "./ui/glass-card";
 
 interface Message {
@@ -11,84 +11,152 @@ interface Message {
     sender: "user" | "bot";
 }
 
-// 🧠 The "LLM" Brain - Expanded Knowledge Base
-const PORTFOLIO_BRAIN = [
+// 🧠 THE NEURAL KNOWLEDGE GRAPH
+// This mimics an LLM's training data but structured for instant lookup.
+const KNOWLEDGE_GRAPH = [
     {
-        keywords: ["yoga", "pose", "correction", "cv", "computer vision", "health", "fitness"],
-        response: "The Yoga AI project is a flagship Computer Vision application. It uses MediaPipe and Python to detect 33+ body landmarks in real-time. It analyzes your posture (Asanas) and provides instant audio-visual feedback to correct your form. It's like having a personal yoga instructor in your pocket!"
+        id: "intro",
+        patterns: ["who is aditya", "about aditya", "tell me about yourself", "who are you", "profile", "bio", "introduction"],
+        responses: [
+            "Aditya is a **Prompt Engineer** and **Data Science & AI/ML Aspirant** who treats code like art! 🎨 He's currently pursuing a dual degree: BS in Data Science at IIT Guwahati and B.Tech in CSE at AKTU.",
+            "I'm the digital avatar of Aditya Kumar Singh. He is a passionate **AI Developer** and **Prompt Engineering wizard** focused on Generative AI and Computer Vision.",
+            "Aditya is a builder. 🛠️ From **Yoga AI** to this very chatbot, he combines deep technical skills in Python & AI with modern web tech like Next.js."
+        ]
     },
     {
-        keywords: ["skill", "stack", "technology", "tech", "react", "next", "python", "frontend", "backend"],
-        response: "Aditya is a **Prompt Engineer** and **Data Science & AI/ML Aspirant** with exceptional prompting skills for coding! 🚀\n\n**Core Focus:** Generative AI, Computer Vision, Data Science.\n**Tech Stack:** Python, TensorFlow, PyTorch, MediaPipe, LangChain.\n**Web:** Next.js, React (for showcasing AI)."
+        id: "skills",
+        patterns: ["skill", "stack", "technology", "tech", "coding", "language", "proficient", "what do you know"],
+        responses: [
+            "Aditya's tech stack is lethal! ⚡\n\n**AI/ML:** Python, TensorFlow, PyTorch, MediaPipe, OpenCV, LangChain.\n**Web:** Next.js 15, React 19, Tailwind CSS, Framer Motion.\n**Specialty:** Prompt Engineering & RAG Systems.",
+            "He is a **Prompt Engineering Specialist** 🧠. He knows how to talk to LLMs to get the best results (Chain-of-Thought, Few-Shot). He also masters Python for the backend and React for the frontend."
+        ]
     },
     {
-        keywords: ["contact", "email", "reach", "hire", "job", "freelance"],
-        response: "You should definitely get in touch! You can email him at **iitianadityakumarsingh@gmail.com** or connect via LinkedIn. He's always open to exciting collaborations and opportunities."
+        id: "yoga_ai",
+        patterns: ["yoga", "posture", "asana", "correction", "computer vision", "exercise", "health", "cv project"],
+        responses: [
+            "**Yoga AI** is his flagship project! 🧘‍♂️\nIt's a real-time Computer Vision app that detects 33+ body landmarks to correct your yoga posture instantly. It uses **MediaPipe** and calculates landmark geometry to give audio-visual feedback.",
+            "Ah, Yoga AI! It's currently detecting *Greatness* in this chat. 😉 But seriously, it's an advanced CV app that helps you perfect your Asanas using nothing but your webcam."
+        ]
     },
     {
-        keywords: ["about", "who", "bio", "background", "education", "study", "college"],
-        response: "Aditya is a Dual Degree student pursuing a BS in Data Science & AI at **IIT Guwahati** and B.Tech in CSE at AKTU. He combines academic rigor with practical engineering skills to build 'SOLID' software."
+        id: "prompt_engineering",
+        patterns: ["prompt", "engineer", "gpt", "llm", "generative", "gen ai"],
+        responses: [
+            "Aditya believes **Prompt Engineering** is the programming language of the future. 🔮 He designs complex agentic workflows (like me!) and builds systems that can reason and act, not just chat.",
+            "He is an expert in **Generative AI**. He builds meaningful applications on top of LLMs, ensuring reliability and intelligence."
+        ]
     },
     {
-        keywords: ["prompt", "engineer", "gpt", "llm", "generative"],
-        response: "Prompt Engineering is one of his supermarkets. He treats prompts as code, designing complex chains-of-thought to get the best out of LLMs. He's built several RAG systems and autonomous agents."
+        id: "projects",
+        patterns: ["project", "work", "portfolio", "built", "creation", "showcase"],
+        responses: [
+            "Check out these bangers: 🔥\n1. **Yoga AI** (Computer Vision Coach)\n2. **SustainifyAI** (Climate Analytics)\n3. **Cash Flowcrew** (Finance Intelligence)\n4. **Digital Kuthputhli** (Gesture Puppetry)\n\nWhich one sounds cool to you?",
+            "He has built a wide range of AI tools. From **HealthTech** (Yoga AI) to **FinTech** (Cash Flowcrew). He loves solving real-world problems with code."
+        ]
     },
     {
-        keywords: ["project", "work", "portfolio", "built"],
-        response: "Here are some highlights:\n1. **Yoga AI**: Real-time posture correction.\n2. **SustainifyAI**: Climate analytics platform.\n3. **Cash Flowcrew**: Automated financial intelligence.\n4. **Digital Kuthputhli**: Gesture-controlled digital puppetry.\n\nWhich one would you like to know more about?"
+        id: "contact",
+        patterns: ["contact", "email", "mail", "reach", "hire", "job", "message", "linkedin"],
+        responses: [
+            "You should definitely connect! 🤝\n📧 Email: **iitianadityakumarsingh@gmail.com**\n🔗 LinkedIn: Aditya Kumar Singh\nHe's always open to exciting collaborations!",
+            "Want to build something together? Drop him an email at **iitianadityakumarsingh@gmail.com**. He replies fast! ⚡"
+        ]
     },
     {
-        keywords: ["hello", "hi", "hey", "start", "greeting"],
-        response: "Hello! 👋 I'm the AI Assistant for this portfolio. I've been trained on Aditya's resume and codebase. Ask me anything about his projects, skills, or experience!"
+        id: "greeting",
+        patterns: ["hi", "hello", "hey", "hola", "namaste", "greetings", "yo"],
+        responses: [
+            "Hello there! 👋 I'm Aditya's AI Assistant. Ready to explore?",
+            "Hi! 🤖 Ask me anything about Aditya's work, skills, or projects.",
+            "Namaste! 🙏 How can I help you today?"
+        ]
     },
     {
-        keywords: ["sustainify", "climate", "analytics"],
-        response: "SustainifyAI is a powerful platform bridging raw climate data with actionable governance. It helps regions predict environmental challenges and building resilience using AI models."
+        id: "sustainify",
+        patterns: ["sustainify", "climate", "environment", "analytics"],
+        responses: [
+            "**SustainifyAI** is a platform for smarter governance. 🌍 It bridges raw climate data with actionable insights to help regions predict environmental challenges."
+        ]
     },
     {
-        keywords: ["fun", "hobby", "interest", "outside"],
-        response: "When not coding, Aditya loves exploring the intersection of art and tech (Generative Art), creating content for his YouTube channel, and practicing the very Yoga he builds apps for!"
+        id: "fun",
+        patterns: ["hobby", "fun", "interest", "free time", "game", "painting", "art"],
+        responses: [
+            "When AFK (Away From Keyboard), Aditya loves **Generative Art**, teaching tech on YouTube, and actually doing the Yoga poses his AI corrects! 🎨🧘‍♂️"
+        ]
     }
 ];
 
-// Fuzzy matching logic to simulate "understanding"
-const findSmartResponse = (input: string): string => {
-    const lowerInput = input.toLowerCase();
+// 🧠 NEURAL LOGIC ENGINE
+// Simulates LLM processing with fuzzy matching & context retention
+class NeuralEngine {
+    private lastTopic: string | null = null;
 
-    // 1. Direct Keyword Scoring
-    let bestMatch: typeof PORTFOLIO_BRAIN[0] | null = null;
-    let maxScore = 0;
+    process(input: string): string {
+        const lowerInput = input.toLowerCase();
 
-    PORTFOLIO_BRAIN.forEach((topic) => {
-        let score = 0;
-        topic.keywords.forEach(word => {
-            if (lowerInput.includes(word)) score += 1;
+        // 1. Scoring System
+        let bestMatch = null;
+        let maxScore = 0;
+
+        KNOWLEDGE_GRAPH.forEach(topic => {
+            let score = 0;
+            topic.patterns.forEach(pattern => {
+                if (lowerInput.includes(pattern)) score += 3; // Strong Match
+
+                // Fuzzy Word Match (Simulated)
+                const words = pattern.split(" ");
+                words.forEach(word => {
+                    if (word.length > 3 && lowerInput.includes(word)) score += 1; // Weak Match
+                });
+            });
+
+            if (score > maxScore) {
+                maxScore = score;
+                bestMatch = topic;
+            }
         });
 
-        if (score > maxScore) {
-            maxScore = score;
-            bestMatch = topic;
+        // 2. Context Handling
+        if (maxScore < 2 && this.lastTopic) {
+            // If the user says "tell me more" or "details", assume last topic
+            if (lowerInput.includes("more") || lowerInput.includes("detail") || lowerInput.includes("it")) {
+                const topic = KNOWLEDGE_GRAPH.find(t => t.id === this.lastTopic);
+                if (topic) return this.getRandomResponse(topic.responses) + " (Continuing from previous topic...)";
+            }
         }
-    });
 
-    if (maxScore > 0 && bestMatch) {
-        return bestMatch.response;
+        // 3. Response Generation
+        if (bestMatch && maxScore >= 2) {
+            this.lastTopic = bestMatch.id;
+            return this.getRandomResponse(bestMatch.responses);
+        }
+
+        // 4. Smart Fallback (Generative Illusion)
+        return this.generateFallback(lowerInput);
     }
 
-    // 2. Fallback "Smart" Responses
-    const fallbacks = [
-        "That's a great question. While my database is focused on Aditya's professional profile, I can tell you he's a problem solver at heart. Ask me about his *Yoga AI* project!",
-        "I'm tuning my neural networks... 🧠 I don't have a specific answer for that, but I know Aditya loves tackling new challenges. Want to hear about his *Tech Stack*?",
-        "Interesting query! To keep things relevant to his work, try asking about his *Skills*, *Projects*, or *Education*."
-    ];
+    private getRandomResponse(responses: string[]): string {
+        return responses[Math.floor(Math.random() * responses.length)];
+    }
 
-    return fallbacks[Math.floor(Math.random() * fallbacks.length)];
-};
+    private generateFallback(input: string): string {
+        const confusables = [
+            "That's outside my current training data, but I'm fascinated! 😲 Ask me about **Yoga AI** or **Prompt Engineering** instead.",
+            "I'm processing... 🧠 My neural pathways suggest asking about Aditya's **Skills** or **Projects** would yield better results!",
+            "Interesting query! While I can't generate code right now, I can tell you Aditya is a **Python & AI** expert. Want to know more about that?"
+        ];
+        return confusables[Math.floor(Math.random() * confusables.length)];
+    }
+}
+
+const brain = new NeuralEngine();
 
 export function AiChatbot() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
-        { id: "1", text: "Hi! I'm Aditya's AI Assistant. 🤖 Powered by OpenAI. Ask me anything!", sender: "bot" },
+        { id: "1", text: "Hi! I'm Aditya's AI Assistant. 🤖 Fully autonomous and ready to chat!", sender: "bot" },
     ]);
     const [input, setInput] = useState("");
     const [isTyping, setIsTyping] = useState(false);
@@ -102,94 +170,46 @@ export function AiChatbot() {
         scrollToBottom();
     }, [messages, isTyping]);
 
-    // Listen for custom event from Voice Control
+    // Listen for Voice Commands
     useEffect(() => {
         const handleTrigger = (e: CustomEvent<{ message: string }>) => {
             setIsOpen(true);
             const userText = e.detail.message;
             if (!userText) return;
-
-            // Add user message
-            const userMsg: Message = { id: Date.now().toString(), text: userText, sender: "user" };
-            setMessages((prev) => [...prev, userMsg]);
-            setIsTyping(true);
-
-            // Call API
-            fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userText }),
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.error) throw new Error(data.error);
-                    const botMsg: Message = {
-                        id: (Date.now() + 1).toString(),
-                        text: data.reply,
-                        sender: "bot"
-                    };
-                    setMessages((prev) => [...prev, botMsg]);
-                })
-                .catch(err => {
-                    const errorMsg: Message = {
-                        id: (Date.now() + 1).toString(),
-                        text: "⚠️ I'm having trouble connecting to my brain right now.",
-                        sender: "bot"
-                    };
-                    setMessages((prev) => [...prev, errorMsg]);
-                })
-                .finally(() => setIsTyping(false));
+            processMessage(userText);
         };
 
         window.addEventListener("trigger-ai-chat" as any, handleTrigger as any);
         return () => window.removeEventListener("trigger-ai-chat" as any, handleTrigger as any);
     }, []);
 
-    const handleSend = async () => {
-        if (!input.trim()) return;
-
-        const userMsg: Message = { id: Date.now().toString(), text: input, sender: "user" };
+    const processMessage = async (text: string) => {
+        // Add User Message
+        const userMsg: Message = { id: Date.now().toString(), text: text, sender: "user" };
         setMessages((prev) => [...prev, userMsg]);
         setInput("");
         setIsTyping(true);
 
-        try {
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userMsg.text }),
-            });
+        // Simulate Neural Processing Time
+        const processingTime = Math.random() * 500 + 800; // 0.8s - 1.3s for realism
 
-            const data = await response.json();
-
-            if (!response.ok) throw new Error(data.error);
-
-            const botMsg: Message = {
-                id: (Date.now() + 1).toString(),
-                text: data.reply,
-                sender: "bot"
-            };
+        setTimeout(() => {
+            const responseText = brain.process(text);
+            const botMsg: Message = { id: (Date.now() + 1).toString(), text: responseText, sender: "bot" };
             setMessages((prev) => [...prev, botMsg]);
-
-        } catch (error) {
-            console.error(error);
-            const errorMsg: Message = {
-                id: (Date.now() + 1).toString(),
-                text: "⚠️ I'm having trouble connecting my brain...",
-                sender: "bot"
-            };
-            setMessages((prev) => [...prev, errorMsg]);
-        } finally {
             setIsTyping(false);
-        }
+        }, processingTime);
+    };
+
+    const handleSend = (e?: React.FormEvent) => {
+        e?.preventDefault();
+        if (!input.trim()) return;
+        processMessage(input);
     };
 
     return (
         <>
-            {/* 
-                Positioned Bottom-Left (near Mic)
-                Mic is likely around left-8, so we position this at left-28 to be close but distinct.
-            */}
+            {/* Positioned Bottom-Left (near Mic) */}
             <motion.button
                 className="fixed bottom-8 left-32 z-50 group"
                 whileHover={{ scale: 1.1 }}
@@ -199,20 +219,20 @@ export function AiChatbot() {
                 animate={{ opacity: 1, scale: 1 }}
             >
                 {/* The "Robot" Container */}
-                <div className="relative bg-black border border-primary/50 p-3 rounded-2xl shadow-[0_0_20px_rgba(139,92,246,0.5)] flex items-center gap-2 overflow-hidden">
+                <div className="relative bg-black border border-primary/50 p-3 rounded-2xl shadow-[0_0_20px_rgba(139,92,246,0.5)] flex items-center gap-2 overflow-hidden hover:shadow-[0_0_30px_rgba(139,92,246,0.8)] transition-shadow">
                     {/* Animated Gradient Background */}
                     <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/20 animate-gradient-x" />
 
                     {/* Robot Icon */}
                     <div className="relative z-10 p-2 bg-gradient-to-br from-primary to-secondary rounded-xl">
-                        <Bot className="w-6 h-6 text-white" />
+                        <BrainCircuit className="w-6 h-6 text-white animate-pulse" />
                     </div>
 
                     {/* Chat Bubble / "Hi" Text */}
                     <div className="relative z-10 flex flex-col items-start pr-2">
                         <span className="text-xs font-bold text-white leading-none">AI Chat</span>
                         <span className="text-[10px] text-green-400 font-mono leading-none mt-1 flex items-center gap-1">
-                            Online <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                            Ready <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                         </span>
                     </div>
 
@@ -227,7 +247,7 @@ export function AiChatbot() {
                 </div>
             </motion.button>
 
-            {/* Chat Window - Moved to Bottom Left to match button */}
+            {/* Chat Window */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -247,7 +267,7 @@ export function AiChatbot() {
                                         <h3 className="font-bold text-white flex items-center gap-2">
                                             Aditya AI <Sparkles className="w-3 h-3 text-yellow-400" />
                                         </h3>
-                                        <p className="text-xs text-secondary/80">Powered by Portfolio-GPT</p>
+                                        <p className="text-xs text-secondary/80">Neural Logic Engine v2.0</p>
                                     </div>
                                 </div>
                                 <button
@@ -276,7 +296,7 @@ export function AiChatbot() {
                                                     <Bot className="w-3 h-3" /> AI Assistant
                                                 </div>
                                             )}
-                                            {/* Render Markdown-like formatting simply */}
+                                            {/* Simulate Typing Effect for long text could be added here, but simple render for now */}
                                             <div dangerouslySetInnerHTML={{ __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>') }} />
                                         </div>
                                     </div>
@@ -284,7 +304,7 @@ export function AiChatbot() {
                                 {isTyping && (
                                     <div className="flex justify-start">
                                         <div className="bg-[#1a1a1a] p-4 rounded-2xl rounded-bl-none border border-white/10 flex gap-2 items-center">
-                                            <span className="text-xs text-gray-500 mr-2">Thinking...</span>
+                                            <span className="text-xs text-gray-500 mr-2">Computing...</span>
                                             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" />
                                             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce delay-100" />
                                             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce delay-200" />
@@ -296,18 +316,12 @@ export function AiChatbot() {
 
                             {/* Input */}
                             <div className="p-4 border-t border-white/10 bg-black/40">
-                                <form
-                                    onSubmit={(e) => {
-                                        e.preventDefault();
-                                        handleSend();
-                                    }}
-                                    className="flex gap-2"
-                                >
+                                <form onSubmit={handleSend} className="flex gap-2">
                                     <input
                                         type="text"
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}
-                                        placeholder="Ask me anything..."
+                                        placeholder="Ask about Aditya..."
                                         className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all placeholder:text-gray-600"
                                     />
                                     <button
