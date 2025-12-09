@@ -97,7 +97,8 @@ class NeuralEngine {
         const lowerInput = input.toLowerCase();
 
         // 1. Scoring System
-        let bestMatch = null;
+        // 1. Scoring System
+        let bestMatch: typeof KNOWLEDGE_GRAPH[0] | null = null;
         let maxScore = 0;
 
         KNOWLEDGE_GRAPH.forEach(topic => {
@@ -209,9 +210,9 @@ export function AiChatbot() {
 
     return (
         <>
-            {/* Positioned Bottom-Left (near Mic) */}
+            {/* Positioned Responsive: Bottom-Right on Mobile (Stack above Tour), Bottom-Left on Desktop */}
             <motion.button
-                className="fixed bottom-8 left-32 z-50 group"
+                className="fixed bottom-24 right-8 md:bottom-8 md:left-32 z-50 group"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(true)}
@@ -247,14 +248,14 @@ export function AiChatbot() {
                 </div>
             </motion.button>
 
-            {/* Chat Window */}
+            {/* Chat Window - Responsive Positioning */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 20, scale: 0.9, x: -100 }}
+                        initial={{ opacity: 0, y: 20, scale: 0.9, x: 0 }}
                         animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
                         exit={{ opacity: 0, y: 20, scale: 0.9 }}
-                        className="fixed bottom-28 left-8 w-80 md:w-96 z-50 origin-bottom-left"
+                        className="fixed bottom-40 right-4 w-[90vw] md:w-96 md:bottom-28 md:left-8 md:right-auto z-50 origin-bottom-right md:origin-bottom-left"
                     >
                         <GlassCard className="flex flex-col h-[500px] border-primary/30 shadow-2xl overflow-hidden p-0 bg-black/90 backdrop-blur-xl">
                             {/* Header */}
