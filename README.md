@@ -64,7 +64,15 @@
     npm run dev
     ```
 
+
 4.  **Open [http://localhost:3000](http://localhost:3000)** to start your yoga session!
+
+### 🐍 Alternative: Run Native Python Version (`yogi.py`)
+If you encounter issues with the web version or want direct hardware sensor access:
+1.  Open the project folder in **VS Code**.
+2.  Open the file `yogi.py`.
+3.  Click the **▷ Run Button** (Play icon) in the top right corner.
+
 
 ---
 
