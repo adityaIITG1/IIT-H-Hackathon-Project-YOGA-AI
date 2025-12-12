@@ -73,14 +73,17 @@ If you encounter issues with the web version or want direct hardware sensor acce
 2.  Open the file `yogi.py`.
 3.  Click the **▷ Run Button** (Play icon) in the top right corner.
 
+> **Note for Judges:** 
+> Please also check our **Live Deployment** at [https://yogaii.vercel.app/](https://yogaii.vercel.app/) for the smoothest experience if you don't have the Python environment set up. It offers the same core AI features directly in the browser!
+
+
 
 ---
 
 ## 📸 Screenshots
 
-![Yoga AI Interface](https://raw.githubusercontent.com/adityaIITG1/YOGA-AI-IITH-HACATHON/main/public/screenshot_demo.png)
+<img src="yoga-ai-web/public/yogi_demo_v2.png" alt="Yoga AI Demo" width="100%" style="border-radius: 10px; border: 2px solid #00ff00;">
 
-*(The interface showing real-time Chakra tracking and Mudra guidance)*
 
 ## 🎥 Video Demonstration
 
