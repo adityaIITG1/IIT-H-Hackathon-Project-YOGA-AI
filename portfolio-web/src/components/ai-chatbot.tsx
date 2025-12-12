@@ -11,9 +11,15 @@ interface Message {
     sender: "user" | "bot";
 }
 
+interface KnowledgeNode {
+    id: string;
+    patterns: string[];
+    responses: string[];
+}
+
 // 🧠 THE NEURAL KNOWLEDGE GRAPH
 // This mimics an LLM's training data but structured for instant lookup.
-const KNOWLEDGE_GRAPH = [
+const KNOWLEDGE_GRAPH: KnowledgeNode[] = [
     {
         id: "intro",
         patterns: ["who is aditya", "about aditya", "tell me about yourself", "who are you", "profile", "bio", "introduction"],
@@ -60,7 +66,7 @@ const KNOWLEDGE_GRAPH = [
         patterns: ["project", "work", "portfolio", "built", "creation", "showcase"],
         responses: [
             "Check out these bangers: 🔥\n1. **Yoga AI** (Computer Vision Coach)\n2. **SustainifyAI** (Climate Analytics)\n3. **Cash Flowcrew** (Finance Intelligence)\n4. **Digital Kuthputhli** (Gesture Puppetry)\n\nWhich one sounds cool to you?",
-            "He has built a wide range of AI tools. From **HealthTech** (Yoga AI) to **FinTech** (Cash Flowcrew). He loves solving real-world problems with code."
+            "He is a builder. 🛠️ From **HealthTech** (Yoga AI) to **FinTech** (Cash Flowcrew). He loves solving real-world problems with code."
         ]
     },
     {
@@ -138,7 +144,8 @@ class NeuralEngine {
 
         // 1. Scoring System
         // 1. Scoring System
-        let bestMatch: typeof KNOWLEDGE_GRAPH[0] | null = null;
+        let bestMatch: KnowledgeNode | null = null;
+
         let maxScore = 0;
 
         KNOWLEDGE_GRAPH.forEach(topic => {
