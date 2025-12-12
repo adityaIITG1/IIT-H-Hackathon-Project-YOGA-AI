@@ -143,12 +143,11 @@ class NeuralEngine {
         const lowerInput = input.toLowerCase();
 
         // 1. Scoring System
-        // 1. Scoring System
         let bestMatch: KnowledgeNode | null = null;
 
         let maxScore = 0;
 
-        KNOWLEDGE_GRAPH.forEach(topic => {
+        for (const topic of KNOWLEDGE_GRAPH) {
             let score = 0;
             topic.patterns.forEach(pattern => {
                 if (lowerInput.includes(pattern)) score += 3; // Strong Match
@@ -164,7 +163,7 @@ class NeuralEngine {
                 maxScore = score;
                 bestMatch = topic;
             }
-        });
+        }
 
         // 2. Context Handling
         if (maxScore < 2 && this.lastTopic) {
