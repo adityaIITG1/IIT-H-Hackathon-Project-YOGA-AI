@@ -89,18 +89,19 @@ export function generateSmartCoachMessage(
 
     const weakestName = CHAKRA_NAMES[weakestIdx];
     const strongestName = CHAKRA_NAMES[strongestIdx];
+    const scripture = CHAKRA_SCRIPTURES[weakestIdx];
 
     if (alignmentMode) {
         return "✨ Alignment Mode: All chakras are being gently balanced...";
     }
 
     if (energies[weakestIdx] < 0.3) {
-        return `Tip: ${weakestName} is low. Try its gesture to recharge. (${moodLabel})`;
+        return `Tip: ${weakestName} is low. ${scripture.hinglish}. (${scripture.meaning}) (${moodLabel})`;
     }
 
     if (energies.every((e) => e > 0.7)) {
-        return `Beautiful! Your energy looks balanced. Stay with your breath. (${moodLabel})`;
+        return `Beautiful! Your energy looks balanced. ${scripture.sanskrit} - ${scripture.meaning}. (${moodLabel})`;
     }
 
-    return `Focus on breath. ${strongestName} is strong, ${weakestName} needs love. (${moodLabel})`;
+    return `Focus on breath. ${strongestName} is strong. For ${weakestName}: ${scripture.hinglish}. (${moodLabel})`;
 }

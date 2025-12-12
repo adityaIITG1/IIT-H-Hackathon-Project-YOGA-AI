@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { BILINGUAL_STATS_DESCRIPTIONS } from '../utils/chakra-data';
 
 interface BioAnalyticsPanelProps {
     heartRate: number;
@@ -75,6 +76,92 @@ export default function BioAnalyticsPanel({
     const botLookCycleRef = useRef(0);
     const typingCharCountRef = useRef(0);
     const lastInsightTextRef = useRef("");
+
+    // Voice State
+    const lastSpeakTimeRef = useRef(0);
+    const currentSpeakingGraphRef = useRef<string | null>(null);
+
+    const speak = (text: string) => {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // Stop current
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9; // Slower for clarity
+            // Try to find a female voice or Hindi voice
+            const voices = window.speechSynthesis.getVoices();
+            const preferredVoice = voices.find(v => v.lang.includes('hi') || v.name.includes('Google') || v.name.includes('Female'));
+            if (preferredVoice) utterance.voice = preferredVoice;
+            window.speechSynthesis.speak(utterance);
+        }
+    };
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const now = Date.now();
+
+        // Debounce: 5 seconds between repeats
+        if (now - lastSpeakTimeRef.current < 5000) return;
+
+        // Regions (aligned with drawing logic)
+        const graphW = 270;
+        const graphH = 40;
+        const startY = 100;
+        const gap = 8;
+        const graphX = 15;
+
+        // Check if hovering specific graphs
+        const checkRegion = (index: number, key: string, label: string) => {
+            const gy = startY + index * (graphH + gap);
+            if (x >= graphX && x <= graphX + graphW && y >= gy && y <= gy + graphH) {
+                if (currentSpeakingGraphRef.current !== key) {
+                    // @ts-ignore
+                    const text = BILINGUAL_STATS_DESCRIPTIONS[key];
+                    if (text) {
+                        speak(text);
+                        lastSpeakTimeRef.current = now;
+                        currentSpeakingGraphRef.current = key;
+                    }
+                }
+                return true;
+            }
+            return false;
+        };
+
+        if (checkRegion(0, 'heartRhythm', 'Heart Rhythm')) return;
+        if (checkRegion(1, 'stressLevel', 'Stress Level')) return;
+        if (checkRegion(2, 'pranaEnergy', 'Prana Energy')) return;
+        if (checkRegion(3, 'focusLevel', 'Focus Level')) return;
+        if (checkRegion(4, 'hrvIndex', 'HRV Index')) return;
+
+        // Nadi Pariksha
+        const tgY = startY + (graphH + gap) * 5 + 15;
+        if (y >= tgY && y <= tgY + 30) {
+            if (currentSpeakingGraphRef.current !== 'nadiPariksha') {
+                speak(BILINGUAL_STATS_DESCRIPTIONS.nadiPariksha);
+                lastSpeakTimeRef.current = now;
+                currentSpeakingGraphRef.current = 'nadiPariksha';
+            }
+            return;
+        }
+
+        // Energy Coherence (Radar)
+        const guideY = tgY + 55;
+        const coherenceY = guideY + 50;
+        const coherenceX = 150; // Center of panelW (300)
+        const dist = Math.sqrt(Math.pow(x - coherenceX, 2) + Math.pow(y - coherenceY, 2));
+        if (dist < 40) {
+            if (currentSpeakingGraphRef.current !== 'energyCoherence') {
+                speak(BILINGUAL_STATS_DESCRIPTIONS.energyCoherence);
+                lastSpeakTimeRef.current = now;
+                currentSpeakingGraphRef.current = 'energyCoherence';
+            }
+            return;
+        }
+
+        // Reset if hovering nothing
+        currentSpeakingGraphRef.current = null;
+    };
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -381,7 +468,10 @@ export default function BioAnalyticsPanel({
     }, []); // Empty dependency array for stable loop
 
     return (
-        <div className="relative w-[300px] h-[600px] bg-black/20 backdrop-blur-md border border-[#00d7ff]/30 rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,215,255,0.1)] transition-all duration-300">
+        <div
+            onMouseMove={handleMouseMove}
+            className="relative w-[300px] h-[600px] bg-black/20 backdrop-blur-md border border-[#00d7ff]/30 rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,215,255,0.1)] transition-all duration-300 pointer-events-auto"
+        >
             {/* Header */}
             <div className="absolute top-3 left-0 w-full text-center">
                 <h3 className="text-[#00ffff] font-sans text-xs font-bold tracking-widest opacity-80">BIO-ANALYTICS</h3>
