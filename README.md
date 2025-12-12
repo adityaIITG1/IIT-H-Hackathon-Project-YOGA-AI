@@ -46,6 +46,13 @@ We use a **MAX30100 / Pulse Sensor** to bring real physiological data into the A
 - ❤️ **Real-time Biofeedback:** Directly links your physical state to the digital Yoga experience.
 - 🧘 **Meditation Validation:** Verifies calmness through lowered heart rate variability.
 
+**Common Applications:**
+- ❤️ Heartbeat / Pulse detection
+- 🧘 Yoga & Meditation biofeedback systems
+- 🤖 Arduino / ESP32 health monitoring projects
+- 📊 Stress and Fitness tracking demos
+
+
 
 ---
 
