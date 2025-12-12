@@ -69,7 +69,17 @@
 
 ### 🐍 Other Option: Run Native Python App (`yogi.py`)
 If you encounter issues with the web version or want direct hardware sensor access:
+
+#### Prerequisites
+- **Python 3.8+** installed.
+- Install required libraries:
+  ```bash
+  pip install opencv-python mediapipe numpy pygame SpeechRecognition pyttsx3 pyserial pyaudio
+  ```
+
+#### Steps
 1.  Open the project folder in **VS Code**.
+
 2.  Open the file `yogi.py`.
 3.  Click the **▷ Run Button** (Play icon) in the top right corner.
 
