@@ -1,41 +1,56 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Node
+node_modules/
+.next/
+out/
+build/
+dist/
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
 
-# testing
-/coverage
+# Legacy Project Files (Ignored for Repo Cleanup)
+# Old Backend Scripts
+main1.py
+main2.py
+app.py
+train.py
+predict.py
+generate_om.py
+test_*.py
 
-# next.js
-/.next/
-/out/
+# Old Hardware Code
+arduino_*.ino
+i2c_scanner/
+arduino_heart_rate/
 
-# production
-/build
+# Old Web Project
+portfolio-web/
+Round2_Submission/
+Submission/
+predictions/
+runs/
+dataset/
 
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
+# Redundant Root Files (Belong to old structure)
+package-lock.json
+package.json
+tsconfig.json
+next.config.ts
+postcss.config.mjs
+eslint.config.mjs
 next-env.d.ts
+app/
+components/
+hooks/
+public/
+utils/
+types/
+
+# Models (Keep only if needed, user said remove old stuff)
+# Keeping yolov8n.pt / yolo11n.pt just in case yogi.py needs them implicitly, 
+# although grep didn't show it. Safe to ignore if not used.
+yolov8n.pt
+yolo11n.pt
