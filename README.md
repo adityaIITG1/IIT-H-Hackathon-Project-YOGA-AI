@@ -90,6 +90,18 @@ We use a **MAX30100 / Pulse Sensor** to bring real physiological data into the A
 
 4.  **Open [http://localhost:3000](http://localhost:3000)** to start your yoga session!
 
+### 🌍 Deployment (Vercel)
+Want to share this with the world? Deploying to Vercel is instant:
+
+1.  Push this repository to **GitHub**.
+2.  Go to [Vercel.com](https://vercel.com) and log in.
+3.  Click **"Add New..."** -> **"Project"**.
+4.  Import your `YOGA-AI-IITH-HACATHON` repository.
+5.  **Critical Setting:** In "Framework Preset", select **Next.js**.
+    - **Root Directory:** Edit this and select `yoga-ai-web`. (This is crucial as the web app lives in this subfolder).
+6.  Click **Deploy**.
+7.  Done! Your Yoga AI is live on the web.
+
 ### 🐍 Other Option: Run Native Python App (`yogi.py`)
 If you encounter issues with the web version or want direct hardware sensor access:
 
