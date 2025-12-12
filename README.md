@@ -31,6 +31,22 @@
 - **Chakra Visualization**: Beautiful, dynamic overlays showing the activation and balancing of your 7 Chakras.
 - **Meditation Rewards**: Unlock "Deep Meditation" states and earn energy bonuses.
 
+### 🔌 Hardware Integration (Bio-Feedback)
+We use a **MAX30100 / Pulse Sensor** to bring real physiological data into the AI experience.
+
+<img src="yoga-ai-web/public/sensor_demo.png" alt="Heart Rate Sensor" width="300" style="border-radius: 10px; border: 2px solid #ff0000; margin: 10px 0;">
+
+**How it Works (PPG Principle):**
+1.  **Photoplethysmography:** The sensor detects changes in blood flow volume in the microvascular bed of tissue.
+2.  **Light Intensity:** As your heart beats, blood flow changes, altering the intensity of reflected light.
+3.  **Signal Conversion:** This optical variation is converted into an electrical signal.
+4.  **Real-time Analysis:** The system calculates your **Heart Rate (BPM)** and **SpO2** instantly.
+
+**Why we use it:**
+- ❤️ **Real-time Biofeedback:** Directly links your physical state to the digital Yoga experience.
+- 🧘 **Meditation Validation:** Verifies calmness through lowered heart rate variability.
+
+
 ---
 
 ## 🛠️ Tech Stack
