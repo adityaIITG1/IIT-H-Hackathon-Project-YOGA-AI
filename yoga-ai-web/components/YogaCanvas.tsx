@@ -324,602 +324,615 @@ export default function YogaCanvas() {
         varunImg.src = "/varun_glow.png";
 
         const animate = () => {
-            if (
-                !canvasRef.current ||
-                !videoRef.current ||
-                videoRef.current.readyState < 2
-            ) {
-                requestRef.current = requestAnimationFrame(animate);
-                return;
-            }
+            try {
 
-            const canvas = canvasRef.current;
-            const ctx = canvas.getContext("2d");
-            const video = videoRef.current;
-
-            if (!ctx) return;
-
-            if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-            }
-
-            const width = canvas.width;
-            const height = canvas.height;
-            const t = (Date.now() - startTimeRef.current) / 1000;
-
-            // 1. Draw Video
-            ctx.save();
-            ctx.scale(-1, 1);
-            ctx.translate(-width, 0);
-            ctx.drawImage(video, 0, 0, width, height);
-            ctx.restore();
-
-            // 2. AI Detection (Throttled & Optimized)
-            const now = Date.now();
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            let handResults = lastHandResultsRef.current || { landmarks: [], worldLandmarks: [] };
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            let faceResults = lastFaceResultsRef.current || { faceLandmarks: [] };
-
-            // Throttle detection to every 66ms (approx 15fps checks, interleaved)
-            if (now - lastDetectionTimeRef.current > 66) {
-                lastDetectionTimeRef.current = now;
-
-                // Create/Update Offscreen Canvas for AI (640p - Balanced Peformance/Accuracy)
-                if (!offscreenCanvasRef.current) {
-                    offscreenCanvasRef.current = document.createElement('canvas');
-                    offscreenCanvasRef.current.width = 640;
-                    offscreenCanvasRef.current.height = 360;
+                if (
+                    !canvasRef.current ||
+                    !videoRef.current ||
+                    videoRef.current.readyState < 2
+                ) {
+                    requestRef.current = requestAnimationFrame(animate);
+                    return;
                 }
-                const offCtx = offscreenCanvasRef.current.getContext('2d');
-                if (offCtx) {
-                    offCtx.drawImage(video, 0, 0, 640, 360);
 
-                    // Interleaved Detection: Alternate between Hand and Face
-                    if (detectionCycleRef.current === 0) {
-                        // Cycle 0: Detect Hands
-                        const results = handLandmarker.detectForVideo(offscreenCanvasRef.current, now);
-                        if (results.landmarks) {
-                            handResults = results;
-                            lastHandResultsRef.current = handResults;
-                        }
-                        detectionCycleRef.current = 1;
-                    } else {
-                        // Cycle 1: Detect Face
-                        const results = faceLandmarker.detectForVideo(offscreenCanvasRef.current, now);
-                        if (results.faceLandmarks) {
-                            faceResults = results;
-                            lastFaceResultsRef.current = faceResults;
-                        }
-                        detectionCycleRef.current = 0;
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext("2d");
+                const video = videoRef.current;
+
+                if (!ctx) return;
+
+                if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                }
+
+                const width = canvas.width;
+                const height = canvas.height;
+                const t = (Date.now() - startTimeRef.current) / 1000;
+
+                // 1. Draw Video
+                ctx.save();
+                ctx.scale(-1, 1);
+                ctx.translate(-width, 0);
+                ctx.drawImage(video, 0, 0, width, height);
+                ctx.restore();
+
+                // 2. AI Detection (Throttled & Optimized)
+                const now = Date.now();
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                let handResults = lastHandResultsRef.current || { landmarks: [], worldLandmarks: [] };
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                let faceResults = lastFaceResultsRef.current || { faceLandmarks: [] };
+
+                // Throttle detection to every 66ms (approx 15fps checks, interleaved)
+                if (now - lastDetectionTimeRef.current > 66) {
+                    lastDetectionTimeRef.current = now;
+
+                    // Create/Update Offscreen Canvas for AI (640p - Balanced Peformance/Accuracy)
+                    if (!offscreenCanvasRef.current) {
+                        offscreenCanvasRef.current = document.createElement('canvas');
                     }
-                }
-            }
+                    if (offscreenCanvasRef.current.width !== 640 || offscreenCanvasRef.current.height !== 360) {
+                        offscreenCanvasRef.current.width = 640;
+                        offscreenCanvasRef.current.height = 360;
+                    }
+                    const offCtx = offscreenCanvasRef.current.getContext('2d');
+                    if (offCtx) {
+                        offCtx.drawImage(video, 0, 0, 640, 360);
 
-            let currentGesture = null;
-            let isEyesClosed = false;
-
-            // Hand Logic
-            if (handResults.landmarks) {
-                for (const landmarks of handResults.landmarks) {
-                    drawSmartTracking(ctx, landmarks, width, height);
-
-                    const g = classifyGesture(landmarks);
-                    if (g) {
-                        currentGesture = g;
-
-                        // [NEW] Draw Mudra Visuals (Brain/Sun/Prana/Apana/Varun)
-                        // Calculate Palm Center (Approx between Wrist 0 and Middle MCP 9)
-                        const wrist = landmarks[0];
-                        const middleMcp = landmarks[9];
-
-                        const cx = (wrist.x + middleMcp.x) / 2 * width;
-                        const cy = (wrist.y + middleMcp.y) / 2 * height;
-                        const size = 100; // Size of the icon
-
-                        ctx.save();
-                        ctx.globalAlpha = 0.9;
-
-                        if (g === "Gyan Mudra" && brainImg.complete) {
-                            ctx.drawImage(brainImg, cx - size / 2, cy - size / 2, size, size);
-                            ctx.shadowColor = "cyan";
-                            ctx.shadowBlur = 20;
-                        } else if (g === "Surya Mudra" && sunImg.complete) {
-                            ctx.drawImage(sunImg, cx - size / 2, cy - size / 2, size, size);
-                            ctx.shadowColor = "orange";
-                            ctx.shadowBlur = 20;
-                        } else if (g === "Prana Mudra" && pranaImg.complete) {
-                            ctx.drawImage(pranaImg, cx - size / 2, cy - size / 2, size, size);
-                            ctx.shadowColor = "#00ff00"; // Green
-                            ctx.shadowBlur = 20;
-
-                            // Spawn Nature Particles (DISABLED)
-                            /*
-                            if (Math.random() < 0.2) {
-                                particlesRef.current.push({
-                                    x: cx, y: cy,
-                                    vx: (Math.random() - 0.5) * 2,
-                                    vy: -1 - Math.random(), // Float up
-                                    life: 1.0,
-                                    type: "nature",
-                                    color: "rgba(50, 205, 50, 0.8)"
-                                });
+                        // Interleaved Detection: Alternate between Hand and Face
+                        if (detectionCycleRef.current === 0) {
+                            // Cycle 0: Detect Hands
+                            const results = handLandmarker.detectForVideo(offscreenCanvasRef.current, now);
+                            if (results.landmarks) {
+                                handResults = results;
+                                lastHandResultsRef.current = handResults;
                             }
-                            */
-                        } else if (g === "Apana Mudra" && apanaImg.complete) {
-                            ctx.drawImage(apanaImg, cx - size / 2, cy - size / 2, size, size);
-                            ctx.shadowColor = "#8b0000"; // Dark Red
-                            ctx.shadowBlur = 20;
-                        } else if (g === "Varun Mudra" && varunImg.complete) {
-                            ctx.drawImage(varunImg, cx - size / 2, cy - size / 2, size, size);
-                            ctx.shadowColor = "#00bfff"; // Deep Sky Blue
-                            ctx.shadowBlur = 20;
-
-                            // Spawn Water Particles (DISABLED)
-                            /*
-                            if (Math.random() < 0.3) {
-                                particlesRef.current.push({
-                                    x: cx, y: cy,
-                                    vx: (Math.random() - 0.5) * 2,
-                                    vy: 2 + Math.random() * 2, // Fall down
-                                    life: 1.0,
-                                    type: "water",
-                                    color: "rgba(0, 191, 255, 0.8)"
-                                });
+                            detectionCycleRef.current = 1;
+                        } else {
+                            // Cycle 1: Detect Face
+                            const results = faceLandmarker.detectForVideo(offscreenCanvasRef.current, now);
+                            if (results.faceLandmarks) {
+                                faceResults = results;
+                                lastFaceResultsRef.current = faceResults;
                             }
-                            */
+                            detectionCycleRef.current = 0;
                         }
-
-                        ctx.restore();
                     }
                 }
 
-                if (handResults.landmarks.length >= 2) {
-                    if (detectNamaste(handResults.landmarks)) {
-                        currentGesture = "Namaste / Anjali Mudra";
+                let currentGesture = null;
+                let isEyesClosed = false;
 
-                        // Screenshot Logic
-                        namasteHoldTimeRef.current += 16; // ~16ms per frame
+                // Hand Logic
+                if (handResults.landmarks) {
+                    for (const landmarks of handResults.landmarks) {
+                        drawSmartTracking(ctx, landmarks, width, height);
 
-                        // Sync state for UI (Progress Bar)
-                        if (namasteHoldTimeRef.current > 100) {
-                            setNamasteHoldTime(namasteHoldTimeRef.current);
+                        const g = classifyGesture(landmarks);
+                        if (g) {
+                            currentGesture = g;
+
+                            // [NEW] Draw Mudra Visuals (Brain/Sun/Prana/Apana/Varun)
+                            // Calculate Palm Center (Approx between Wrist 0 and Middle MCP 9)
+                            const wrist = landmarks[0];
+                            const middleMcp = landmarks[9];
+
+                            const cx = (wrist.x + middleMcp.x) / 2 * width;
+                            const cy = (wrist.y + middleMcp.y) / 2 * height;
+                            const size = 100; // Size of the icon
+
+                            ctx.save();
+                            ctx.globalAlpha = 0.9;
+
+                            if (g === "Gyan Mudra" && brainImg.complete) {
+                                ctx.drawImage(brainImg, cx - size / 2, cy - size / 2, size, size);
+                                ctx.shadowColor = "cyan";
+                                ctx.shadowBlur = 20;
+                            } else if (g === "Surya Mudra" && sunImg.complete) {
+                                ctx.drawImage(sunImg, cx - size / 2, cy - size / 2, size, size);
+                                ctx.shadowColor = "orange";
+                                ctx.shadowBlur = 20;
+                            } else if (g === "Prana Mudra" && pranaImg.complete) {
+                                ctx.drawImage(pranaImg, cx - size / 2, cy - size / 2, size, size);
+                                ctx.shadowColor = "#00ff00"; // Green
+                                ctx.shadowBlur = 20;
+
+                                // Spawn Nature Particles (DISABLED)
+                                /*
+                                if (Math.random() < 0.2) {
+                                    particlesRef.current.push({
+                                        x: cx, y: cy,
+                                        vx: (Math.random() - 0.5) * 2,
+                                        vy: -1 - Math.random(), // Float up
+                                        life: 1.0,
+                                        type: "nature",
+                                        color: "rgba(50, 205, 50, 0.8)"
+                                    });
+                                }
+                                */
+                            } else if (g === "Apana Mudra" && apanaImg.complete) {
+                                ctx.drawImage(apanaImg, cx - size / 2, cy - size / 2, size, size);
+                                ctx.shadowColor = "#8b0000"; // Dark Red
+                                ctx.shadowBlur = 20;
+                            } else if (g === "Varun Mudra" && varunImg.complete) {
+                                ctx.drawImage(varunImg, cx - size / 2, cy - size / 2, size, size);
+                                ctx.shadowColor = "#00bfff"; // Deep Sky Blue
+                                ctx.shadowBlur = 20;
+
+                                // Spawn Water Particles (DISABLED)
+                                /*
+                                if (Math.random() < 0.3) {
+                                    particlesRef.current.push({
+                                        x: cx, y: cy,
+                                        vx: (Math.random() - 0.5) * 2,
+                                        vy: 2 + Math.random() * 2, // Fall down
+                                        life: 1.0,
+                                        type: "water",
+                                        color: "rgba(0, 191, 255, 0.8)"
+                                    });
+                                }
+                                */
+                            }
+
+                            ctx.restore();
                         }
+                    }
 
-                        if (namasteHoldTimeRef.current > 1000) { // 1 second hold
-                            takeScreenshot();
-                            namasteHoldTimeRef.current = 0; // Reset
+                    if (handResults.landmarks.length >= 2) {
+                        if (detectNamaste(handResults.landmarks)) {
+                            currentGesture = "Namaste / Anjali Mudra";
+
+                            // Screenshot Logic
+                            namasteHoldTimeRef.current += 16; // ~16ms per frame
+
+                            // Sync state for UI (Progress Bar)
+                            if (namasteHoldTimeRef.current > 100) {
+                                setNamasteHoldTime(namasteHoldTimeRef.current);
+                            }
+
+                            if (namasteHoldTimeRef.current > 1000) { // 1 second hold
+                                takeScreenshot();
+                                namasteHoldTimeRef.current = 0; // Reset
+                                setNamasteHoldTime(0);
+                            }
+                        } else {
+                            namasteHoldTimeRef.current = 0;
                             setNamasteHoldTime(0);
                         }
                     } else {
                         namasteHoldTimeRef.current = 0;
                         setNamasteHoldTime(0);
                     }
-                } else {
-                    namasteHoldTimeRef.current = 0;
-                    setNamasteHoldTime(0);
                 }
-            }
 
-            // --- ELEMENTAL PARTICLES UPDATE & DRAW (DISABLED) ---
-            /*
-            if (particlesRef.current.length > 0) {
-                ctx.save();
-                particlesRef.current.forEach((p, i) => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.life -= 0.02;
-
-                    if (p.type === "nature") {
-                        // Leaf movement
-                        p.x += Math.sin(Date.now() / 200 + i) * 1;
-                    }
-
-                    ctx.fillStyle = p.color;
-                    ctx.globalAlpha = p.life;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.type === "water" ? 3 : 4, 0, 2 * Math.PI);
-                    ctx.fill();
-                });
-                // Remove dead particles
-                particlesRef.current = particlesRef.current.filter(p => p.life > 0);
-                ctx.restore();
-            }
-            */
-
-            // Face Logic
-            if (faceResults.faceLandmarks && faceResults.faceLandmarks.length > 0) {
-                const face = faceResults.faceLandmarks[0];
-                const analysis = analyzeFace(face);
-                isEyesClosed = analysis.isEyesClosed;
-
-                // --- THIRD EYE INTERFACE ---
-                const forehead = face[10];
-                const fx = forehead.x * width;
-                const fy = forehead.y * height;
-                const gazeX = analysis.gazeX || 0;
-
-                // Calculate Target
-                const targetX = width / 2 + gazeX * (width * 0.8);
-                const targetY = height * 0.6;
-                let targetLabel = null;
-
-                if (gazeX < -0.3) targetLabel = "Right"; // Screen Left
-                else if (gazeX > 0.3) targetLabel = "Left"; // Screen Right
-
-                thirdEyeRef.current.target = targetLabel;
-
-                // Draw Beam & Reticle
-                const beamColor = "rgba(255, 0, 255, 0.4)"; // Purple
-                const reticleColor = targetLabel ? "rgba(0, 255, 255, 0.8)" : "rgba(255, 255, 255, 0.3)";
-
-                ctx.save();
-                ctx.beginPath();
-                ctx.moveTo(fx, fy);
-                ctx.lineTo(targetX, targetY);
-                ctx.strokeStyle = beamColor;
-                ctx.lineWidth = 2;
-                ctx.setLineDash([5, 15]); // Dashed beam
-                ctx.stroke();
-                ctx.setLineDash([]);
-
-                // Reticle
-                ctx.beginPath();
-                ctx.arc(targetX, targetY, 15, 0, 2 * Math.PI);
-                ctx.strokeStyle = reticleColor;
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                if (targetLabel) {
-                    ctx.fillStyle = "cyan";
-                    ctx.font = "12px monospace";
-                    ctx.fillText(targetLabel === "Left" ? "FOCUS LEFT" : "FOCUS RIGHT", targetX - 40, targetY + 30);
-
-                    // Locked Indicator
-                    ctx.beginPath();
-                    ctx.arc(targetX, targetY, 5, 0, 2 * Math.PI);
-                    ctx.fillStyle = "white";
-                    ctx.fill();
-                }
-                ctx.restore();
-            }
-
-            // Meditation Logic (Stabilized)
-            if (isEyesClosed) {
-                eyesOpenTimeRef.current = 0; // Reset open timer
-                if (eyesClosedTimeRef.current === 0) eyesClosedTimeRef.current = now;
-
-                // Trigger meditation after 1 second of eyes closed
-                if (now - eyesClosedTimeRef.current > 1000) {
-                    isMeditationRef.current = true;
-                }
-            } else {
-                // Eyes are Open (or lost)
-                eyesClosedTimeRef.current = 0; // Reset closed timer
-
-                if (isMeditationRef.current) {
-                    // If currently meditating, use a SAFER safety buffer (2000ms)
-                    // This prevents "flickering" off due to camera noise
-                    if (eyesOpenTimeRef.current === 0) eyesOpenTimeRef.current = now;
-
-                    if (now - eyesOpenTimeRef.current > 2000) {
-                        isMeditationRef.current = false;
-
-                        // Only announce "Yoga Stopped" if NO gesture is active
-                        if (!currentGesture) {
-                            const msg = "Yoga band ho gaya hai. Meditation stopped.";
-                            setFeedback(msg);
-                            speak(msg);
-                        } else {
-                            setFeedback("Meditation ended. Maintaining Yoga pose.");
+                // --- ELEMENTAL PARTICLES UPDATE & DRAW (DISABLED) ---
+                /*
+                if (particlesRef.current.length > 0) {
+                    ctx.save();
+                    particlesRef.current.forEach((p, i) => {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.life -= 0.02;
+    
+                        if (p.type === "nature") {
+                            // Leaf movement
+                            p.x += Math.sin(Date.now() / 200 + i) * 1;
                         }
+    
+                        ctx.fillStyle = p.color;
+                        ctx.globalAlpha = p.life;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.type === "water" ? 3 : 4, 0, 2 * Math.PI);
+                        ctx.fill();
+                    });
+                    // Remove dead particles
+                    particlesRef.current = particlesRef.current.filter(p => p.life > 0);
+                    ctx.restore();
+                }
+                */
+
+                // Face Logic
+                if (faceResults.faceLandmarks && faceResults.faceLandmarks.length > 0) {
+                    const face = faceResults.faceLandmarks[0];
+                    const analysis = analyzeFace(face);
+                    isEyesClosed = analysis.isEyesClosed;
+
+                    // --- THIRD EYE INTERFACE ---
+                    const forehead = face[10];
+                    const fx = forehead.x * width;
+                    const fy = forehead.y * height;
+                    const gazeX = analysis.gazeX || 0;
+
+                    // Calculate Target
+                    const targetX = width / 2 + gazeX * (width * 0.8);
+                    const targetY = height * 0.6;
+                    let targetLabel = null;
+
+                    if (gazeX < -0.3) targetLabel = "Right"; // Screen Left
+                    else if (gazeX > 0.3) targetLabel = "Left"; // Screen Right
+
+                    thirdEyeRef.current.target = targetLabel;
+
+                    // Draw Beam & Reticle
+                    const beamColor = "rgba(255, 0, 255, 0.4)"; // Purple
+                    const reticleColor = targetLabel ? "rgba(0, 255, 255, 0.8)" : "rgba(255, 255, 255, 0.3)";
+
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(fx, fy);
+                    ctx.lineTo(targetX, targetY);
+                    ctx.strokeStyle = beamColor;
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 15]); // Dashed beam
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    // Reticle
+                    ctx.beginPath();
+                    ctx.arc(targetX, targetY, 15, 0, 2 * Math.PI);
+                    ctx.strokeStyle = reticleColor;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    if (targetLabel) {
+                        ctx.fillStyle = "cyan";
+                        ctx.font = "12px monospace";
+                        ctx.fillText(targetLabel === "Left" ? "FOCUS LEFT" : "FOCUS RIGHT", targetX - 40, targetY + 30);
+
+                        // Locked Indicator
+                        ctx.beginPath();
+                        ctx.arc(targetX, targetY, 5, 0, 2 * Math.PI);
+                        ctx.fillStyle = "white";
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                }
+
+                // Meditation Logic (Stabilized)
+                if (isEyesClosed) {
+                    eyesOpenTimeRef.current = 0; // Reset open timer
+                    if (eyesClosedTimeRef.current === 0) eyesClosedTimeRef.current = now;
+
+                    // Trigger meditation after 1 second of eyes closed
+                    if (now - eyesClosedTimeRef.current > 1000) {
+                        isMeditationRef.current = true;
                     }
                 } else {
-                    isMeditationRef.current = false;
-                }
-            }
+                    // Eyes are Open (or lost)
+                    eyesClosedTimeRef.current = 0; // Reset closed timer
 
-            // Gesture State Update with Hysteresis (Debounce)
-            if (currentGesture) {
-                if (pendingGestureRef.current !== currentGesture) {
-                    // New potential gesture detected, start timer
-                    pendingGestureRef.current = currentGesture;
-                    pendingGestureStartTimeRef.current = now;
-                } else {
-                    // Same pending gesture, check duration
-                    if (now - pendingGestureStartTimeRef.current > 300) { // 300ms stability required
-                        if (gestureRef.current !== currentGesture) {
-                            // Confirmed new gesture
-                            gestureRef.current = currentGesture;
-                            setGesture(currentGesture);
+                    if (isMeditationRef.current) {
+                        // If currently meditating, use a SAFER safety buffer (2000ms)
+                        // This prevents "flickering" off due to camera noise
+                        if (eyesOpenTimeRef.current === 0) eyesOpenTimeRef.current = now;
 
-                            const isGyan = currentGesture === "Gyan Mudra";
-                            const msg = generateSmartCoachMessage(energiesRef.current, "Calm", isMeditationRef.current, isGyan);
+                        if (now - eyesOpenTimeRef.current > 2000) {
+                            isMeditationRef.current = false;
 
-                            // Prevent repeating the same message too soon (10s)
-                            if (msg !== lastSpeechTextRef.current || now - lastSpeechTimeRef.current > 10000) {
+                            // Only announce "Yoga Stopped" if NO gesture is active
+                            if (!currentGesture) {
+                                const msg = "Yoga band ho gaya hai. Meditation stopped.";
                                 setFeedback(msg);
                                 speak(msg);
-                                lastSpeechTextRef.current = msg;
-                                lastSpeechTimeRef.current = now;
+                            } else {
+                                setFeedback("Meditation ended. Maintaining Yoga pose.");
+                            }
+                        }
+                    } else {
+                        isMeditationRef.current = false;
+                    }
+                }
+
+                // Gesture State Update with Hysteresis (Debounce)
+                if (currentGesture) {
+                    if (pendingGestureRef.current !== currentGesture) {
+                        // New potential gesture detected, start timer
+                        pendingGestureRef.current = currentGesture;
+                        pendingGestureStartTimeRef.current = now;
+                    } else {
+                        // Same pending gesture, check duration
+                        if (now - pendingGestureStartTimeRef.current > 300) { // 300ms stability required
+                            if (gestureRef.current !== currentGesture) {
+                                // Confirmed new gesture
+                                gestureRef.current = currentGesture;
+                                setGesture(currentGesture);
+
+                                const isGyan = currentGesture === "Gyan Mudra";
+                                const msg = generateSmartCoachMessage(energiesRef.current, "Calm", isMeditationRef.current, isGyan);
+
+                                // Prevent repeating the same message too soon (10s)
+                                if (msg !== lastSpeechTextRef.current || now - lastSpeechTimeRef.current > 10000) {
+                                    setFeedback(msg);
+                                    speak(msg);
+                                    lastSpeechTextRef.current = msg;
+                                    lastSpeechTimeRef.current = now;
+                                }
                             }
                         }
                     }
+                } else {
+                    // No gesture detected, reset pending if it was something
+                    pendingGestureRef.current = null;
+                    pendingGestureStartTimeRef.current = 0;
                 }
-            } else {
-                // No gesture detected, reset pending if it was something
-                pendingGestureRef.current = null;
-                pendingGestureStartTimeRef.current = 0;
-            }
 
-            if (isMeditationRef.current && gestureRef.current !== "Meditation") {
-                // Trigger speech for meditation start
-                gestureRef.current = "Meditation";
-                setGesture("Meditation");
-                const msg = "Deep meditation detected. Your energy is rising rapidly.";
+                if (isMeditationRef.current && gestureRef.current !== "Meditation") {
+                    // Trigger speech for meditation start
+                    gestureRef.current = "Meditation";
+                    setGesture("Meditation");
+                    const msg = "Deep meditation detected. Your energy is rising rapidly.";
 
-                if (msg !== lastSpeechTextRef.current || now - lastSpeechTimeRef.current > 10000) {
-                    setFeedback(msg);
-                    speak(msg);
-                    lastSpeechTextRef.current = msg;
-                    lastSpeechTimeRef.current = now;
-                }
-            }
-
-            // --- XP & LEVEL LOGIC ---
-            let xpGain = 0.0;
-            let warning = null;
-            const currentLevel = levelRef.current;
-            const XP_PER_LEVEL = 150;
-            const MAX_LEVEL = 20;
-
-            // Base XP for Posture (Proxy using face detection for now)
-            if (faceResults.faceLandmarks.length > 0) {
-                xpGain += 1.0;
-            }
-
-            // Bonus XP for Mudra
-            if (currentGesture) {
-                xpGain += 1.0;
-            }
-
-            // Bonus XP for Eyes Closed
-            if (isMeditationRef.current) {
-                xpGain += 2.0;
-            }
-
-            // Level Gating Logic
-            if (currentLevel >= 3 && currentLevel < 10) {
-                if (!currentGesture) {
-                    xpGain = 0;
-                    warning = "MUDRA REQUIRED TO PROGRESS!";
-                }
-            } else if (currentLevel >= 10) {
-                if (!isMeditationRef.current) {
-                    xpGain = 0;
-                    warning = "CLOSE EYES TO PROGRESS!";
-                }
-            }
-
-            // Apply XP
-            if (currentLevel < MAX_LEVEL) {
-                xpRef.current += xpGain;
-
-                // Check Level Up
-                const calculatedLevel = Math.floor(xpRef.current / XP_PER_LEVEL) + 1;
-                const cappedLevel = Math.min(MAX_LEVEL, calculatedLevel);
-
-                if (cappedLevel > levelRef.current) {
-                    levelRef.current = cappedLevel;
-                    const msg = `Congratulations! You reached Level ${cappedLevel}.`;
-                    setFeedback(msg);
-                    speak(msg);
-                }
-            }
-            warningMsgRef.current = warning;
-
-            // 3. Logic: Aura & Energy
-            const isYogaMode = !!currentGesture || isMeditationRef.current;
-
-            // Aura Dynamics
-            if (isYogaMode) {
-                auraIntensityRef.current = Math.min(1.0, auraIntensityRef.current + 0.08); // Faster Rise
-            } else {
-                auraIntensityRef.current = Math.max(0.0, auraIntensityRef.current - 0.08); // Faster Fade
-            }
-
-            // Energy Dynamics (Strict Caps & Rapid Decay)
-            const energies = energiesRef.current;
-            let allBalanced = true;
-
-            // Determine Max Cap based on State
-            let energyCap = 0.1; // Default: Distracted / No Focus
-            let decayRate = 0.05; // Rapid Decay by default
-
-            // [NEW] Energy Peak & Applause Logic
-            let riseRate = 0.005; // Default slow rise
-
-            if (isMeditationRef.current && gestureRef.current) {
-                // "Deep Meditation" State
-                energyCap = 1.0;
-                riseRate = 0.05; // Extremely fast rise (Peak)
-
-                // Trigger Applause if not already triggered recently
-                if (energiesRef.current[0] > 0.95) {
-                    const now = Date.now();
-                    if (now - lastSpeechTimeRef.current > 15000) { // 15s cooldown
-                        const msg = "Excellent! Deep Meditation Achieved.";
+                    if (msg !== lastSpeechTextRef.current || now - lastSpeechTimeRef.current > 10000) {
                         setFeedback(msg);
                         speak(msg);
-                        lastSpeechTimeRef.current = now;
                         lastSpeechTextRef.current = msg;
+                        lastSpeechTimeRef.current = now;
                     }
                 }
-            } else if (isMeditationRef.current) {
-                energyCap = 1.0; // 100% - Eyes Closed (Meditation)
-                decayRate = 0.0; // No decay, rising
-                riseRate = 0.02; // Fast rise
-            } else if (currentGesture) {
-                energyCap = 0.6; // 60% - Mudra Active
-                decayRate = 0.01; // Slow decay if fluctuating
-                riseRate = 0.01; // Moderate rise
-            } else if (faceResults.faceLandmarks.length > 0) {
-                energyCap = 0.3; // 30% - Face Detected (Good Posture Proxy)
-                decayRate = 0.02; // Moderate decay
-                riseRate = 0.005; // Slow rise
-            }
 
-            // Apply Energy Logic
-            for (let i = 0; i < 7; i++) {
-                if (energies[i] < energyCap) {
-                    // Specific Chakra Boost for Mudras
-                    let currentRise = riseRate;
-                    if (currentGesture === "Gyan Mudra" && (i === 0 || i === 6)) {
-                        currentRise = 0.01; // Boost Root & Crown
-                    }
+                // --- XP & LEVEL LOGIC ---
+                let xpGain = 0.0;
+                let warning = null;
+                const currentLevel = levelRef.current;
+                const XP_PER_LEVEL = 150;
+                const MAX_LEVEL = 20;
 
-                    energies[i] = Math.min(energyCap, energies[i] + currentRise);
-                } else if (energies[i] > energyCap) {
-                    // Decay Logic (Rapid Drop if cap lowered)
-                    energies[i] = Math.max(energyCap, energies[i] - decayRate);
+                // Base XP for Posture (Proxy using face detection for now)
+                if (faceResults.faceLandmarks.length > 0) {
+                    xpGain += 1.0;
                 }
 
-                if (energies[i] < 0.95) allBalanced = false;
-            }
+                // Bonus XP for Mudra
+                if (currentGesture) {
+                    xpGain += 1.0;
+                }
 
-            // Check for Full Balance Event
-            if (allBalanced && gestureRef.current !== "Balanced") {
-                gestureRef.current = "Balanced";
-                const msg = "All Chakras are perfectly balanced. You are in harmony.";
-                setFeedback(msg);
-                speak(msg);
-            }
-
-            // Sync UI occasionally (every 10 frames)
-            if (Math.floor(t * 30) % 10 === 0) {
-                setUiEnergies([...energies]);
-
-                // Update Session Time
-                const elapsedMin = (Date.now() - startTimeRef.current) / 60000;
-                setSessionTime(`${elapsedMin.toFixed(1)} min`);
-
-                // Update Mood & Posture
+                // Bonus XP for Eyes Closed
                 if (isMeditationRef.current) {
-                    setMood("Deep Peace");
-                    setPosture("Lotus");
-                } else if (currentGesture) {
-                    setMood("Focused");
-                    setPosture("Asana");
-                } else if (faceResults.faceLandmarks.length > 0) {
-                    setMood("Calm");
-                    setPosture("Good");
-                } else {
-                    setMood("Distracted");
-                    setPosture("Poor");
+                    xpGain += 2.0;
                 }
-            }
 
-            // 4. Render UI Overlays
-            // Level Progress Bar
-            const progress = (xpRef.current % XP_PER_LEVEL) / XP_PER_LEVEL * 100;
-            setLevelProgress(progress);
-            setLevel(levelRef.current);
-            setWarningMsg(warning);
-
-            // Aura
-            if (auraIntensityRef.current > 0.01) {
-                ctx.save();
-                const cx = width / 2;
-                const cy = height / 2;
-                const maxRadius = Math.max(width, height) * 0.8;
-                const gradient = ctx.createRadialGradient(cx, cy, 100, cx, cy, maxRadius);
-                gradient.addColorStop(0, `rgba(255, 215, 0, ${auraIntensityRef.current * 0.3})`); // Gold center
-                gradient.addColorStop(0.5, `rgba(255, 140, 0, ${auraIntensityRef.current * 0.1})`); // Orange mid
-                gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
-
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, width, height);
-                ctx.restore();
-            }
-
-            // Speed factor depends on yoga mode
-            const speedFactor = isYogaMode ? 2.0 : 0.5;
-
-            drawUniverse(ctx, width, height, t, speedFactor);
-            const breathFactor = 1.0 + 0.1 * Math.sin(t * 0.8);
-
-            drawChakras(
-                ctx,
-                width * 0.5,
-                height * 0.2,
-                height * 0.8,
-                activeIndexRef.current,
-                energies,
-                breathFactor,
-                t
-            );
-
-            // --- KUMBHAKA (Breath Retention) LOGIC ---
-            let isTouchingNose = false;
-            if (faceResults.faceLandmarks.length > 0 && handResults.landmarks.length > 0) {
-                const noseTip = faceResults.faceLandmarks[0][4]; // Nose Tip
-
-                for (const hand of handResults.landmarks) {
-                    const indexTip = hand[8]; // Index Finger Tip
-                    const thumbTip = hand[4]; // Thumb Tip
-
-                    // Check distance to Index or Thumb
-                    const distIndex = Math.hypot(noseTip.x - indexTip.x, noseTip.y - indexTip.y);
-                    const distThumb = Math.hypot(noseTip.x - thumbTip.x, noseTip.y - thumbTip.y);
-
-                    if (distIndex < 0.05 || distThumb < 0.05) { // Threshold
-                        isTouchingNose = true;
-                        break;
+                // Level Gating Logic
+                if (currentLevel >= 3 && currentLevel < 10) {
+                    if (!currentGesture) {
+                        xpGain = 0;
+                        warning = "MUDRA REQUIRED TO PROGRESS!";
+                    }
+                } else if (currentLevel >= 10) {
+                    if (!isMeditationRef.current) {
+                        xpGain = 0;
+                        warning = "CLOSE EYES TO PROGRESS!";
                     }
                 }
-            }
 
-            // Update Prana Value
-            if (isTouchingNose) {
-                pranaRef.current = Math.min(100, pranaRef.current + 0.5);
-            } else {
-                pranaRef.current = Math.max(0, pranaRef.current - 1.0);
-            }
+                // Apply XP
+                if (currentLevel < MAX_LEVEL) {
+                    xpRef.current += xpGain;
 
-            // Draw Kumbhaka Bar
-            if (pranaRef.current > 0) {
-                const barW = 300;
-                const barH = 20;
-                const barX = canvas.width / 2 - barW / 2;
-                const barY = canvas.height - 150;
+                    // Check Level Up
+                    const calculatedLevel = Math.floor(xpRef.current / XP_PER_LEVEL) + 1;
+                    const cappedLevel = Math.min(MAX_LEVEL, calculatedLevel);
 
-                // Label
-                ctx.fillStyle = "rgba(0, 255, 255, 1)";
-                ctx.font = "bold 16px monospace";
-                ctx.textAlign = "center";
-                ctx.fillText(isTouchingNose ? "KUMBHAKA ACTIVE: HOLD BREATH" : "PRANA DISSIPATING...", canvas.width / 2, barY - 10);
-
-                // Bar Background
-                ctx.fillStyle = "rgba(0, 50, 50, 0.8)";
-                ctx.fillRect(barX, barY, barW, barH);
-                ctx.strokeStyle = "rgba(0, 255, 255, 0.5)";
-                ctx.strokeRect(barX, barY, barW, barH);
-
-                // Bar Fill
-                ctx.fillStyle = isTouchingNose ? "rgba(0, 255, 255, 1)" : "rgba(0, 150, 150, 0.8)";
-                ctx.fillRect(barX, barY, (pranaRef.current / 100) * barW, barH);
-
-                // Glow
-                if (isTouchingNose) {
-                    ctx.shadowColor = "rgba(0, 255, 255, 0.8)";
-                    ctx.shadowBlur = 15;
-                    ctx.fillRect(barX, barY, (pranaRef.current / 100) * barW, barH);
-                    ctx.shadowBlur = 0;
+                    if (cappedLevel > levelRef.current) {
+                        levelRef.current = cappedLevel;
+                        const msg = `Congratulations! You reached Level ${cappedLevel}.`;
+                        setFeedback(msg);
+                        speak(msg);
+                    }
                 }
-            }
+                warningMsgRef.current = warning;
 
-            requestRef.current = requestAnimationFrame(animate);
+                // 3. Logic: Aura & Energy
+                const isYogaMode = !!currentGesture || isMeditationRef.current;
+
+                // Aura Dynamics
+                if (isYogaMode) {
+                    auraIntensityRef.current = Math.min(1.0, auraIntensityRef.current + 0.08); // Faster Rise
+                } else {
+                    auraIntensityRef.current = Math.max(0.0, auraIntensityRef.current - 0.08); // Faster Fade
+                }
+
+                // Energy Dynamics (Strict Caps & Rapid Decay)
+                const energies = energiesRef.current;
+                let allBalanced = true;
+
+                // Determine Max Cap based on State
+                let energyCap = 0.1; // Default: Distracted / No Focus
+                let decayRate = 0.05; // Rapid Decay by default
+
+                // [NEW] Energy Peak & Applause Logic
+                let riseRate = 0.005; // Default slow rise
+
+                if (isMeditationRef.current && gestureRef.current) {
+                    // "Deep Meditation" State
+                    energyCap = 1.0;
+                    riseRate = 0.05; // Extremely fast rise (Peak)
+
+                    // Trigger Applause if not already triggered recently
+                    if (energiesRef.current[0] > 0.95) {
+                        const now = Date.now();
+                        if (now - lastSpeechTimeRef.current > 15000) { // 15s cooldown
+                            const msg = "Excellent! Deep Meditation Achieved.";
+                            setFeedback(msg);
+                            speak(msg);
+                            lastSpeechTimeRef.current = now;
+                            lastSpeechTextRef.current = msg;
+                        }
+                    }
+                } else if (isMeditationRef.current) {
+                    energyCap = 1.0; // 100% - Eyes Closed (Meditation)
+                    decayRate = 0.0; // No decay, rising
+                    riseRate = 0.02; // Fast rise
+                } else if (currentGesture) {
+                    energyCap = 0.6; // 60% - Mudra Active
+                    decayRate = 0.01; // Slow decay if fluctuating
+                    riseRate = 0.01; // Moderate rise
+                } else if (faceResults.faceLandmarks.length > 0) {
+                    energyCap = 0.3; // 30% - Face Detected (Good Posture Proxy)
+                    decayRate = 0.02; // Moderate decay
+                    riseRate = 0.005; // Slow rise
+                }
+
+                // Apply Energy Logic
+                for (let i = 0; i < 7; i++) {
+                    if (energies[i] < energyCap) {
+                        // Specific Chakra Boost for Mudras
+                        let currentRise = riseRate;
+                        if (currentGesture === "Gyan Mudra" && (i === 0 || i === 6)) {
+                            currentRise = 0.01; // Boost Root & Crown
+                        }
+
+                        energies[i] = Math.min(energyCap, energies[i] + currentRise);
+                    } else if (energies[i] > energyCap) {
+                        // Decay Logic (Rapid Drop if cap lowered)
+                        energies[i] = Math.max(energyCap, energies[i] - decayRate);
+                    }
+
+                    if (energies[i] < 0.95) allBalanced = false;
+                }
+
+                // Check for Full Balance Event
+                if (allBalanced && gestureRef.current !== "Balanced") {
+                    gestureRef.current = "Balanced";
+                    const msg = "All Chakras are perfectly balanced. You are in harmony.";
+                    setFeedback(msg);
+                    speak(msg);
+                }
+
+                // Sync UI occasionally (every 10 frames)
+                if (Math.floor(t * 30) % 10 === 0) {
+                    setUiEnergies([...energies]);
+
+                    // Update Session Time
+                    const elapsedMin = (Date.now() - startTimeRef.current) / 60000;
+                    setSessionTime(`${elapsedMin.toFixed(1)} min`);
+
+                    // Update Mood & Posture
+                    if (isMeditationRef.current) {
+                        setMood("Deep Peace");
+                        setPosture("Lotus");
+                    } else if (currentGesture) {
+                        setMood("Focused");
+                        setPosture("Asana");
+                    } else if (faceResults.faceLandmarks.length > 0) {
+                        setMood("Calm");
+                        setPosture("Good");
+                    } else {
+                        setMood("Distracted");
+                        setPosture("Poor");
+                    }
+                }
+
+                // 4. Render UI Overlays
+                // Level Progress Bar
+                const progress = (xpRef.current % XP_PER_LEVEL) / XP_PER_LEVEL * 100;
+                setLevelProgress(progress);
+                setLevel(levelRef.current);
+                setWarningMsg(warning);
+
+                // Aura
+                if (auraIntensityRef.current > 0.01) {
+                    ctx.save();
+                    const cx = width / 2;
+                    const cy = height / 2;
+                    const maxRadius = Math.max(width, height) * 0.8;
+                    const gradient = ctx.createRadialGradient(cx, cy, 100, cx, cy, maxRadius);
+                    gradient.addColorStop(0, `rgba(255, 215, 0, ${auraIntensityRef.current * 0.3})`); // Gold center
+                    gradient.addColorStop(0.5, `rgba(255, 140, 0, ${auraIntensityRef.current * 0.1})`); // Orange mid
+                    gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, width, height);
+                    ctx.restore();
+                }
+
+                // Speed factor depends on yoga mode
+                const speedFactor = isYogaMode ? 2.0 : 0.5;
+
+                drawUniverse(ctx, width, height, t, speedFactor);
+                const breathFactor = 1.0 + 0.1 * Math.sin(t * 0.8);
+
+                drawChakras(
+                    ctx,
+                    width * 0.5,
+                    height * 0.2,
+                    height * 0.8,
+                    activeIndexRef.current,
+                    energies,
+                    breathFactor,
+                    t
+                );
+
+                // --- KUMBHAKA (Breath Retention) LOGIC ---
+                let isTouchingNose = false;
+                if (faceResults.faceLandmarks.length > 0 && handResults.landmarks.length > 0) {
+                    const noseTip = faceResults.faceLandmarks[0][4]; // Nose Tip
+
+                    for (const hand of handResults.landmarks) {
+                        const indexTip = hand[8]; // Index Finger Tip
+                        const thumbTip = hand[4]; // Thumb Tip
+
+                        // Check distance to Index or Thumb
+                        const distIndex = Math.hypot(noseTip.x - indexTip.x, noseTip.y - indexTip.y);
+                        const distThumb = Math.hypot(noseTip.x - thumbTip.x, noseTip.y - thumbTip.y);
+
+                        if (distIndex < 0.05 || distThumb < 0.05) { // Threshold
+                            isTouchingNose = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Update Prana Value
+                if (isTouchingNose) {
+                    pranaRef.current = Math.min(100, pranaRef.current + 0.5);
+                } else {
+                    pranaRef.current = Math.max(0, pranaRef.current - 1.0);
+                }
+
+                // Draw Kumbhaka Bar
+                if (pranaRef.current > 0) {
+                    const barW = 300;
+                    const barH = 20;
+                    const barX = canvas.width / 2 - barW / 2;
+                    const barY = canvas.height - 150;
+
+                    // Label
+                    ctx.fillStyle = "rgba(0, 255, 255, 1)";
+                    ctx.font = "bold 16px monospace";
+                    ctx.textAlign = "center";
+                    ctx.fillText(isTouchingNose ? "KUMBHAKA ACTIVE: HOLD BREATH" : "PRANA DISSIPATING...", canvas.width / 2, barY - 10);
+
+                    // Bar Background
+                    ctx.fillStyle = "rgba(0, 50, 50, 0.8)";
+                    ctx.fillRect(barX, barY, barW, barH);
+                    ctx.strokeStyle = "rgba(0, 255, 255, 0.5)";
+                    ctx.strokeRect(barX, barY, barW, barH);
+
+                    // Bar Fill
+                    ctx.fillStyle = isTouchingNose ? "rgba(0, 255, 255, 1)" : "rgba(0, 150, 150, 0.8)";
+                    ctx.fillRect(barX, barY, (pranaRef.current / 100) * barW, barH);
+
+                    // Glow
+                    if (isTouchingNose) {
+                        ctx.shadowColor = "rgba(0, 255, 255, 0.8)";
+                        ctx.shadowBlur = 15;
+                        ctx.fillRect(barX, barY, (pranaRef.current / 100) * barW, barH);
+                        ctx.shadowBlur = 0;
+                    }
+                }
+
+                requestRef.current = requestAnimationFrame(animate);
+            } catch (err) {
+                console.error("Animation Loop Crash:", err);
+                // Prevent infinite loop spam
+                if (Math.random() < 0.01) {
+                    const msg = err instanceof Error ? err.message : String(err);
+                    addLog(`Crash: ${msg.substring(0, 15)}...`);
+                }
+                requestRef.current = requestAnimationFrame(animate);
+            }
         };
 
         requestRef.current = requestAnimationFrame(animate);
