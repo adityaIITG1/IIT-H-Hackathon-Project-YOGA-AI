@@ -985,56 +985,11 @@ export default function YogaCanvas() {
                 alignmentMode={alignmentMode}
             />
 
-            {/* Level Progress Bar (Top Right Center) */}
-            <div className="absolute top-24 right-80 w-80 z-20 pointer-events-none flex flex-col items-end">
-                <div className="flex justify-between items-end mb-1 w-full">
-                    <span className="text-yellow-400 font-bold text-4xl tracking-widest drop-shadow-[0_0_10px_rgba(234,179,8,0.8)] animate-pulse">LEVEL {level}</span>
-                    <span className="text-yellow-200/80 font-mono text-lg tracking-widest">{Math.floor(levelProgress)}%</span>
+            {/* Level Progress Bar (Minimal) */}
+            <div className="absolute top-24 right-4 z-20 pointer-events-none flex flex-col items-end opacity-80">
+                <div className="flex justify-between items-end mb-1 w-48">
+                    <span className="text-yellow-400 font-bold text-xl tracking-widest animate-pulse">LEVEL {level}</span>
                 </div>
-                <div className="h-8 w-full bg-black/80 border-2 border-yellow-500 rounded-lg overflow-hidden shadow-[0_0_25px_rgba(234,179,8,0.6)] relative backdrop-blur-sm">
-                    {/* Background Glow */}
-                    <div className="absolute inset-0 bg-yellow-900/20"></div>
-
-                    {/* Progress Fill */}
-                    <div
-                        className="h-full bg-gradient-to-r from-yellow-700 via-yellow-500 to-yellow-200 relative overflow-hidden transition-all duration-300 ease-out"
-                        style={{ width: `${levelProgress}%`, boxShadow: '0 0 20px rgba(234, 179, 8, 0.8)' }}
-                    >
-                        {/* Shine Effect */}
-                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/40 to-transparent opacity-50"></div>
-                        <div className="absolute top-0 -left-full w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shimmer_2s_infinite]"></div>
-                    </div>
-
-                    {/* Scanline effect */}
-                    <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.4)_50%)] bg-[length:4px_4px] pointer-events-none opacity-70"></div>
-
-                    {/* Glass Reflection */}
-                    <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
-                </div>
-
-                {/* Mudra Required Warning */}
-                {warningMsg && (
-                    <div className="mt-2 bg-red-600/90 border-2 border-red-500 text-white px-6 py-2 font-bold text-lg tracking-widest uppercase shadow-[0_0_20px_rgba(220,38,38,0.6)] animate-bounce">
-                        {warningMsg}
-                    </div>
-                )}
-
-                {/* Level Titles */}
-                {level >= 6 && level <= 10 && (
-                    <div className="mt-2 text-yellow-300 font-bold text-2xl tracking-[0.2em] drop-shadow-[0_0_10px_rgba(255,215,0,0.8)] animate-pulse">
-                        YOG GURU
-                    </div>
-                )}
-                {level >= 11 && level <= 15 && (
-                    <div className="mt-2 text-cyan-300 font-bold text-2xl tracking-[0.2em] drop-shadow-[0_0_10px_rgba(0,255,255,0.8)] animate-pulse">
-                        TRUE YOGI
-                    </div>
-                )}
-                {level >= 16 && (
-                    <div className="mt-2 text-purple-300 font-bold text-3xl tracking-[0.2em] drop-shadow-[0_0_15px_rgba(255,0,255,0.8)] animate-pulse">
-                        MASTER YOGI 🏆
-                    </div>
-                )}
             </div>
 
             {arduinoData.isConnected && (
