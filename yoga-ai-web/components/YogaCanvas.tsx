@@ -942,8 +942,7 @@ export default function YogaCanvas() {
                 cancelAnimationFrame(requestRef.current);
             }
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [handLandmarker, faceLandmarker]);
+    }, [handLandmarker, faceLandmarker, isLoading, hasLoadedRef, addLog, analyzeFace]);
 
     return (
         <div className="flex flex-col h-screen bg-black overflow-hidden font-sans select-none">
