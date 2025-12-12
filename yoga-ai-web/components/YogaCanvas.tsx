@@ -946,7 +946,7 @@ export default function YogaCanvas() {
     }, [handLandmarker, faceLandmarker]);
 
     return (
-        <div className="relative w-full h-screen bg-black overflow-hidden font-sans select-none">
+        <div className="flex flex-col h-screen bg-black overflow-hidden font-sans select-none">
             {isLoading && (
                 <div className="absolute z-50 top-0 left-0 w-full h-full bg-black/90 flex flex-col items-center justify-center gap-4">
                     <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
@@ -956,168 +956,129 @@ export default function YogaCanvas() {
                 </div>
             )}
 
-            {/* Background: Universe/Nebula */}
-            <canvas
-                ref={universeRef}
-                className="absolute top-0 left-0 w-full h-full object-cover opacity-60"
-            />
-
-            {/* Video Feed */}
-            <video
-                ref={videoRef}
-                className="absolute top-0 left-0 w-full h-full object-cover opacity-90 mix-blend-screen"
-                autoPlay
-                playsInline
-                muted
-            />
-
-            {/* Overlays */}
-            <canvas
-                ref={canvasRef}
-                className="absolute top-0 left-0 w-full h-full pointer-events-none z-10"
-            />
-
-            {/* Top Bar (Session Info) */}
-            <TopBar
-                sessionTime={sessionTime}
-                mood={mood}
-                posture={posture}
-                alignmentMode={alignmentMode}
-            />
-
-            {/* Level Progress Bar (Minimal) */}
-            <div className="absolute top-24 right-4 z-20 pointer-events-none flex flex-col items-end opacity-80">
-                <div className="flex justify-between items-end mb-1 w-48">
-                    <span className="text-yellow-400 font-bold text-xl tracking-widest animate-pulse">LEVEL {level}</span>
-                </div>
+            {/* Header / Top Bar */}
+            <div className="h-16 flex-none z-30 relative">
+                <TopBar
+                    sessionTime={sessionTime}
+                    mood={mood}
+                    posture={posture}
+                    alignmentMode={alignmentMode}
+                />
             </div>
 
-            {arduinoData.isConnected && (
-                <div className="absolute top-4 left-20 z-20 animate-slide-in-left">
-                    <BioAnalyticsPanel
-                        heartRate={arduinoData.heartRate}
-                        spo2={arduinoData.spo2}
-                        beatDetected={arduinoData.beatDetected}
-                        energyLevel={uiEnergies[3]} // Heart Chakra Energy
-                        stressLevel={1.0 - (uiEnergies[6] || 0.5)} // Inverse of Crown
-                        focusScore={uiEnergies[5] || 0.5} // Third Eye
-                        isConnected={arduinoData.isConnected}
-                        hrvIndex={arduinoData.hrvIndex}
-                        doshas={arduinoData.doshas}
-                        insightText={arduinoData.insightText}
-                        finding={arduinoData.finding}
-                    />
-                </div>
-            )}
+            {/* Main Content Grid */}
+            <div className="flex-1 flex flex-row overflow-hidden relative">
 
-            {/* Right Sidebar (Mudras & Guide) */}
-            <RightSidebar activeGesture={gesture} />
+                {/* LEFT PANEL: Bio Metrics (280px Fixed) */}
+                <div className="w-[280px] flex-none bg-black/40 border-r border-white/10 flex flex-col p-2 gap-2 backdrop-blur-md z-20 overflow-y-auto scrollbar-hide">
+                    {/* Energy Bars Section */}
+                    <div className="flex-none p-2 border border-white/5 rounded-xl bg-black/20">
+                        <h3 className="text-[10px] text-gray-500 uppercase tracking-widest mb-2 text-center">Chakra Energy</h3>
+                        <div className="h-[300px] flex justify-center">
+                            <LeftSidebar energies={uiEnergies} />
+                        </div>
+                    </div>
 
-            {/* Bottom Overlay (Feedback) */}
-            <BottomOverlay
-                feedback={feedback}
-                gesture={gesture}
-                logs={logs}
-            />
-
-            {/* Center Title & Hint Overlay */}
-            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-center z-20 pointer-events-none">
-                <h1 className="text-yellow-400 font-bold text-5xl uppercase tracking-widest drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] mb-2">
-                    AI ChakraFlow
-                </h1>
-                <div className="text-yellow-200 text-lg font-mono tracking-wider uppercase mb-6">
-                    Meditation & Mudra Engine
-                </div>
-                <div className="bg-black/60 backdrop-blur-md border border-yellow-500/50 px-8 py-3 rounded-full inline-block shadow-[0_0_20px_rgba(234,179,8,0.3)]">
-                    <span className="text-yellow-300 font-bold text-lg">Hint: </span>
-                    <span className="text-white text-lg">Try Gyan Mudra for Crown Chakra</span>
-                </div>
-            </div>
-
-            {!isPlaying && (
-                <div className="absolute z-50 top-0 left-0 w-full h-full bg-black/80 backdrop-blur-sm flex items-center justify-center">
-                    <button
-                        onClick={toggleAudio}
-                        className="
-                                group relative px-10 py-5 bg-transparent overflow-hidden rounded-full
-                                border border-green-500/50 text-white shadow-[0_0_40px_rgba(34,197,94,0.2)]
-                                transition-all duration-500 hover:shadow-[0_0_60px_rgba(34,197,94,0.4)] hover:border-green-400
-                            "
-                    >
-                        <div className="absolute inset-0 w-full h-full bg-green-600/20 group-hover:bg-green-600/30 transition-all duration-500"></div>
-                        <span className="relative text-2xl font-light tracking-widest flex items-center gap-4">
-                            <span>START JOURNEY</span>
-                            <span className="text-3xl">🕉️</span>
-                        </span>
-                    </button>
-                </div>
-            )}
-
-            {/* Controls (Voice & Connect) */}
-            <div className="absolute bottom-8 right-8 flex flex-col gap-4 z-50">
-                {/* Connect Sensor Button */}
-                {!arduinoData.isConnected && (
-                    <button
-                        onClick={connectArduino}
-                        className="bg-black/60 backdrop-blur-md border border-green-500/50 text-green-400 px-4 py-3 rounded-full font-bold hover:bg-green-500/20 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.3)]"
-                    >
-                        <span>🔌</span>
-                        Connect Sensor
-                    </button>
-                )}
-
-                {/* Voice Toggle */}
-                <button
-                    onClick={toggleListening}
-                    className={`
-                            w-16 h-16 rounded-full flex items-center justify-center backdrop-blur-md border-2 transition-all duration-500 shadow-[0_0_30px_rgba(0,0,0,0.5)]
-                            ${isListening
-                            ? "bg-green-500/20 border-green-400 text-green-400 animate-pulse shadow-[0_0_30px_rgba(74,222,128,0.4)]"
-                            : "bg-white/10 border-white/20 text-white/60 hover:bg-white/20 hover:scale-105"
-                        }
-                        `}
-                >
-                    {isListening ? (
-                        <div className="flex gap-1 items-center">
-                            <div className="w-1 h-4 bg-green-400 animate-[bounce_1s_infinite]"></div>
-                            <div className="w-1 h-6 bg-green-400 animate-[bounce_1.2s_infinite]"></div>
-                            <div className="w-1 h-4 bg-green-400 animate-[bounce_1s_infinite]"></div>
+                    {/* Bio Analytics Panel */}
+                    {arduinoData.isConnected ? (
+                        <div className="flex-1 min-h-[300px] animate-slide-in-left">
+                            <BioAnalyticsPanel
+                                heartRate={arduinoData.heartRate}
+                                spo2={arduinoData.spo2}
+                                beatDetected={arduinoData.beatDetected}
+                                energyLevel={uiEnergies[3]}
+                                stressLevel={1.0 - (uiEnergies[6] || 0.5)}
+                                focusScore={uiEnergies[5] || 0.5}
+                                isConnected={arduinoData.isConnected}
+                                hrvIndex={arduinoData.hrvIndex}
+                                doshas={arduinoData.doshas}
+                                insightText={arduinoData.insightText}
+                                finding={arduinoData.finding}
+                            />
                         </div>
                     ) : (
-                        <span className="text-2xl">🎙️</span>
+                        <div className="flex-1 border border-white/5 rounded-xl bg-black/20 flex flex-col items-center justify-center text-gray-600 gap-2 p-4 text-center">
+                            <span className="text-2xl opacity-50">🔌</span>
+                            <span className="text-xs uppercase tracking-widest">Connect Sensor</span>
+                            <button
+                                onClick={connectArduino}
+                                className="mt-2 text-[10px] bg-green-500/20 text-green-400 border border-green-500/50 px-3 py-1 rounded-full hover:bg-green-500/30 transition-all"
+                            >
+                                CONNECT NOW
+                            </button>
+                        </div>
                     )}
-                </button>
-            </div>
-
-            {/* Error Toast */}
-            {arduinoError && (
-                <div className="absolute top-24 left-1/2 -translate-x-1/2 bg-red-500/90 text-white px-6 py-3 rounded-lg shadow-xl z-50 animate-bounce">
-                    ⚠️ {arduinoError}
                 </div>
-            )}
 
-            {/* Draw Namaste Progress Bar (Screenshot) */}
-            {namasteHoldTime > 100 && (
-                <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-50">
-                    <div className="text-white font-bold text-xs tracking-widest animate-pulse">HOLD FOR SCREENSHOT...</div>
-                    <div className="w-48 h-2 bg-black/50 rounded-full overflow-hidden border border-white/20">
-                        <div
-                            className="h-full bg-green-500 transition-all duration-75 ease-linear"
-                            style={{ width: `${Math.min(100, (namasteHoldTime / 1000) * 100)}%` }}
-                        ></div>
+                {/* CENTER PANEL: Video Stage (Flexible) */}
+                <div className="flex-1 relative flex flex-col bg-black overflow-hidden">
+                    {/* Video Container */}
+                    <div className="relative w-full h-full">
+                        {/* Background: Universe/Nebula within frame */}
+                        <canvas
+                            ref={universeRef}
+                            className="absolute top-0 left-0 w-full h-full object-cover opacity-60"
+                        />
+                        <video
+                            ref={videoRef}
+                            className="absolute top-0 left-0 w-full h-full object-contain opacity-90 mix-blend-screen"
+                            autoPlay
+                            playsInline
+                            muted
+                        />
+                        <canvas
+                            ref={canvasRef}
+                            className="absolute top-0 left-0 w-full h-full pointer-events-none z-10"
+                        />
+
+                        {/* Simple start Overlay */}
+                        {!isPlaying && (
+                            <div className="absolute z-50 top-0 left-0 w-full h-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                                <button
+                                    onClick={toggleAudio}
+                                    className="px-8 py-3 bg-green-900/40 border border-green-500/50 text-white rounded-full hover:bg-green-800/60 transition-all flex items-center gap-2"
+                                >
+                                    <span>START SESSION</span>
+                                    <span>🕉️</span>
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Error Toast */}
+                        {arduinoError && (
+                            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-red-500/90 text-white px-4 py-2 rounded-lg shadow-xl z-50 animate-bounce text-sm">
+                                ⚠️ {arduinoError}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Simple Bottom Bar (Controls) */}
+                    <div className="h-12 bg-black/80 border-t border-white/10 flex items-center justify-between px-6 z-30">
+                        <div className="text-xs text-gray-500 font-mono">AI CHAKRAFLOW ENGINE V2.0</div>
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={toggleListening}
+                                className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold transition-all ${isListening ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-gray-400'}`}
+                            >
+                                {isListening ? (
+                                    <><span>🎙️</span><span>LISTENING...</span></>
+                                ) : (
+                                    <><span>Off</span><span>MIC</span></>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
-            )}
 
-            {/* Screenshot Flash Overlay */}
+                {/* RIGHT PANEL: Guide (250px Fixed) */}
+                <div className="w-[250px] flex-none bg-black/40 border-l border-white/10 flex flex-col p-2 backdrop-blur-md z-20">
+                    <RightSidebar activeGesture={gesture} />
+                </div>
+            </div>
+
+            {/* Global Overlays (Screenshot Flash) */}
             {screenshotFlash && (
                 <div className="absolute inset-0 bg-white z-[100] animate-flash pointer-events-none"></div>
-            )}
-            {screenshotFlash && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/80 text-green-400 px-8 py-4 rounded-xl border border-green-500 shadow-2xl z-[101] flex flex-col items-center animate-bounce">
-                    <span className="text-4xl">📸</span>
-                    <span className="text-xl font-bold tracking-widest mt-2">SCREENSHOT SAVED!</span>
-                </div>
             )}
         </div>
     );

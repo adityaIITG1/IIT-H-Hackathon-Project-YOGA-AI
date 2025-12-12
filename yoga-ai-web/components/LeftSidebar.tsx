@@ -16,7 +16,7 @@ const CHAKRAS = [
 
 export default function LeftSidebar({ energies }: LeftSidebarProps) {
     return (
-        <div className="absolute top-20 bottom-20 left-8 w-[180px] flex flex-col justify-between gap-6 pointer-events-none z-20">
+        <div className="w-[180px] flex flex-col justify-between gap-6 z-20 h-full py-4 pr-2">
             {CHAKRAS.map((c, i) => {
                 const energy = energies[i] ?? 0.0;
                 const height = Math.max(10, energy * 100); // Min height 10%

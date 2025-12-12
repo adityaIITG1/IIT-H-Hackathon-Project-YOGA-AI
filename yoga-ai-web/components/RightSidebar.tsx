@@ -16,7 +16,7 @@ const MUDRAS = [
 
 export default function RightSidebar({ activeGesture }: RightSidebarProps) {
     return (
-        <div className="absolute top-4 bottom-32 right-6 w-[250px] flex flex-col gap-2 z-20 pointer-events-none">
+        <div className="w-[250px] flex flex-col gap-2 z-20 h-full py-4 pl-2 pointer-events-none">
 
             {/* Touch Nose Indicator (Premium & Popping) */}
             <div className="relative group overflow-hidden rounded-xl p-0.5 animate-pulse-slow">
