@@ -28,17 +28,28 @@ export function IntroSequence() {
     if (phase === "complete") return null;
 
     return (
-        <AnimatePresence>
-            {phase === "prompt" && (
-                <motion.div
-                    key="prompt"
-                    exit={{ opacity: 0, filter: "blur(10px)" }}
-                    transition={{ duration: 0.8 }}
-                >
-                    <PromptEngineerIntro />
-                </motion.div>
-            )}
-            {phase === "cinematic" && <CinematicIntro key="cinematic" />}
-        </AnimatePresence>
+        <>
+            <AnimatePresence mode="wait">
+                {phase === "prompt" && (
+                    <motion.div
+                        key="prompt"
+                        exit={{ opacity: 0, filter: "blur(10px)" }}
+                        transition={{ duration: 0.8 }}
+                    >
+                        <PromptEngineerIntro />
+                    </motion.div>
+                )}
+                {phase === "cinematic" && <CinematicIntro key="cinematic" />}
+            </AnimatePresence>
+
+            <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                onClick={() => setPhase("complete")}
+                className="fixed bottom-10 right-10 z-[100] px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white/50 hover:text-white hover:bg-white/20 transition-all text-sm font-medium tracking-wider uppercase"
+            >
+                Skip Intro
+            </motion.button>
+        </>
     );
 }

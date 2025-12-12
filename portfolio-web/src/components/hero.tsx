@@ -103,7 +103,7 @@ export function Hero() {
                     className="perspective-1000"
                 >
                     <motion.h1
-                        className="text-5xl md:text-8xl font-bold mb-6 tracking-tight"
+                        className="text-4xl md:text-6xl lg:text-8xl font-bold mb-6 tracking-tight"
                         whileHover={{
                             rotateX: 10,
                             rotateY: -10,

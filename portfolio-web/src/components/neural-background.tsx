@@ -19,7 +19,9 @@ export function NeuralBackground() {
         canvas.height = height;
 
         const particles: Particle[] = [];
-        const particleCount = 60; // Reduce density for performance
+        // Reduce density for performance on mobile
+        const isMobile = width < 768;
+        const particleCount = isMobile ? 25 : 60;
 
         class Particle {
             x: number;
@@ -116,6 +118,9 @@ export function NeuralBackground() {
             height = window.innerHeight;
             canvas.width = width;
             canvas.height = height;
+
+            // Optional: Re-initialize particles on resize if drastic change, 
+            // but for now just resizing canvas is enough to prevent distortion.
         };
 
         window.addEventListener("resize", handleResize);
