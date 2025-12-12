@@ -366,15 +366,15 @@ export default function YogaCanvas() {
             if (now - lastDetectionTimeRef.current > 66) {
                 lastDetectionTimeRef.current = now;
 
-                // Create/Update Offscreen Canvas for AI (320p - Ultra Performance)
+                // Create/Update Offscreen Canvas for AI (640p - Balanced Peformance/Accuracy)
                 if (!offscreenCanvasRef.current) {
                     offscreenCanvasRef.current = document.createElement('canvas');
-                    offscreenCanvasRef.current.width = 320;
-                    offscreenCanvasRef.current.height = 180;
+                    offscreenCanvasRef.current.width = 640;
+                    offscreenCanvasRef.current.height = 360;
                 }
                 const offCtx = offscreenCanvasRef.current.getContext('2d');
                 if (offCtx) {
-                    offCtx.drawImage(video, 0, 0, 320, 180);
+                    offCtx.drawImage(video, 0, 0, 640, 360);
 
                     // Interleaved Detection: Alternate between Hand and Face
                     if (detectionCycleRef.current === 0) {
