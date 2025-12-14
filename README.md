@@ -1,6 +1,6 @@
-
 # 🧘 Yoga AI (Web) - AI ChakraFlow
 
+> **Theme: Health and Fitness**
 > **Experience the future of spiritual well-being with AI-powered Yoga & Meditation assistance.**
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge&logo=vercel)](https://yogaii.vercel.app/)
@@ -34,7 +34,7 @@
 ### 🔌 Hardware Integration (Bio-Feedback)
 We use a **MAX30100 / Pulse Sensor** to bring real physiological data into the AI experience.
 
-<img src="yoga-ai-web/public/sensor_demo.png" alt="Heart Rate Sensor" width="300" style="border-radius: 10px; border: 2px solid #ff0000; margin: 10px 0;">
+<img src="https://github.com/adityaIITG1/Yoga_AI/raw/main/yoga-ai-web/public/sensor_demo.png" alt="Heart Rate Sensor" width="300" style="border-radius: 10px; border: 2px solid #ff0000; margin: 10px 0;">
 
 **How it Works (PPG Principle):**
 1.  **Photoplethysmography:** The sensor detects changes in blood flow volume in the microvascular bed of tissue.
@@ -52,7 +52,25 @@ We use a **MAX30100 / Pulse Sensor** to bring real physiological data into the A
 - 🤖 Arduino / ESP32 health monitoring projects
 - 📊 Stress and Fitness tracking demos
 
+---
 
+## 🔄 System Workflow
+
+Our solution follows a real-time closed-loop feedback system:
+
+1.  **Input Acquisition**:
+    -   **Webcam**: Captures user movements (30/60 FPS).
+    -   **Bio-Sensors**: MAX30100 streams HR/SpO2 data via Serial/Bluetooth.
+
+2.  **Processing Layer (The "Neural Engine")**:
+    -   **Computer Vision**: MediaPipe extracts 21 hand landmarks and 468 face landmarks.
+    -   **Pose Logic**: Custom algorithms calculate angles and relative distances to identify specific Mudras (Gyan, Prana, etc.).
+    -   **Bio-Fusion**: Sensor data is smoothed and correlated with user focus levels.
+
+3.  **Feedback Generation**:
+    -   **Visual**: Real-time canvas overlay draws refined skeletons, energetic auras, and chakra activations.
+    -   **Audio**: AI Voice Assistant provides corrective guidance and affirmations based on detected state.
+    -   **Analytics**: Data is logged to calculate Stress Index and Energy Scores.
 
 ---
 
@@ -60,10 +78,25 @@ We use a **MAX30100 / Pulse Sensor** to bring real physiological data into the A
 
 - **Framework**: [Next.js 14+](https://nextjs.org/) (App Router)
 - **Language**: TypeScript
-- **AI/ML**: [MediaPipe](https://developers.google.com/mediapipe) (Vision Tasks)
+- **AI/ML**: [MediaPipe](https://developers.google.com/mediapipe) (Vision Tasks), [YOLOv11](https://github.com/ultralytics/ultralytics) (Custom Training)
 - **Styling**: Tailwind CSS
 - **State Management**: React Hooks (useContext, useReducer)
 - **Visuals**: HTML5 Canvas, Framer Motion
+
+---
+
+## 👨‍💻 Technical Highlights (For Judges)
+
+We have implemented a **Dual-Architecture System**:
+
+1.  **Backend & ML Logic (`/native-python-app`)**:
+    -   **`train.py`**: Custom YOLOv11 model training pipeline for specific Yoga pose detection.
+    -   **`yogi.py`**: The core "Neural Engine" that fuses Computer Vision vectors with IoT sensor data.
+    -   **`arduino_simple_hr.ino`**: Custom C++ firmware for real-time MAX30100 sensor data streaming.
+
+2.  **Frontend & Visualization (`/yoga-ai-web`)**:
+    -   **Next.js 14**: Server-side rendering for optimal performance.
+    -   **Real-time Canvas**: 60FPS animations ensuring smooth bio-feedback loops.
 
 ---
 
@@ -127,7 +160,7 @@ If you encounter issues with the web version or want direct hardware sensor acce
 
 ## 📸 Screenshots
 
-<img src="yoga-ai-web/public/yogi_demo_v2.png" alt="Yoga AI Demo" width="100%" style="border-radius: 10px; border: 2px solid #00ff00;">
+<img src="https://github.com/adityaIITG1/Yoga_AI/raw/main/yoga-ai-web/public/yogi_demo_v2.png" alt="Yoga AI Demo" width="100%" style="border-radius: 10px; border: 2px solid #00ff00;">
 
 
 ## 🎥 Video Demonstration

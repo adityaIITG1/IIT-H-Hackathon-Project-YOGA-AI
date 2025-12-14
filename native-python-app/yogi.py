@@ -12,6 +12,24 @@ import serial
 import serial.tools.list_ports
 import ai_explainer
 
+"""
+Yoga AI - Neural Engine (yogi.py)
+Theme: Health and Fitness
+---------------------------------
+This is the core Python application for the Yoga AI project.
+It acts as a Fusion Engine combining:
+1. Computer Vision (MediaPipe) for Pose & Face tracking.
+2. IoT Sensor Data (via Serial) for Heart Rate & SpO2.
+3. Audio Synthesis (PyGame & TTS) for immersive feedback.
+
+Workflow:
+- Captures Webcam feed.
+- Detects Hand Mudras and Face States.
+- Reads Serial data from Arduino/ESP32.
+- Updates the UI overlays (Chakras, Graphs).
+- Provides Voice Guidance based on logic.
+"""
+
 # ============================================================
 #   AI CHAKRAFLOW — FULL VERSION (MUSIC + VOICE + SUMMARY)
 #   BILINGUAL (Hindi + English)
@@ -23,7 +41,8 @@ FRAME_WIDTH = 1120
 FRAME_HEIGHT = 630
 
 # ---- Path to your Adiyogi music ----
-MUSIC_PATH = r"C:\Users\ASUS\OneDrive\Desktop\Yoga_AI\Adiyogi The Source of Yog-320kbps.mp3"
+script_dir = os.path.dirname(os.path.abspath(__file__))
+MUSIC_PATH = os.path.join(script_dir, "Adiyogi The Source of Yog-320kbps.mp3")
 
 # Chakra definitions (bottom to top)
 CHAKRA_NAMES = [
