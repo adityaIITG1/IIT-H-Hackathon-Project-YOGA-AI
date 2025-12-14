@@ -23,20 +23,20 @@ venv/
 /runs/
 /dataset/
 
-# Redundant Root Files (Anchored to root to avoid hiding nested project files)
-/package-lock.json
-/package.json
-/tsconfig.json
-/next.config.ts
-/postcss.config.mjs
-/eslint.config.mjs
-/next-env.d.ts
-/app/
-/components/
-/hooks/
-/public/
-/utils/
-/types/
+# Root Config Files (Tracked)
+!/package.json
+!/package-lock.json
+!/tsconfig.json
+!/next.config.ts
+!/postcss.config.mjs
+!/eslint.config.mjs
+!/next-env.d.ts
+!/app/
+!/components/
+!/hooks/
+!/public/
+!/utils/
+!/types/
 
 # Explicitly allow yoga-ai-web (redundant but safe)
 !yoga-ai-web/
