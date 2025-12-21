@@ -2060,24 +2060,58 @@ class ElementalEffects:
         self.particles = [] # List of [x, y, vx, vy, life, type, color]
         self.max_particles = 100
         
+        # [FIX] Use absolute paths to ensure assets are found
+        self.script_dir = os.path.dirname(os.path.abspath(__file__))
+        
         # Load Brain Image for Gyan Mudra
         self.brain_img = None
-        if os.path.exists("brain_glow.png"):
-            self.brain_img = cv2.imread("brain_glow.png", cv2.IMREAD_UNCHANGED)
-            # Ensure alpha
+        brain_path = os.path.join(self.script_dir, "brain_glow.png")
+        if os.path.exists(brain_path):
+            self.brain_img = cv2.imread(brain_path, cv2.IMREAD_UNCHANGED)
             if self.brain_img is not None and self.brain_img.shape[2] != 4:
                 self.brain_img = cv2.cvtColor(self.brain_img, cv2.COLOR_BGR2BGRA)
         else:
-            print("[WARN] brain_glow.png not found for Gyan Mudra effect.")
+            print(f"[WARN] {brain_path} not found.")
         
         # Load Sun Image for Surya Mudra
         self.sun_img = None
-        if os.path.exists("sun_glow.png"):
-            self.sun_img = cv2.imread("sun_glow.png", cv2.IMREAD_UNCHANGED)
+        sun_path = os.path.join(self.script_dir, "sun_glow.png")
+        if os.path.exists(sun_path):
+            self.sun_img = cv2.imread(sun_path, cv2.IMREAD_UNCHANGED)
             if self.sun_img is not None and self.sun_img.shape[2] != 4:
                 self.sun_img = cv2.cvtColor(self.sun_img, cv2.COLOR_BGR2BGRA)
         else:
-            print("[WARN] sun_glow.png not found for Surya Mudra effect.")
+            print(f"[WARN] {sun_path} not found.")
+
+        # Load Water Drop Image for Varun Mudra
+        self.water_img = None
+        water_path = os.path.join(self.script_dir, "water_drop_glow.png")
+        if os.path.exists(water_path):
+            self.water_img = cv2.imread(water_path, cv2.IMREAD_UNCHANGED)
+            if self.water_img is not None and self.water_img.shape[2] != 4:
+                self.water_img = cv2.cvtColor(self.water_img, cv2.COLOR_BGR2BGRA)
+        else:
+            print(f"[WARN] {water_path} not found.")
+
+        # Load Leaf Image for Prana Mudra
+        self.leaf_img = None
+        leaf_path = os.path.join(self.script_dir, "leaf_glow.png")
+        if os.path.exists(leaf_path):
+            self.leaf_img = cv2.imread(leaf_path, cv2.IMREAD_UNCHANGED)
+            if self.leaf_img is not None and self.leaf_img.shape[2] != 4:
+                self.leaf_img = cv2.cvtColor(self.leaf_img, cv2.COLOR_BGR2BGRA)
+        else:
+            print(f"[WARN] {leaf_path} not found.")
+
+        # Load Medal Image for Achievements
+        self.medal_img = None
+        medal_path = os.path.join(self.script_dir, "medal_glow.png")
+        if os.path.exists(medal_path):
+            self.medal_img = cv2.imread(medal_path, cv2.IMREAD_UNCHANGED)
+            if self.medal_img is not None and self.medal_img.shape[2] != 4:
+                self.medal_img = cv2.cvtColor(self.medal_img, cv2.COLOR_BGR2BGRA)
+        else:
+            print(f"[WARN] {medal_path} not found.")
         
     def update_and_draw(self, frame, mudra_name, hand_landmarks_list, face_landmarks):
         h, w, _ = frame.shape
@@ -2087,9 +2121,11 @@ class ElementalEffects:
             # [FIX] Replaced Fire Particles with Glowing Sun
             self._draw_glowing_sun(frame, hand_landmarks_list, w, h)
         elif mudra_name == "Varun Mudra": # WATER
-            self._spawn_water(hand_landmarks_list, w, h)
+            # [FIX] Replaced Water Particles with Glowing Water Drop
+            self._draw_glowing_water(frame, hand_landmarks_list, w, h)
         elif mudra_name == "Prana Mudra": # NATURE
-            self._spawn_nature(hand_landmarks_list, w, h)
+            # [FIX] Replaced Nature Particles with Glowing Leaf
+            self._draw_glowing_leaf(frame, hand_landmarks_list, w, h)
         elif mudra_name == "Gyan Mudra": # KNOWLEDGE (Brain in Palm)
             # [FIX] Replaced Book with Glowing Brain in Palm
             self._draw_glowing_brain(frame, hand_landmarks_list, w, h)
@@ -2152,17 +2188,110 @@ class ElementalEffects:
                 self.particles.append([cx + random.randint(-40, 40), cy, 0, 0, 1.0, "water", col])
 
     def _spawn_nature(self, hand_list, w, h):
+        # [DEPRECATED] Replaced by Leaf Image
+        pass
+
+    def _draw_glowing_water(self, frame, hand_list, w, h):
         if not hand_list: return
+        
+        # Fallback if image not found
+        use_fallback = (self.water_img is None)
+        
         for hand_lm in hand_list:
-            lm = hand_lm.landmark[8] # Index tip (or any)
-            cx, cy = int(lm.x * w), int(lm.y * h)
-            if random.random() < 0.2:
-                # Nature Colors: Green, Lime
-                col = random.choice([(0, 255, 0), (50, 205, 50), (0, 255, 127)])
-                self.particles.append([cx, cy, 0, 0, 1.0, "nature", col])
+            # Calculate Palm Center
+            wrist = hand_lm.landmark[0]
+            middle_mcp = hand_lm.landmark[9]
+            
+            cx = int((wrist.x + middle_mcp.x) / 2 * w)
+            cy = int((wrist.y + middle_mcp.y) / 2 * h)
+            
+            size = 80
+            x1 = cx - size // 2
+            y1 = cy - size // 2
+            x2 = x1 + size
+            y2 = y1 + size
+            
+            if x1 < 0 or y1 < 0 or x2 >= w or y2 >= h: continue
+            
+            if not use_fallback:
+                try:
+                    water_resized = cv2.resize(self.water_img, (size, size))
+                    roi = frame[y1:y2, x1:x2]
+                    b_b, b_g, b_r, b_a = cv2.split(water_resized)
+                    mask = b_a / 255.0
+                    inv_mask = 1.0 - mask
+                    for c in range(3):
+                        roi[:, :, c] = (mask * water_resized[:, :, c] + inv_mask * roi[:, :, c])
+                    frame[y1:y2, x1:x2] = roi
+                except Exception:
+                    use_fallback = True
+            
+            if use_fallback:
+                # Procedural Water Drop (Cyan/Blue Teardrop)
+                overlay = frame.copy()
+                # Draw Triangle Top
+                pts = np.array([[cx, cy - size//2], [cx - size//3, cy + size//4], [cx + size//3, cy + size//4]])
+                cv2.fillPoly(overlay, [pts], (255, 255, 0)) # Cyan
+                # Draw Circle Bottom
+                cv2.circle(overlay, (cx, cy + size//4), size//3, (255, 200, 0), -1) # Blueish
+                cv2.addWeighted(overlay, 0.6, frame, 0.4, 0, frame)
+
+            # Glow
+            overlay = frame.copy()
+            cv2.circle(overlay, (cx, cy), size // 2 + 10, (255, 255, 0), -1)
+            cv2.addWeighted(overlay, 0.3, frame, 0.7, 0, frame)
+
+    def _draw_glowing_leaf(self, frame, hand_list, w, h):
+        if not hand_list: return
+        
+        use_fallback = (self.leaf_img is None)
+        
+        for hand_lm in hand_list:
+            # Calculate Palm Center
+            wrist = hand_lm.landmark[0]
+            middle_mcp = hand_lm.landmark[9]
+            
+            cx = int((wrist.x + middle_mcp.x) / 2 * w)
+            cy = int((wrist.y + middle_mcp.y) / 2 * h)
+            
+            size = 80
+            x1 = cx - size // 2
+            y1 = cy - size // 2
+            x2 = x1 + size
+            y2 = y1 + size
+            
+            if x1 < 0 or y1 < 0 or x2 >= w or y2 >= h: continue
+            
+            if not use_fallback:
+                try:
+                    leaf_resized = cv2.resize(self.leaf_img, (size, size))
+                    roi = frame[y1:y2, x1:x2]
+                    b_b, b_g, b_r, b_a = cv2.split(leaf_resized)
+                    mask = b_a / 255.0
+                    inv_mask = 1.0 - mask
+                    for c in range(3):
+                        roi[:, :, c] = (mask * leaf_resized[:, :, c] + inv_mask * roi[:, :, c])
+                    frame[y1:y2, x1:x2] = roi
+                except Exception:
+                    use_fallback = True
+            
+            if use_fallback:
+                # Procedural Leaf (Green Ellipse)
+                overlay = frame.copy()
+                cv2.ellipse(overlay, (cx, cy), (size//2, size//4), 45, 0, 360, (0, 255, 0), -1) # Green
+                cv2.line(overlay, (cx - size//2, cy + size//2), (cx + size//2, cy - size//2), (200, 255, 200), 2)
+                cv2.addWeighted(overlay, 0.6, frame, 0.4, 0, frame)
+
+            # Glow
+            overlay = frame.copy()
+            cv2.circle(overlay, (cx, cy), size // 2 + 10, (50, 255, 50), -1)
+            cv2.addWeighted(overlay, 0.3, frame, 0.7, 0, frame)
     
     def _draw_glowing_sun(self, frame, hand_list, w, h):
-        if not hand_list or self.sun_img is None: return
+        if not hand_list: return
+        
+        # Fallback if image not found
+        use_fallback = (self.sun_img is None)
         
         for hand_lm in hand_list:
             # Calculate Palm Center
@@ -2183,26 +2312,48 @@ class ElementalEffects:
             if x1 < 0 or y1 < 0 or x2 >= w or y2 >= h: continue
             
             # Resize Sun
-            sun_resized = cv2.resize(self.sun_img, (size, size))
+            if not use_fallback:
+                try:
+                    sun_resized = cv2.resize(self.sun_img, (size, size))
+                    
+                    # Alpha Blending
+                    roi = frame[y1:y2, x1:x2]
+                    b_b, b_g, b_r, b_a = cv2.split(sun_resized)
+                    mask = b_a / 255.0
+                    inv_mask = 1.0 - mask
+                    
+                    for c in range(3):
+                        roi[:, :, c] = (mask * sun_resized[:, :, c] + inv_mask * roi[:, :, c])
+                        
+                    frame[y1:y2, x1:x2] = roi
+                except Exception:
+                    use_fallback = True
             
-            # Alpha Blending
-            roi = frame[y1:y2, x1:x2]
-            b_b, b_g, b_r, b_a = cv2.split(sun_resized)
-            mask = b_a / 255.0
-            inv_mask = 1.0 - mask
-            
-            for c in range(3):
-                roi[:, :, c] = (mask * sun_resized[:, :, c] + inv_mask * roi[:, :, c])
-                
-            frame[y1:y2, x1:x2] = roi
-            
+            if use_fallback:
+                # Procedural Sun (Glowing Orange Circle with Rays)
+                # Rays
+                for angle in range(0, 360, 45):
+                    rad = math.radians(angle + time.time() * 50)
+                    rx = int(cx + math.cos(rad) * (size * 0.8))
+                    ry = int(cy + math.sin(rad) * (size * 0.8))
+                    cv2.line(frame, (cx, cy), (rx, ry), (0, 255, 255), 2)
+                    
+                # Core
+                overlay = frame.copy()
+                cv2.circle(overlay, (cx, cy), size//2, (0, 165, 255), -1) # Orange
+                cv2.circle(overlay, (cx, cy), size//3, (0, 255, 255), -1) # Yellow center
+                cv2.addWeighted(overlay, 0.6, frame, 0.4, 0, frame)
+
             # Add extra glow (Yellow)
             overlay = frame.copy()
             cv2.circle(overlay, (cx, cy), size // 2 + 15, (0, 255, 255), -1) 
             cv2.addWeighted(overlay, 0.4, frame, 0.6, 0, frame)
 
     def _draw_glowing_brain(self, frame, hand_list, w, h):
-        if not hand_list or self.brain_img is None: return
+        if not hand_list: return
+        
+        # Fallback
+        use_fallback = (self.brain_img is None)
         
         for hand_lm in hand_list:
             # Calculate Palm Center (Approx between Wrist 0 and Middle MCP 9)
@@ -2223,28 +2374,80 @@ class ElementalEffects:
             if x1 < 0 or y1 < 0 or x2 >= w or y2 >= h: continue
             
             # Resize Brain
-            brain_resized = cv2.resize(self.brain_img, (size, size))
-            
-            # Alpha Blending
-            roi = frame[y1:y2, x1:x2]
-            
-            # Separate channels
-            b_b, b_g, b_r, b_a = cv2.split(brain_resized)
-            
-            # Create mask
-            mask = b_a / 255.0
-            inv_mask = 1.0 - mask
-            
-            # Blend
-            for c in range(3):
-                roi[:, :, c] = (mask * brain_resized[:, :, c] + inv_mask * roi[:, :, c])
-                
-            frame[y1:y2, x1:x2] = roi
-            
-            # Add extra glow (simple circle behind)
+            if not use_fallback:
+                try:
+                    brain_resized = cv2.resize(self.brain_img, (size, size))
+                    
+                    # Alpha Blending
+                    roi = frame[y1:y2, x1:x2]
+                    
+                    # Separate channels
+                    b_b, b_g, b_r, b_a = cv2.split(brain_resized)
+                    
+                    # Create mask
+                    mask = b_a / 255.0
+                    inv_mask = 1.0 - mask
+                    
+                    # Blend
+                    for c in range(3):
+                        roi[:, :, c] = (mask * brain_resized[:, :, c] + inv_mask * roi[:, :, c])
+                        
+                    frame[y1:y2, x1:x2] = roi
+                except Exception:
+                    use_fallback = True
+
+            if use_fallback:
+                # Procedural Brain (Glowing Cyan Circuit-like)
+                overlay = frame.copy()
+                # Main Lobe
+                cv2.ellipse(overlay, (cx, cy), (size//2, size//3), 0, 0, 360, (255, 255, 0), -1) # Cyan
+            # Add extra glow (Cyan/Yellow)
             overlay = frame.copy()
             cv2.circle(overlay, (cx, cy), size // 2 + 10, (255, 255, 0), -1) # Cyan/Yellow glow
             cv2.addWeighted(overlay, 0.3, frame, 0.7, 0, frame)
+
+    def _draw_glowing_medal(self, frame, cx, cy, color_tint=None):
+        """Draw the premium medal glow asset at a specific neck position."""
+        if self.medal_img is None:
+            # Fallback to procedural medal if image missing
+            cv2.circle(frame, (cx, cy), 18, (0, 215, 255), -1)
+            cv2.circle(frame, (cx, cy), 18, (255, 255, 255), 2)
+            return
+
+        size = 60
+        x1, y1 = cx - size // 2, cy - size // 2
+        x2, y2 = x1 + size, y1 + size
+        
+        h, w, _ = frame.shape
+        if x1 < 0 or y1 < 0 or x2 >= w or y2 >= h: return
+
+        try:
+            medal_resized = cv2.resize(self.medal_img, (size, size))
+            
+            # Optional: Apply Tint based on Tier (Bronze, Silver, Gold)
+            if color_tint:
+                medal_resized = medal_resized.astype(np.float32)
+                for c in range(3):
+                    medal_resized[:, :, c] *= (color_tint[c] / 255.0)
+                medal_resized = np.clip(medal_resized, 0, 255).astype(np.uint8)
+
+            roi = frame[y1:y2, x1:x2]
+            b_b, b_g, b_r, b_a = cv2.split(medal_resized)
+            mask = b_a / 255.0
+            inv_mask = 1.0 - mask
+            
+            for c in range(3):
+                roi[:, :, c] = (mask * medal_resized[:, :, c] + inv_mask * roi[:, :, c])
+            
+            frame[y1:y2, x1:x2] = roi
+
+            # Add extra "Sparkle" glow
+            overlay = frame.copy()
+            cv2.circle(overlay, (cx, cy), size//2 + 5, (255, 255, 255), -1)
+            cv2.addWeighted(overlay, 0.2, frame, 0.8, 0, frame)
+            
+        except Exception as e:
+            print(f"[WARN] Medal render error: {e}")
 
 elemental_effects = ElementalEffects()
 
@@ -2343,15 +2546,45 @@ class MultiGraphVisualizer:
         self.hrv_index_data = [0.0] * max_len # [NEW] HRV Index
         self.pulse_data = [0.0] * max_len
         self.phase = 0.0
+        self.pulse_accumulator = 0.0 # [NEW] Precision accumulator for rhythm timing
         
     def update(self, hr, hr_history, spo2, posture_score, beat_detected, avg_energy=0.5, hrv_val=50.0):
         self.phase += 0.2 # Faster animation
         
-        # 1. Heart Rhythm (ECG Style)
-        if beat_detected:
-            self.pulse_data[-4:] = [-0.2, 1.0, -0.5, 0.1]
+        # 1. Heart Rhythm (ECG Style) - IMPROVED RESPONSIVENESS
+        # Use a state-based pulse timer to ensure the "Spike" lasts multiple frames
+        if not hasattr(self, 'pulse_timer'): self.pulse_timer = 0
+        
+        # Trigger pulse if real beat detected OR simulate based on BPM
+        should_pulse = beat_detected
+        
+        # [NEW] Accumulator-based Precision Pulse
+        # Accumulate progress based on BPM (beats per minute)
+        # 1.0 = one full heart cycle.
+        # Increment = (BPM / 60) / Estimated_FPS
+        dt_frame = (hr / 60.0) / 30.0 if hr > 0 else 0
+        self.pulse_accumulator += dt_frame
+        
+        if self.pulse_accumulator >= 1.0:
+            should_pulse = True
+            self.pulse_accumulator = 0.0 # Reset for next cycle
+        
+        if should_pulse:
+            self.pulse_timer = 5 # Reset timer (last 5 frames)
+
+        if self.pulse_timer > 0:
+            # Draw QRS Spike
+            # Frame 5: P, Frame 4: Q, Frame 3: R, Frame 2: S, Frame 1: T
+            spike_vals = [0.1, -0.3, 1.0, -0.4, 0.15]
+            val = spike_vals[5 - self.pulse_timer]
+            self.pulse_data.append(val)
+            self.pulse_timer -= 1
         else:
-            self.pulse_data.append(random.uniform(-0.02, 0.02))
+            # [FIX] More visible idle wave (sine wave + noise)
+            # Add subtle "life" noise even if flatline
+            idle_freq = 0.5
+            idle = 0.15 * math.sin(self.phase * idle_freq) + random.uniform(-0.03, 0.04)
+            self.pulse_data.append(idle)
         
         if len(self.pulse_data) > self.max_len:
             self.pulse_data.pop(0)
@@ -2590,14 +2823,20 @@ class PhysiologyEngine:
         
         # [NEW] Calculate Doshas (Nadi Pariksha)
         # Vata (Air): Linked to Variability/Movement -> Proportional to HRV
-        vata_score = min(100, norm_hrv * 100)
+        # [FIX] Ensure Vata has a dynamic baseline even with 0 HRV simulation
+        vata_base = norm_hrv * 100
+        vata_noise = 10 * math.sin(now * 2) # Adding "Airy" oscillation
+        vata_score = max(5, min(95, vata_base + vata_noise))
         
         # Pitta (Fire): Linked to Intensity/Heat -> Proportional to HR
-        pitta_score = min(100, norm_bpm * 100)
+        pitta_base = norm_bpm * 100
+        pitta_noise = 5 * math.sin(now * 1.5)
+        pitta_score = max(5, min(95, pitta_base + pitta_noise))
         
         # Kapha (Water): Linked to Stability/Calm -> Inverse of HR & HRV
-        # High Kapha = Slow, steady pulse
-        kapha_score = min(100, (1.0 - norm_bpm) * 80 + (1.0 - norm_hrv) * 20)
+        kapha_base = (1.0 - norm_bpm) * 80 + (1.0 - norm_hrv) * 20
+        kapha_noise = 3 * math.sin(now * 0.8)
+        kapha_score = max(5, min(95, kapha_base + kapha_noise))
         
         # Update History
         self.history_vata.append(vata_score)
@@ -2680,19 +2919,25 @@ def draw_heart_rate_panel(frame, hr_monitor, meditation_stage, posture_score=0.0
     
     h, w, _ = frame.shape
     
-    # Premium Large Panel
-    panel_w = 350
-    # Premium Large Panel
-    panel_w = 350
-    panel_h = 610 # [FIX] Slightly increased (was 600) to fit larger graphs
-    # Moved to LEFT side next to Chakra Meter (x=40) to avoid Mudra Sidebar overlap
-    # Moved to LEFT side next to Chakra Meter (x=40) to avoid Mudra Sidebar overlap
+    # Premium Compact Panel
+    panel_w = 280
+    panel_h = 520 
     panel_x = 140 
-    panel_y = 20 # Moved UP closer to top
+    panel_y = 20
     
+    is_simulated = False
     if not hr_monitor.connected:
-        cv2.putText(frame, "Sensor: Not Connected", (panel_x, panel_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (100, 100, 100), 1)
-        return
+        # [FIX] Instead of hiding the panel, enter "SIMULATION MODE"
+        # This allows users to see the UI features without a physical sensor.
+        is_simulated = True
+        hr, spo2 = 72, 98 # Default healthy simulation
+        beat_detected = (int(time.time() * 10) % 8 == 0) # Simulated 75 BPM beat
+    
+    # Ensure SpO2 is visible if 0
+    if hr == 0:
+        hr = 0
+        spo2 = 0
+        if is_simulated: hr, spo2 = 72, 98
 
     # [NEW] Physiology Analysis
     physio_metrics = physio_engine.analyze(hr, beat_detected, gaze_label)
@@ -2710,35 +2955,33 @@ def draw_heart_rate_panel(frame, hr_monitor, meditation_stage, posture_score=0.0
     cv2.rectangle(frame, (panel_x, panel_y), (panel_x + panel_w, panel_y + panel_h), (0, 215, 255), 2)
 
     # Header
-    cv2.putText(frame, "BIO-ANALYTICS ENGINE", (panel_x + 60, panel_y + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 1)
+    title = "BIO-ANALYTICS (SIM)" if is_simulated else "BIO-ANALYTICS"
+    cv2.putText(frame, title, (panel_x + 40, panel_y + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 255), 1)
 
     # Main Stats Row
     # Heart
-    hx, hy = panel_x + 40, panel_y + 70 # Shifted right for bigger icon
+    hx, hy = panel_x + 30, panel_y + 70 
     beat_scale = 1.0
     
     # [FIX] Sync animation with Arduino "BEAT" signal
-    # Make it pop: Scale 1.4x for 200ms
     if time.time() - last_beat < 0.20: 
         beat_scale = 1.4 
         
-    # Draw Heart Icon (Custom Shape) - MUCH BIGGER & VISIBLE
-    # Color shifts to Bright Red when beating
     heart_col = (0, 0, 255) if beat_scale > 1.0 else (0, 0, 200)
-    draw_heart(frame, hx, hy - 5, int(28 * beat_scale), heart_col, outline=True)
+    draw_heart(frame, hx, hy - 5, int(20 * beat_scale), heart_col, outline=True)
     
     # HR Value
-    cv2.putText(frame, f"{int(hr)}", (hx + 50, hy), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 3)
-    # BPM Label - Moved below for better visibility
-    cv2.putText(frame, "BPM", (hx + 55, hy + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 255, 255), 1)
+    cv2.putText(frame, f"{int(hr)}", (hx + 35, hy), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 255, 255), 2)
+    # BPM Label
+    cv2.putText(frame, "BPM", (hx + 40, hy + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (200, 255, 255), 1)
     
-    # SpO2 - Moved DOWN to avoid overlap with BPM
-    cv2.putText(frame, f"Oxygen: {int(spo2)}%", (hx, hy + 55), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (100, 255, 255), 2)
+    # SpO2
+    cv2.putText(frame, f"Oxygen: {int(spo2)}%", (hx, hy + 45), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (100, 255, 255), 1)
 
     # Graphs - COMPACT MODE
-    gy = panel_y + 160 # [FIX] Pushed DOWN to clear SpO2 (was 110)
-    gh = 40 # [FIX] Reduced height slightly (was 45) to save space
-    gap = 6 # [FIX] Reduced gap (was 8)
+    gy = panel_y + 130 
+    gh = 30 
+    gap = 4
     
     # 1. Heart Rhythm (Red) -> ECG Style
     multi_visualizer.draw_graph(frame, panel_x + 20, gy, panel_w - 40, gh, multi_visualizer.pulse_data, (0, 0, 255), "Heart Rhythm", style="ecg")
@@ -2765,48 +3008,33 @@ def draw_heart_rate_panel(frame, hr_monitor, meditation_stage, posture_score=0.0
 
     # --- NEW: Physiology Engine Tiny Graphs & Bot ---
     # [NEW] Nadi Pariksha (Pulse Diagnosis) Tiny Graphs
-    # --- NEW: Physiology Engine Tiny Graphs & Bot ---
-    # [NEW] Nadi Pariksha (Pulse Diagnosis) Tiny Graphs
-    # --- NEW: Physiology Engine Tiny Graphs & Bot ---
-    # [NEW] Nadi Pariksha (Pulse Diagnosis) Tiny Graphs
-    tg_y = gy + 5*(gh + gap) + 15 # [FIX] Restored spacing
+    tg_y = gy + 5*(gh + gap) + 10
     
-    cv2.putText(frame, "Nadi Pariksha (Doshas):", (panel_x + 20, tg_y), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1)
+    cv2.putText(frame, "Nadi Pariksha:", (panel_x + 20, tg_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 200, 200), 1)
     
-    # [FIX] Move Text ABOVE Bars and Add Spacing
     # Vata
-    cv2.putText(frame, "Vata", (panel_x + 20, tg_y + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 200, 100), 1)
-    draw_mini_bars(frame, panel_x + 20, tg_y + 25, physio_metrics['tiny_graphs']['vata'], (255, 200, 100), w=60, h=15)
+    draw_mini_bars(frame, panel_x + 20, tg_y + 15, physio_metrics['tiny_graphs']['vata'], (255, 200, 100), w=50, h=12)
     
     # Pitta
-    cv2.putText(frame, "Pitta", (panel_x + 100, tg_y + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-    draw_mini_bars(frame, panel_x + 100, tg_y + 25, physio_metrics['tiny_graphs']['pitta'], (0, 0, 255), w=60, h=15)
+    draw_mini_bars(frame, panel_x + 90, tg_y + 15, physio_metrics['tiny_graphs']['pitta'], (0, 0, 255), w=50, h=12)
     
     # Kapha
-    cv2.putText(frame, "Kapha", (panel_x + 180, tg_y + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
-    draw_mini_bars(frame, panel_x + 180, tg_y + 25, physio_metrics['tiny_graphs']['kapha'], (0, 255, 0), w=60, h=15)
+    draw_mini_bars(frame, panel_x + 160, tg_y + 15, physio_metrics['tiny_graphs']['kapha'], (0, 255, 0), w=50, h=12)
 
     # [NEW] Findings Guide
     finding_text = physio_metrics.get('finding', "Scanning...")
-    cv2.putText(frame, finding_text, (panel_x + 20, tg_y + 55), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (200, 255, 255), 1)
-
-    # [NEW] Horizontal Guide Box (Bottom of Panel)
-    guide_y = tg_y + 65
-    # Removed Legend as per user request
+    cv2.putText(frame, finding_text[:35], (panel_x + 20, tg_y + 40), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 255, 255), 1)
 
     # [NEW] Advanced Premium Graph: "Energy Coherence" (Circular Radar)
     # CONNECTED TO ENERGY: Size & Color changes with avg_energy
-    
-    # [NEW] Advanced Premium Graph: "Energy Coherence" (Circular Radar)
-    # CONNECTED TO ENERGY: Size & Color changes with avg_energy
-    
-    coherence_y = tg_y + 65 # [FIX] Adjusted position 
+    coherence_y = tg_y + 70 
     coherence_x = panel_x + panel_w // 2
     
     # Base radius + Energy expansion
     # avg_energy is 0.0 to 1.0 (usually)
     # Radius: 20 (min) to 50 (max)
-    radius = int(20 + avg_energy * 30)
+    radius = int(15 + avg_energy * 20)
+    limit_radius = 40
     
     # Color Logic: Blue (Low) -> Gold (Med) -> White/Purple (High)
     if avg_energy < 0.3:
@@ -2817,9 +3045,9 @@ def draw_heart_rate_panel(frame, hr_monitor, meditation_stage, posture_score=0.0
         coh_color = (255, 0, 255) # Purple/Whiteish
         
     # Draw Radar Background (Static)
-    cv2.circle(frame, (coherence_x, coherence_y), 50, (30, 30, 30), 1)
-    cv2.line(frame, (coherence_x - 50, coherence_y), (coherence_x + 50, coherence_y), (30, 30, 30), 1)
-    cv2.line(frame, (coherence_x, coherence_y - 50), (coherence_x, coherence_y + 50), (30, 30, 30), 1)
+    cv2.circle(frame, (coherence_x, coherence_y), limit_radius, (30, 30, 30), 1)
+    cv2.line(frame, (coherence_x - limit_radius, coherence_y), (coherence_x + limit_radius, coherence_y), (30, 30, 30), 1)
+    cv2.line(frame, (coherence_x, coherence_y - limit_radius), (coherence_x, coherence_y + limit_radius), (30, 30, 30), 1)
     
     # Dynamic Coherence Shape
     pts = []
@@ -3475,6 +3703,7 @@ def main():
     # Smart Yoga Mode State
     yoga_mode_active = False
     med_level = 0.0
+    last_voice_check = 0.0
     namaste_hold_start = 0
     namaste_triggered = False
     namaste_grace_frames = 0 # Grace period for flickering detection
@@ -4062,17 +4291,14 @@ def main():
             
             # Draw Medals based on Visual Tier
             if visual_tier >= 1:
-                # Bronze Medal
-                cv2.circle(frame, (neck_x, neck_y + 40), 15, (50, 100, 150), -1) # Bronze Color
-                cv2.circle(frame, (neck_x, neck_y + 40), 15, (255, 255, 255), 1)
+                # Bronze Medal (Tinted slightly brown-orange)
+                elemental_effects._draw_glowing_medal(frame, neck_x, neck_y + 40, color_tint=(100, 150, 200)) # BGR for Bronze
             if visual_tier >= 2:
-                # Silver Medal (Slightly lower/overlapping)
-                cv2.circle(frame, (neck_x + 10, neck_y + 45), 15, (192, 192, 192), -1) # Silver
-                cv2.circle(frame, (neck_x + 10, neck_y + 45), 15, (255, 255, 255), 1)
+                # Silver Medal (Tinted white/silver)
+                elemental_effects._draw_glowing_medal(frame, neck_x + 10, neck_y + 45, color_tint=(230, 230, 230))
             if visual_tier >= 3:
-                # Gold Medal (Center, on top)
-                cv2.circle(frame, (neck_x, neck_y + 50), 18, (0, 215, 255), -1) # Gold
-                cv2.circle(frame, (neck_x, neck_y + 50), 18, (255, 255, 255), 2)
+                # Gold Medal (Original Gold glow)
+                elemental_effects._draw_glowing_medal(frame, neck_x, neck_y + 50)
 
 
         # Draw Progression Titles (Top Center - Under Bar)

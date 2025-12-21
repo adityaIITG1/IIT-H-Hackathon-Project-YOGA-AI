@@ -4,7 +4,7 @@ import json
 
 # Fallback to a hardcoded key is NOT recommended for production/hackathons.
 # We expect GEMINI_API_KEY in environment variables.
-GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-exp:generateContent"
+GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
 
 def get_ai_explanation(scripture_entry, pose_state, mudra_state, breath_state, session_context, enable_api=True):
     api_key = os.getenv("GEMINI_API_KEY")
