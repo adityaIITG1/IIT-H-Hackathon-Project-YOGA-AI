@@ -40,9 +40,37 @@ A true agent must **Perceive**, **Reason**, and **Act**. Here is how Yoga AI ful
 
 ---
 
+---
+
 ## 🔄 System Architecture
 
 Our solution follows a closed-loop **Agentic Workflow**:
+
+```mermaid
+graph TD
+    User((User)) -->|Visual Input| Cam[Webcam]
+    User -->|Bio-Data| Sensor[Heart Rate Sensor]
+    
+    subgraph "Perception Layer"
+        Cam -->|Frames| MP[MediaPipe Vision]
+        Sensor -->|Serial Data| HR[HR Monitor]
+    end
+    
+    subgraph "Neural Brain (Agent)"
+        MP -->|Pose/Face Data| State[Session State]
+        HR -->|Stress Level| State
+        State -->|Context| Logic{Agent Logic}
+        Logic -->|Decision| LLM[Gemini 2.0 Flash]
+    end
+    
+    subgraph "Action Layer"
+        LLM -->|Wisdom/Advice| TTS[Voice Feedback]
+        Logic -->|UI Update| Screen[Visual Overlay]
+    end
+    
+    TTS -->|Audio| User
+    Screen -->|Visuals| User
+```
 
 1.  **Observation**: 
     -   *Vision*: "User is holding Gyan Mudra."
@@ -54,6 +82,24 @@ Our solution follows a closed-loop **Agentic Workflow**:
 3.  **Action**:
     -   *LLM*: Generates a short, poetic insight about "Focus and Stability."
     -   *TTS*: Speaks the insight to the user.
+
+---
+
+## ⚖️ Ethics, Safety & Limitations
+
+**Constraints & Rules Compliance:**
+-   **Open Source**: All libraries used (MediaPipe, OpenCV) are open source.
+-   **LLM API**: Uses Google Gemini Free Tier.
+-   **Privacy**: All video processing happens **locally**. Images are not uploaded to the cloud (only anonymized text prompts are sent to Gemini).
+
+**Limitations:**
+1.  **Medical Advice**: This system is for **wellness and educational purposes only**. It is not a medical device. The "Heart Rate" readings are estimations.
+2.  **Environment**: Requires good lighting for accurate computer vision detection.
+3.  **Latency**: TTS response time depends on internet connection for the Gemini API.
+
+**Future Improvements:**
+-   **Edge AI**: Running the LLM locally (e.g., Gemma 2B) for offline capability.
+-   **Multi-User**: Tracking multiple people in a class setting.
 
 ---
 
