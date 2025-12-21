@@ -956,7 +956,7 @@ export default function YogaCanvas() {
     }, [handLandmarker, faceLandmarker, isLoading, hasLoadedRef, addLog, analyzeFace]);
 
     return (
-        <div className="relative h-screen w-screen bg-black overflow-hidden font-sans select-none text-white">
+        <div className="fixed inset-0 bg-black overflow-hidden font-sans select-none text-white z-0">
             {isLoading && (
                 <div className="absolute z-50 top-0 left-0 w-full h-full bg-black/90 flex flex-col items-center justify-center gap-4">
                     <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
@@ -1002,7 +1002,7 @@ export default function YogaCanvas() {
             </div>
 
             {/* Left HUD: Bio Metrics */}
-            <div className="absolute left-4 top-24 bottom-20 w-[320px] z-30 flex flex-col gap-4 animate-fade-in">
+            <div className="absolute left-6 top-24 bottom-22 w-[350px] z-30 flex flex-col gap-6 animate-fade-in">
                 {/* Energy Bars */}
                 <div className="flex-none p-4 rounded-3xl bg-black/60 backdrop-blur-3xl border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden">
                     <h3 className="text-[11px] text-cyan-300 font-black uppercase tracking-[0.25em] mb-4 flex items-center gap-2 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
@@ -1048,7 +1048,7 @@ export default function YogaCanvas() {
             </div>
 
             {/* Right HUD: Guidance */}
-            <div className="absolute right-4 top-24 bottom-20 w-[320px] z-30 flex flex-col gap-4 animate-fade-in">
+            <div className="absolute right-6 top-24 bottom-22 w-[350px] z-30 flex flex-col gap-6 animate-fade-in">
                 <div className="flex-1 rounded-3xl bg-black/60 backdrop-blur-3xl border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden p-1.5 flex flex-col">
                     <RightSidebar activeGesture={gesture} />
                 </div>
@@ -1075,8 +1075,8 @@ export default function YogaCanvas() {
 
             {/* Bottom Controls Bar */}
             <div className="absolute bottom-0 left-0 w-full h-16 px-8 z-40 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-between pointer-events-none">
-                <div className="text-[10px] text-white/40 font-mono tracking-widest">
-                    SYSTEM STATUS: OK // SYNCED
+                <div className="text-[10px] text-cyan-400 font-bold tracking-[0.3em] uppercase drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
+                    YOGA AI: HYPER-SYNC v2.5 // IMMERSIVE
                 </div>
                 <div className="flex items-center gap-6 pointer-events-auto">
                     {/* [NEW] Persistent Arduino Connect Button */}

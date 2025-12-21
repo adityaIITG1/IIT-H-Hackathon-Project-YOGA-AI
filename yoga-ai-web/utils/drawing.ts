@@ -157,23 +157,6 @@ export function drawChakras(
         ctx.shadowBlur = 10;
         ctx.shadowColor = "white";
         ctx.fill();
-
-        // Label with Neon Stroke
-        ctx.font = "bold 14px monospace";
-        ctx.textAlign = "left";
-        ctx.fillStyle = "white";
-        ctx.shadowBlur = 5;
-        ctx.shadowColor = chakraColor;
-        ctx.fillText(CHAKRA_NAMES[i].toUpperCase(), centerX + 45, cy + 5);
-        ctx.shadowBlur = 0;
-
-        // Progress Bar (Vertical tiny)
-        const pbH = 30;
-        const pbW = 4;
-        ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-        ctx.fillRect(centerX + 35, cy - pbH / 2, pbW, pbH);
-        ctx.fillStyle = chakraColor;
-        ctx.fillRect(centerX + 35, cy + pbH / 2, pbW, -pbH * energy);
     }
 }
 
