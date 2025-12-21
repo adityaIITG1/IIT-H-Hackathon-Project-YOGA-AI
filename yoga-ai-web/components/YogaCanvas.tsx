@@ -831,18 +831,29 @@ export default function YogaCanvas() {
                 setLevel(levelRef.current);
                 setWarningMsg(warning);
 
-                // Aura
+                // --- PREMIUM ATMOSPHERIC OVERLAYS ---
+                // 1. Digital Vignette
+                const vignette = ctx.createRadialGradient(width / 2, height / 2, width * 0.3, width / 2, height / 2, width * 0.8);
+                vignette.addColorStop(0, "rgba(0, 0, 0, 0)");
+                vignette.addColorStop(1, "rgba(0, 10, 20, 0.6)");
+                ctx.fillStyle = vignette;
+                ctx.fillRect(0, 0, width, height);
+
+                // 2. Dynamic Aura (Head/Body Glow)
                 if (auraIntensityRef.current > 0.01) {
                     ctx.save();
                     const cx = width / 2;
                     const cy = height / 2;
-                    const maxRadius = Math.max(width, height) * 0.8;
-                    const gradient = ctx.createRadialGradient(cx, cy, 100, cx, cy, maxRadius);
-                    gradient.addColorStop(0, `rgba(255, 215, 0, ${auraIntensityRef.current * 0.3})`); // Gold center
-                    gradient.addColorStop(0.5, `rgba(255, 140, 0, ${auraIntensityRef.current * 0.1})`); // Orange mid
-                    gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+                    const auraRadius = Math.max(width, height) * 0.7;
+                    const auraGrad = ctx.createRadialGradient(cx, cy, 50, cx, cy, auraRadius);
 
-                    ctx.fillStyle = gradient;
+                    // Golden/Cyan Fusion Aura
+                    auraGrad.addColorStop(0, `rgba(0, 255, 255, ${auraIntensityRef.current * 0.15})`);
+                    auraGrad.addColorStop(0.5, `rgba(255, 215, 0, ${auraIntensityRef.current * 0.08})`);
+                    auraGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+                    ctx.globalCompositeOperation = "screen";
+                    ctx.fillStyle = auraGrad;
                     ctx.fillRect(0, 0, width, height);
                     ctx.restore();
                 }
@@ -945,7 +956,7 @@ export default function YogaCanvas() {
     }, [handLandmarker, faceLandmarker, isLoading, hasLoadedRef, addLog, analyzeFace]);
 
     return (
-        <div className="flex flex-col h-screen bg-black overflow-hidden font-sans select-none">
+        <div className="flex flex-col h-screen bg-[#050505] overflow-hidden font-sans select-none text-white">
             {isLoading && (
                 <div className="absolute z-50 top-0 left-0 w-full h-full bg-black/90 flex flex-col items-center justify-center gap-4">
                     <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
@@ -969,7 +980,7 @@ export default function YogaCanvas() {
             <div className="flex-1 flex flex-row overflow-hidden relative">
 
                 {/* LEFT PANEL: Bio Metrics (280px Fixed) */}
-                <div className="w-[280px] flex-none bg-black/40 border-r border-white/10 flex flex-col p-2 gap-2 backdrop-blur-md z-20 overflow-y-auto scrollbar-hide">
+                <div className="w-[280px] flex-none bg-black/60 border-r border-white/10 flex flex-col p-3 gap-3 backdrop-blur-3xl z-20 overflow-y-auto scrollbar-hide shadow-[20px_0_50px_rgba(0,0,0,0.5)]">
                     {/* Energy Bars Section */}
                     <div className="flex-none p-2 border border-white/5 rounded-xl bg-black/20">
                         <h3 className="text-[10px] text-gray-500 uppercase tracking-widest mb-2 text-center">Chakra Energy</h3>
@@ -1070,7 +1081,7 @@ export default function YogaCanvas() {
                 </div>
 
                 {/* RIGHT PANEL: Guide (250px Fixed) */}
-                <div className="w-[250px] flex-none bg-black/40 border-l border-white/10 flex flex-col p-2 backdrop-blur-md z-20">
+                <div className="w-[260px] flex-none bg-black/60 border-l border-white/10 flex flex-col p-4 backdrop-blur-3xl z-20 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]">
                     <RightSidebar activeGesture={gesture} />
                 </div>
             </div>

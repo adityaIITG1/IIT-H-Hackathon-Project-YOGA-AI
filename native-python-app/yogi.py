@@ -4274,12 +4274,12 @@ def main():
             cv2.putText(frame, "MAX LEVEL", (bar_center_x - mw // 2, bar_y + bar_h + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 215, 255), 2)
 
         # Keep Old Visual Rewards (Neck Medals) based on Milestones
-        # Bronze: Lvl 1-5, Silver: Lvl 6-10, Gold: Lvl 11-15, Trophy: Lvl 16-20
+        # [FIX] User requested medals only AFTER level 3 (Crossing level 3 = Level 4+)
         visual_tier = 0
-        if current_level >= 1: visual_tier = 1
-        if current_level >= 6: visual_tier = 2
-        if current_level >= 11: visual_tier = 3
-        if current_level >= 16: visual_tier = 4
+        if current_level >= 4: visual_tier = 1
+        if current_level >= 8: visual_tier = 2
+        if current_level >= 12: visual_tier = 3
+        if current_level >= 17: visual_tier = 4
 
         # Draw Visual Rewards (Medals on Neck)
         if pose_landmarks:

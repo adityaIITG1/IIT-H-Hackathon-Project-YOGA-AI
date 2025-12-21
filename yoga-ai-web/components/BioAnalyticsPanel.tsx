@@ -227,50 +227,63 @@ export default function BioAnalyticsPanel({
                 color: string,
                 style: 'line' | 'bars' | 'fill' | 'beam' | 'area'
             ) => {
-                // Background
-                ctx.fillStyle = 'rgba(10, 15, 20, 0.9)';
-                ctx.fillRect(x, y, width, height);
-                ctx.strokeStyle = 'rgba(50, 50, 50, 1)';
-                ctx.strokeRect(x, y, width, height);
+                // Background (Glass look)
+                ctx.save();
+                ctx.fillStyle = 'rgba(10, 15, 25, 0.7)';
+                ctx.beginPath();
+                ctx.roundRect(x, y, width, height, 4);
+                ctx.fill();
 
-                // Label
-                ctx.fillStyle = 'rgba(200, 200, 200, 1)';
-                ctx.font = '12px sans-serif';
-                ctx.fillText(label, x + 5, y + 15);
+                // Subtle Border
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Label with Shadow
+                ctx.shadowBlur = 4;
+                ctx.shadowColor = 'black';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.font = 'bold 10px monospace';
+                ctx.fillText(label, x + 8, y + 14);
+                ctx.restore();
 
                 if (style === 'bars') {
                     const barW = Math.max(1, width / data.length);
                     data.forEach((val, i) => {
-                        const barH = val * height * 0.8;
+                        const barH = val * height * 0.7;
                         const bx = x + i * barW;
                         const by = y + height - barH;
 
                         let c = color;
-                        if (val > 0.6) c = '#ff0000';
-                        else if (val > 0.3) c = '#ffff00';
+                        if (val > 0.6) c = '#ff3333'; // Hot Red
+                        else if (val > 0.3) c = '#00f2ff'; // Neon Cyan
 
+                        ctx.save();
+                        ctx.shadowBlur = 8;
+                        ctx.shadowColor = c;
                         ctx.fillStyle = c;
                         ctx.fillRect(bx, by, barW - 1, barH);
+                        ctx.restore();
                     });
                 } else {
+                    ctx.save();
                     ctx.beginPath();
                     ctx.strokeStyle = color;
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = style === 'beam' ? 3 : 2;
+                    ctx.shadowBlur = style === 'beam' || style === 'line' ? 12 : 5;
+                    ctx.shadowColor = color;
 
                     data.forEach((val, i) => {
                         const px = x + (i / data.length) * width;
                         let py = y + height / 2;
 
                         if (style === 'line') { // ECG
-                            py = y + height / 2 - (val * height * 0.4);
-                        } else if (style === 'fill' || style === 'area') {
-                            py = y + height - (val * height * 0.9);
-                        } else if (style === 'beam') {
-                            py = y + height - (val * height);
+                            py = y + height / 2 - (val * height * 0.45);
+                        } else if (style === 'fill' || style === 'area' || style === 'beam') {
+                            py = y + height - (val * height * 0.85);
                         }
 
-                        // Clamp
-                        py = Math.max(y, Math.min(y + height, py));
+                        py = Math.max(y + 2, Math.min(y + height - 2, py));
 
                         if (i === 0) ctx.moveTo(px, py);
                         else ctx.lineTo(px, py);
@@ -280,26 +293,22 @@ export default function BioAnalyticsPanel({
                     if (style === 'fill' || style === 'area') {
                         ctx.lineTo(x + width, y + height);
                         ctx.lineTo(x, y + height);
-                        ctx.fillStyle = color.replace('1)', '0.3)').replace('rgb', 'rgba');
+                        const areaGrad = ctx.createLinearGradient(x, y, x, y + height);
+                        areaGrad.addColorStop(0, color.replace('1)', '0.4)').replace('rgb', 'rgba'));
+                        areaGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                        ctx.fillStyle = areaGrad;
                         ctx.fill();
-
-                        // White line on top
-                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-                        ctx.lineWidth = 1;
-                        ctx.stroke();
                     }
 
-                    if (style === 'beam') {
-                        // Outer glow
-                        ctx.shadowBlur = 10;
-                        ctx.shadowColor = color;
-                        ctx.stroke();
+                    if (style === 'beam' || style === 'line') {
+                        // Sharp White Core for neon effect
                         ctx.shadowBlur = 0;
-                        // White core
                         ctx.strokeStyle = '#ffffff';
                         ctx.lineWidth = 1;
+                        ctx.globalAlpha = 0.5;
                         ctx.stroke();
                     }
+                    ctx.restore();
                 }
             };
 

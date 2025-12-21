@@ -30,51 +30,62 @@ export function drawUniverse(
     const cx = width * 0.15;
     const cy = height * 0.5;
 
-    // Draw background circles (simulating addWeighted)
+    // --- Premium Nebula Effect ---
     ctx.save();
-    ctx.globalAlpha = 0.25;
-    ctx.beginPath();
-    ctx.arc(cx, cy, 140, 0, 2 * Math.PI);
-    ctx.fillStyle = "rgb(60, 0, 40)"; // BGR (40, 0, 60) -> RGB (60, 0, 40)
-    ctx.fill();
+    const nebulaGradient = ctx.createRadialGradient(cx, cy, 10, cx, cy, 250);
+    nebulaGradient.addColorStop(0, "rgba(80, 0, 120, 0.3)");  // Deep Purple
+    nebulaGradient.addColorStop(0.5, "rgba(40, 0, 60, 0.15)"); // Dark Indigo
+    nebulaGradient.addColorStop(1, "rgba(0, 0, 0, 0)");        // Fade out
+
+    ctx.fillStyle = nebulaGradient;
+    ctx.fillRect(0, 0, width, height);
+    ctx.restore();
+
+    // --- Center Star (Glow) ---
+    ctx.save();
+    ctx.shadowBlur = 40;
+    ctx.shadowColor = "rgba(255, 255, 0, 0.8)";
+    const starGradient = ctx.createRadialGradient(cx, cy, 2, cx, cy, 30);
+    starGradient.addColorStop(0, "white");
+    starGradient.addColorStop(0.4, "yellow");
+    starGradient.addColorStop(1, "rgba(255, 255, 0, 0)");
 
     ctx.beginPath();
-    ctx.arc(cx, cy, 90, 0, 2 * Math.PI);
-    ctx.fillStyle = "rgb(120, 0, 80)"; // BGR (80, 0, 120) -> RGB (120, 0, 80)
+    ctx.arc(cx, cy, 22, 0, 2 * Math.PI);
+    ctx.fillStyle = starGradient;
     ctx.fill();
     ctx.restore();
 
-    // Center Sun
-    ctx.beginPath();
-    ctx.arc(cx, cy, 26, 0, 2 * Math.PI);
-    ctx.fillStyle = "rgb(255, 255, 0)"; // BGR (0, 255, 255) -> RGB (255, 255, 0) Yellow
-    ctx.fill();
-
     const orbitRadii = [55, 90, 125];
     const speeds = [0.9, 0.6, 0.35];
-    const colors = [
-        "rgb(0, 200, 255)", // BGR (255, 200, 0) -> RGB (0, 200, 255) Light Blue? Wait.
-        // Python: (255, 200, 0) BGR -> Blue=255, Green=200, Red=0 -> Sky Blue.
-        "rgb(255, 255, 255)",
-        "rgb(255, 215, 0)", // BGR (0, 215, 255) -> RGB (255, 215, 0) Gold
-    ];
+    const planetColors = ["#00f2ff", "#ffffff", "#ffcc00"];
 
     orbitRadii.forEach((r, i) => {
-        // Use speedFactor to modulate speed
         const angle = t * speeds[i] * speedFactor;
         const px = cx + r * Math.cos(angle);
         const py = cy + r * Math.sin(angle);
 
-        // Planet
+        // Planet with Glow
+        ctx.save();
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = planetColors[i];
+
         ctx.beginPath();
-        ctx.arc(px, py, 10, 0, 2 * Math.PI);
-        ctx.fillStyle = colors[i];
+        ctx.arc(px, py, 4, 0, 2 * Math.PI); // Smaller, more precise planets
+        ctx.fillStyle = planetColors[i];
         ctx.fill();
 
-        // Orbit path
+        // Inner white core
+        ctx.beginPath();
+        ctx.arc(px, py, 1.5, 0, 2 * Math.PI);
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.restore();
+
+        // Orbit path (Subtle Neon)
         ctx.beginPath();
         ctx.ellipse(cx, cy, r, r, 0, 0, 2 * Math.PI);
-        ctx.strokeStyle = "rgba(120, 90, 90, 0.5)"; // Approximation
+        ctx.strokeStyle = "rgba(0, 255, 255, 0.1)";
         ctx.lineWidth = 1;
         ctx.stroke();
     });
@@ -91,7 +102,6 @@ export function drawChakras(
     t: number
 ) {
     const numChakras = 7;
-    // Linear interpolation for Y positions
     const ys = [];
     for (let i = 0; i < numChakras; i++) {
         ys.push(bottomY + (i * (topY - bottomY)) / (numChakras - 1));
@@ -103,59 +113,67 @@ export function drawChakras(
         const energy = energies[i];
         const wobble = 8 * Math.sin(t * 1.4 + i * 0.9);
         const cy = ys[i] + wobble;
-        const baseRadius = 18 + energy * 22;
+        const baseRadius = 16 + energy * 20;
         const radius = baseRadius * breathFactor * musicPulse;
 
-        const center = { x: centerX, y: cy };
-
-        const auraRadius = radius * (1.5 + 0.3 * musicPulse);
-        const auraAlpha = Math.min(0.9, 0.25 + 0.5 * energy * musicPulse);
-
-        // Aura
+        // --- Glowing Orb Look ---
         ctx.save();
-        ctx.globalAlpha = auraAlpha;
-        ctx.beginPath();
-        ctx.arc(center.x, center.y, auraRadius, 0, 2 * Math.PI);
-        ctx.fillStyle = CHAKRA_COLORS[i]; // Use chakra color for aura too? Python passed 'aura_color' but used base_color for inner.
-        // Python: draw_chakras arg 'aura_color' was passed from analyze_face.
-        // But here we might want individual chakra colors.
-        // In Python code: `cv2.circle(overlay, center, aura_radius, aura_color, -1)`
-        // The `aura_color` passed to `draw_chakras` was GLOBAL aura color (from face mood).
-        // Let's stick to the Python logic: we need to pass `globalAuraColor`.
-        ctx.fillStyle = CHAKRA_COLORS[i]; // Fallback if not passed, but let's add the arg.
-        ctx.fill();
-        ctx.restore();
+        const chakraColor = CHAKRA_COLORS[i];
 
-        // Base Circle
-        ctx.beginPath();
-        ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = CHAKRA_COLORS[i];
-        ctx.fill();
+        // Dynamic Outer Glow
+        ctx.shadowBlur = 20 * energy * musicPulse;
+        ctx.shadowColor = chakraColor;
 
-        // Orbiting Dot
-        const orbitR = radius * 1.6;
-        const dotAngle = t * 2.5 + i;
-        const dotX = center.x + orbitR * Math.cos(dotAngle);
-        const dotY = center.y + orbitR * Math.sin(dotAngle);
+        const orbGradient = ctx.createRadialGradient(centerX, cy, 2, centerX, cy, radius);
+        orbGradient.addColorStop(0, "white");
+        orbGradient.addColorStop(0.3, chakraColor);
+        orbGradient.addColorStop(1, chakraColor.replace("rgb", "rgba").replace(")", ", 0.4)"));
 
         ctx.beginPath();
-        ctx.arc(dotX, dotY, 4, 0, 2 * Math.PI);
-        ctx.fillStyle = "white";
+        ctx.arc(centerX, cy, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = orbGradient;
         ctx.fill();
 
-        // Active Highlight
-        if (i === activeIndex) {
+        // Energy Ripple (Pulsing ring)
+        if (energy > 0.1) {
+            const rippleRadius = radius * (1.1 + 0.4 * Math.sin(t * 5 + i));
             ctx.beginPath();
-            ctx.arc(center.x, center.y, radius + 6, 0, 2 * Math.PI);
-            ctx.strokeStyle = "white";
+            ctx.arc(centerX, cy, rippleRadius, 0, 2 * Math.PI);
+            ctx.strokeStyle = chakraColor.replace("rgb", "rgba").replace(")", ", 0.2)");
             ctx.lineWidth = 2;
             ctx.stroke();
         }
+        ctx.restore();
 
-        // Text
-        ctx.font = "16px sans-serif";
+        // Orbiting Electron Dot
+        const orbitR = radius * 1.6;
+        const dotAngle = t * 3.0 + i;
+        const dotX = centerX + orbitR * Math.cos(dotAngle);
+        const dotY = cy + orbitR * Math.sin(dotAngle);
+
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, 3, 0, 2 * Math.PI);
         ctx.fillStyle = "white";
-        ctx.fillText(CHAKRA_NAMES[i], center.x + 30, center.y + 5);
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "white";
+        ctx.fill();
+
+        // Label with Neon Stroke
+        ctx.font = "bold 14px monospace";
+        ctx.textAlign = "left";
+        ctx.fillStyle = "white";
+        ctx.shadowBlur = 5;
+        ctx.shadowColor = chakraColor;
+        ctx.fillText(CHAKRA_NAMES[i].toUpperCase(), centerX + 45, cy + 5);
+        ctx.shadowBlur = 0;
+
+        // Progress Bar (Vertical tiny)
+        const pbH = 30;
+        const pbW = 4;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+        ctx.fillRect(centerX + 35, cy - pbH / 2, pbW, pbH);
+        ctx.fillStyle = chakraColor;
+        ctx.fillRect(centerX + 35, cy + pbH / 2, pbW, -pbH * energy);
     }
 }
 
