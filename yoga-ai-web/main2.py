@@ -1377,7 +1377,9 @@ def draw_mini_hand(frame, cx, cy, mudra_name, scale=1.0):
 
 def draw_mudra_sidebar(frame, active_mudra):
     h, w, _ = frame.shape
-    sidebar_w = 280 
+    scale_y = h / 720.0
+    scale_x = w / 1280.0
+    sidebar_w = int(280 * scale_x)
     
     # Glassmorphism Background - HIGH VISIBILITY
     overlay = frame.copy()
