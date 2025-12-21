@@ -1,1 +1,4 @@
-{ "buildCommand": "cd yoga-ai-web && npm install && npm run build", "outputDirectory": "yoga-ai-web/out", "framework": "nextjs" }
+{
+    "buildCommand": "cd yoga-ai-web && npm install && npm run build",
+    "outputDirectory": "yoga-ai-web/out"
+}

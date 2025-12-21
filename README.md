@@ -105,36 +105,43 @@ graph TD
 
 ## 🛠️ Tech Stack
 
-- **Core Logic**: Python (Agent + Vision)
+- **Web Interface**: Next.js 15 + Tailwind CSS (Premium Glassmorphic UI)
 - **Cortex**: Google Gemini 2.0 Flash (Reasoning)
-- **Vision**: MediaPipe
-- **Web Interface**: Next.js 14 (Frontend)
-- **Hardware**: Arduino + MAX30100 (Bio-Feedback)
+- **Vision**: MediaPipe (Task-Vision Web)
+- **Animations**: Framer Motion
+- **Hardware**: Arduino + MAX30100 (Bio-Feedback via Web Serial)
 
 ---
 
 ## 🚀 Getting Started
 
-### 🐍 Run the Agentic Python App (Recommended for Judges)
+### 🌐 Option 1: Premium Web Interface (Highly Recommended)
+Experience the futuristic **Neon Dashboard** with glassmorphism and real-time animations.
 
-This version includes the **Full Agent Capabilities** (Voice, Bio-Sensors, Gemini Reasoning).
-
-1.  **Clone & Install**:
+1.  **Clone & Setup**:
     ```bash
     git clone https://github.com/adityaIITG1/YOGA-AI-IITH-HACATHON.git
+    cd yoga-ai-web
+    npm install
+    ```
+2.  **Run Development Server**:
+    ```bash
+    npm run dev
+    ```
+3.  **Open Browser**: Visit `http://localhost:3000`. Connect your sensor via the **"Connect"** button (uses Web Serial).
+
+### 🐍 Option 2: Native Python Application
+The original robust local environment with real-time OpenCV overlays.
+
+1.  **Navigate to Directory**:
+    ```bash
     cd native-python-app
     pip install -r requirements.txt
     ```
-
-2.  **Setup Agent Brain**:
-    -   Create a `.env` file in `native-python-app/`.
-    -   Add your Gemini API Key: `GEMINI_API_KEY=your_key_here`
-
-3.  **Run the Guru**:
+2.  **Run**:
     ```bash
     python yogi.py
     ```
-    *The AI will launch, greet you, and start observing!*
 
 ---
 
