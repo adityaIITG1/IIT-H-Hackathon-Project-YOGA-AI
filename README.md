@@ -40,6 +40,16 @@ A true agent must **Perceive**, **Reason**, and **Act**. Here is how Yoga AI ful
 
 ---
 
+## 📸 Visual Demonstrations
+
+### Python Backend UI (AI ChakraFlow Engine)
+![Python UI Demo](assets/images/python_ui_demo.png)
+*Real-time bio-analytics, chakra energy visualization, and mudra guide with meditation hints*
+
+### Arduino Heart Rate Sensor Hardware
+![Arduino Sensor](assets/images/arduino_sensor.png)
+*MAX30100 pulse oximeter sensor with real-time heart rate monitoring*
+
 ---
 
 ## 🔄 System Architecture
