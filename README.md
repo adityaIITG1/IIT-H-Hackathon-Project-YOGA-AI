@@ -1,171 +1,105 @@
 # 🧘 Yoga AI (Web) - AI ChakraFlow
 
-> **Theme: Health and Fitness**
-> **Experience the future of spiritual well-being with AI-powered Yoga & Meditation assistance.**
+> **Theme: Health and Fitness (Agentic System Track)**
+> **The First "Aware" AI Yoga Instructor that Sees, Thinks, and Guides.**
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge&logo=vercel)](https://yogaii.vercel.app/)
 
-**Yoga AI (Web)** is a cutting-edge web application that combines ancient yogic wisdom with modern Computer Vision and Bio-Analytics. Built with **Next.js** and **MediaPipe**, it turns your webcam into a smart yoga instructor that tracks your mudras, monitors your energy alignment, and guides you into deep meditation states.
+**Yoga AI** is not just a pose detector; it is an **Agentic System**. Unlike traditional computer vision apps that simply label what they see, Yoga AI possesses a "Brain" (`Agent Class`) that maintains session state, tracks stress levels via bio-feedback, and uses **Generative AI (Gemini)** to provide context-aware, wisdom-filled guidance—just like a real human teacher.
+
+---
+
+## 🧠 Why is this an "Agentic System"?
+
+A true agent must **Perceive**, **Reason**, and **Act**. Here is how Yoga AI fulfills the "Agentic" criteria:
+
+| Component | Function | Implementation |
+| :--- | :--- | :--- |
+| **1. Perception (Eyes/Ears)** | Sees Mudras, Posture, Breathing, and reads **Bio-Sensors**. | `MediaPipe` + `MAX30100 Impulse Sensor` |
+| **2. Brain (Reasoning)** | Tracks session context ("Warmup" vs "Deep Flow"). Monitors Stress (HRV). Decides **WHEN** to speak. | `YogaAgent` Class + `Gemini 2.0 Flash` |
+| **3. Action (Voice/UI)** | Speaks personalized corrections or philosophy. Changes UI/Music based on mood. | `pyttsx3` (TTS) + `PyGame` (Audio) |
+
+> **"It doesn't just buzz when you're wrong; it encourages you when you're right."**
 
 ---
 
 ## 🌟 Key Features
 
 ### 👁️ Advanced Computer Vision
-- **Real-time Mudra Detection**: Instantly recognizes sacred hand gestures including **Gyan**, **Surya**, **Prana**, **Apana**, **Varun**, and **Namaste**.
+- **Real-time Mudra Detection**: Instantly recognizes sacred hand gestures including **Gyan**, **Surya**, **Prana**, **Namaste**.
 - **Posture & Alignment**: Tracks body landmarks to ensure correct yoga forms.
-- **Face & Eye Tracking**: Detects eye closure for **Meditation Mode** and tracks gaze for **Third Eye Focus** training.
+
+### 🧠 The Neural Agent (New!)
+- **State Awareness**: The Agent remembers your "Session Phase". It won't interrupt your flow unless necessary.
+- **Stress-Responsive**: High Heart Rate + Poor Posture = **"Relaxation Protocol"** (Agent suggests breathwork).
+- **Wisdom Injection**: Uses **Gemini AI** to explain the *spiritual significance* of your current pose, not just the physical alignment.
 
 ### 📊 Bio-Analytics Engine
-- **Heart & SpO2 Monitoring**: Integrates with hardware sensors (MAX30100/Arduino) to display real-time **Heart Rate (BPM)** and **Oxygen Levels**.
-- **Stress & Focus Analysis**: visualizes **HRV Index**, **Stress Levels**, and **Focus Score** based on physiological data.
-- **Nadi Pariksha**: Digital estimation of your **Vata**, **Pitta**, and **Kapha** dosha balance.
-
-### 🤖 Smart AI Coach
-- **Interactive Voice Assistant**: Provides real-time audio feedback in a calming Indian female voice.
-- **Intelligent Guidance**: Suggests mudras to balance specific weak chakras based on your energy readings.
+- **Heart & SpO2 Monitoring**: Integrates with hardware sensors to display real-time **Heart Rate (BPM)**.
 - **Energy Coherence Radar**: Visualizes the harmony between your mind and body.
-
-### 🌈 Spiritual Gamification
-- **XP & Leveling System**: Earn XP for holding mudras and maintaining focus. Level up your spiritual journey!
-- **Chakra Visualization**: Beautiful, dynamic overlays showing the activation and balancing of your 7 Chakras.
-- **Meditation Rewards**: Unlock "Deep Meditation" states and earn energy bonuses.
-
-### 🔌 Hardware Integration (Bio-Feedback)
-We use a **MAX30100 / Pulse Sensor** to bring real physiological data into the AI experience.
-
-<img src="https://github.com/adityaIITG1/Yoga_AI/raw/main/yoga-ai-web/public/sensor_demo.png" alt="Heart Rate Sensor" width="300" style="border-radius: 10px; border: 2px solid #ff0000; margin: 10px 0;">
-
-**How it Works (PPG Principle):**
-1.  **Photoplethysmography:** The sensor detects changes in blood flow volume in the microvascular bed of tissue.
-2.  **Light Intensity:** As your heart beats, blood flow changes, altering the intensity of reflected light.
-3.  **Signal Conversion:** This optical variation is converted into an electrical signal.
-4.  **Real-time Analysis:** The system calculates your **Heart Rate (BPM)** and **SpO2** instantly.
-
-**Why we use it:**
-- ❤️ **Real-time Biofeedback:** Directly links your physical state to the digital Yoga experience.
-- 🧘 **Meditation Validation:** Verifies calmness through lowered heart rate variability.
-
-**Common Applications:**
-- ❤️ Heartbeat / Pulse detection
-- 🧘 Yoga & Meditation biofeedback systems
-- 🤖 Arduino / ESP32 health monitoring projects
-- 📊 Stress and Fitness tracking demos
 
 ---
 
-## 🔄 System Workflow
+## 🔄 System Architecture
 
-Our solution follows a real-time closed-loop feedback system:
+Our solution follows a closed-loop **Agentic Workflow**:
 
-1.  **Input Acquisition**:
-    -   **Webcam**: Captures user movements (30/60 FPS).
-    -   **Bio-Sensors**: MAX30100 streams HR/SpO2 data via Serial/Bluetooth.
-
-2.  **Processing Layer (The "Neural Engine")**:
-    -   **Computer Vision**: MediaPipe extracts 21 hand landmarks and 468 face landmarks.
-    -   **Pose Logic**: Custom algorithms calculate angles and relative distances to identify specific Mudras (Gyan, Prana, etc.).
-    -   **Bio-Fusion**: Sensor data is smoothed and correlated with user focus levels.
-
-3.  **Feedback Generation**:
-    -   **Visual**: Real-time canvas overlay draws refined skeletons, energetic auras, and chakra activations.
-    -   **Audio**: AI Voice Assistant provides corrective guidance and affirmations based on detected state.
-    -   **Analytics**: Data is logged to calculate Stress Index and Energy Scores.
+1.  **Observation**: 
+    -   *Vision*: "User is holding Gyan Mudra."
+    -   *Sensor*: "Heart Rate is 75 BPM (Calm)."
+2.  **Reasoning (`agent.py`)**:
+    -   *Context*: "User is in Warmup phase."
+    -   *Logic*: "Good pose + Calm Heart = Ready for deeper wisdom."
+    -   *Decision*: **TRIGGER_EXPLANATION** (Call LLM).
+3.  **Action**:
+    -   *LLM*: Generates a short, poetic insight about "Focus and Stability."
+    -   *TTS*: Speaks the insight to the user.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Next.js 14+](https://nextjs.org/) (App Router)
-- **Language**: TypeScript
-- **AI/ML**: [MediaPipe](https://developers.google.com/mediapipe) (Vision Tasks), [YOLOv11](https://github.com/ultralytics/ultralytics) (Custom Training)
-- **Styling**: Tailwind CSS
-- **State Management**: React Hooks (useContext, useReducer)
-- **Visuals**: HTML5 Canvas, Framer Motion
-
----
-
-## 👨‍💻 Technical Highlights (For Judges)
-
-We have implemented a **Dual-Architecture System**:
-
-1.  **Backend & ML Logic (`/native-python-app`)**:
-    -   **`train.py`**: Custom YOLOv11 model training pipeline for specific Yoga pose detection.
-    -   **`yogi.py`**: The core "Neural Engine" that fuses Computer Vision vectors with IoT sensor data.
-    -   **`arduino_simple_hr.ino`**: Custom C++ firmware for real-time MAX30100 sensor data streaming.
-
-2.  **Frontend & Visualization (`/yoga-ai-web`)**:
-    -   **Next.js 14**: Server-side rendering for optimal performance.
-    -   **Real-time Canvas**: 60FPS animations ensuring smooth bio-feedback loops.
+- **Core Logic**: Python (Agent + Vision)
+- **Cortex**: Google Gemini 2.0 Flash (Reasoning)
+- **Vision**: MediaPipe
+- **Web Interface**: Next.js 14 (Frontend)
+- **Hardware**: Arduino + MAX30100 (Bio-Feedback)
 
 ---
 
 ## 🚀 Getting Started
 
-1.  **Clone the repository**:
+### 🐍 Run the Agentic Python App (Recommended for Judges)
+
+This version includes the **Full Agent Capabilities** (Voice, Bio-Sensors, Gemini Reasoning).
+
+1.  **Clone & Install**:
     ```bash
     git clone https://github.com/adityaIITG1/YOGA-AI-IITH-HACATHON.git
-    cd yoga-ai-web
+    cd native-python-app
+    pip install -r requirements.txt
     ```
 
-2.  **Install dependencies**:
+2.  **Setup Agent Brain**:
+    -   Create a `.env` file in `native-python-app/`.
+    -   Add your Gemini API Key: `GEMINI_API_KEY=your_key_here`
+
+3.  **Run the Guru**:
     ```bash
-    npm install
-    # or
-    yarn install
+    python yogi.py
     ```
-
-3.  **Run the development server**:
-    ```bash
-    npm run dev
-    ```
-
-
-4.  **Open [http://localhost:3000](http://localhost:3000)** to start your yoga session!
-
-### 🌍 Deployment (Vercel)
-Want to share this with the world? Deploying to Vercel is instant:
-
-1.  Push this repository to **GitHub**.
-2.  Go to [Vercel.com](https://vercel.com) and log in.
-3.  Click **"Add New..."** -> **"Project"**.
-4.  Import your `YOGA-AI-IITH-HACATHON` repository.
-5.  **Critical Setting:** In "Framework Preset", select **Next.js**.
-    - **Root Directory:** Edit this and select `yoga-ai-web`. (This is crucial as the web app lives in this subfolder).
-6.  Click **Deploy**.
-7.  Done! Your Yoga AI is live on the web.
-
-### 🐍 Other Option: Run Native Python App (`yogi.py`)
-If you encounter issues with the web version or want direct hardware sensor access:
-
-#### Prerequisites
-- **Python 3.8+** installed.
-- Install required libraries:
-  ```bash
-  pip install opencv-python mediapipe numpy pygame SpeechRecognition pyttsx3 pyserial pyaudio
-  ```
-
-#### Steps
-1.  Open the project folder in **VS Code**.
-
-2.  Open the file `yogi.py`.
-3.  Click the **▷ Run Button** (Play icon) in the top right corner.
-
-> **Note for Judges:** 
-> Please also check our **Live Deployment** at [https://yogaii.vercel.app/](https://yogaii.vercel.app/) for the smoothest experience if you don't have the Python environment set up. It offers the same core AI features directly in the browser!
-
-
+    *The AI will launch, greet you, and start observing!*
 
 ---
 
-## 📸 Screenshots
+## 👨‍💻 Submission Highlights
 
-<img src="https://github.com/adityaIITG1/Yoga_AI/raw/main/yoga-ai-web/public/yogi_demo_v2.png" alt="Yoga AI Demo" width="100%" style="border-radius: 10px; border: 2px solid #00ff00;">
+-   **`native-python-app/agent.py`**: The file where the "Reasoning" happens.
+-   **`native-python-app/yogi.py`**: The main loop connecting Vision to Brain.
+-   **`ai_explainer.py`**: The bridge to the LLM.
 
+---
 
 ## 🎥 Video Demonstration
 
-Watch the project in action:
-
 - **YouTube Short**: [Watch Demo](https://youtube.com/shorts/F-6WMswfo4M?si=3ZmhGJcTlJCQPOqC)
-- **LinkedIn Post**: [View Project & Insights](https://www.linkedin.com/posts/aditya-kumar-singh-39245525b_iitguwahati-yogaai-artificialintelligence-activity-7402318177742807040-IJYa)

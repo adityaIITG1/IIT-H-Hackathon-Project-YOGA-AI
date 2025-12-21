@@ -1,13 +1,16 @@
 import os
 import requests
+import json
 
-GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent"
+# Fallback to a hardcoded key is NOT recommended for production/hackathons.
+# We expect GEMINI_API_KEY in environment variables.
+GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-exp:generateContent"
 
 def get_ai_explanation(scripture_entry, pose_state, mudra_state, breath_state, session_context, enable_api=True):
-    # INTEGRATED API KEY HERE
-    api_key = "AIzaSyAHazke5EhUlp2bqfKszpi3mKw3fTYxiSw"
+    api_key = os.getenv("GEMINI_API_KEY")
     
     if not enable_api or not api_key:
+        print("[AI] No API Key found or API disabled.")
         return _fallback(scripture_entry)
         
     prompt = _build_prompt(scripture_entry, pose_state, mudra_state, breath_state, session_context)
@@ -21,12 +24,11 @@ def get_ai_explanation(scripture_entry, pose_state, mudra_state, breath_state, s
                     "parts": [{"text": prompt}]
                 }]
             },
-            timeout=8
+            timeout=5 # Faster timeout for real-time app
         )
         
         if resp.status_code != 200:
-            # Optional: Print error to console for debugging
-            # print(f"Error {resp.status_code}: {resp.text}")
+            print(f"[AI Error] {resp.status_code}: {resp.text}")
             return _fallback(scripture_entry)
             
         data = resp.json()
@@ -38,32 +40,33 @@ def get_ai_explanation(scripture_entry, pose_state, mudra_state, breath_state, s
         return candidates[0]["content"]["parts"][0]["text"]
         
     except Exception as e:
-        # Optional: Print exception for debugging
-        # print(f"Exception occurred: {e}")
+        print(f"[AI Exception] {e}")
         return _fallback(scripture_entry)
 
 
 def _fallback(entry):
-    return f"{entry['hinglish']}: {entry['meaning']} Keep breath soft, mind steady. No medical or spiritual guarantees—just gentle guidance."
+    if entry:
+        return f"{entry.get('hinglish', '')}: {entry.get('meaning', '')}"
+    return "Focus on your breath and find your center."
 
 
 def _build_prompt(entry, pose_state, mudra_state, breath_state, session_context):
     return f"""
-You are a wise yoga teacher. Explain the scripture in 4-6 sentences.
-Include a relevant short quote or wisdom from the **Vedas** or **Ramayana** to inspire the user.
-Avoid medical claims, be inclusive, non-fanatical, non-political.
-
-Scripture:
-- Source: {entry['source']}
-- Sanskrit: {entry['sanskrit']}
-- Hinglish: {entry['hinglish']}
-- Meaning: {entry['meaning']}
-
-Current state:
-- Pose: {pose_state.get('pose')}
-- Mudra: {mudra_state.get('mudra')}
-- Breath smoothness: {breath_state.get('smoothness'):.2f}, rate: {breath_state.get('rate'):.1f} bpm
-- Pranayama count: {breath_state.get('pranayama_count')}
-
-User: beginner home practitioner, tone: calm and friendly.
-"""
+    You are a wise, empathetic Yoga Guru (Agent).
+    
+    Context:
+    - User is performing: {pose_state.get('pose', 'Unknown Pose')}
+    - Mudra: {mudra_state.get('mudra', 'None')}
+    - Session Context: {session_context}
+    
+    Scripture Reference (if active):
+    {json.dumps(entry) if entry else "None"}
+    
+    Task:
+    Provide a short, 1-2 sentence spoken guidance. 
+    If the user is doing well, encourage them using the scripture.
+    If they are stressed (high HR), calm them down.
+    
+    Tone: Calm, Indian wisdom, English with a touch of warmth.
+    Output just the spoken text.
+    """

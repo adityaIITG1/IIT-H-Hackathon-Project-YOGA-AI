@@ -1,7 +1,10 @@
-streamlit
-streamlit-webrtc
-opencv-python-headless
+opencv-python
 mediapipe
 numpy
-av
-pyarrow
+pygame
+SpeechRecognition
+pyttsx3
+pyserial
+pyaudio
+requests
+python-dotenv

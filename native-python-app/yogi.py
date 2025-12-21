@@ -11,7 +11,12 @@ import pyttsx3
 import serial
 import serial.tools.list_ports
 import ai_explainer
-
+from agent import YogaAgent
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass # Assume env vars are set otherwise
 """
 Yoga AI - Neural Engine (yogi.py)
 Theme: Health and Fitness
@@ -3534,6 +3539,7 @@ def main():
     cv2.namedWindow("AI ChakraFlow — Full Experience", cv2.WINDOW_NORMAL)
     cv2.setMouseCallback("AI ChakraFlow — Full Experience", mouse_callback)
     # Main Loop
+    agent = YogaAgent()
     frame_count = 0
     fps_start_time = time.time()
     fps_counter = 0
@@ -4431,6 +4437,25 @@ def main():
 
         # [NEW] Check Hover for Speaking Graphs
         check_hover_and_speak(w, h)
+
+        # [NEW] Agentic Reasoning Step
+        # Pass current state to the brain
+        current_pose_name = "Unknown"
+        if gyan_active: current_pose_name = "Gyan Mudra"
+        # (We could add more detailed pose names from posture analyzer if available)
+        
+        agent_action = agent.decide_action()
+        if agent_action:
+            print(f"[AGENT] Action triggered: {agent_action}")
+            if agent_action.get("text"):
+                speak_threaded(agent_action["text"])
+        
+        # Update agent state
+        agent.update_state(
+            pose_name=current_pose_name,
+            heart_rate=hr_monitor.heart_rate,
+            stress_index=0 # Placeholder, ideally from physio_engine
+        )
 
         # Draw FPS
         cv2.putText(frame, f"FPS: {int(current_fps)}", (w - 120, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
