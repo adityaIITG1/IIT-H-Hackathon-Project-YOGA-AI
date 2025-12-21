@@ -1012,23 +1012,36 @@ export default function YogaCanvas() {
                 </div>
 
                 {/* Bio Analytics */}
-                {arduinoData.isConnected && (
-                    <div className="flex-1 min-h-[250px] rounded-3xl bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl overflow-hidden p-1">
-                        <BioAnalyticsPanel
-                            heartRate={arduinoData.heartRate}
-                            spo2={arduinoData.spo2}
-                            beatDetected={arduinoData.beatDetected}
-                            energyLevel={uiEnergies[3]}
-                            stressLevel={1.0 - (uiEnergies[6] || 0.5)}
-                            focusScore={uiEnergies[5] || 0.5}
-                            isConnected={arduinoData.isConnected}
-                            hrvIndex={arduinoData.hrvIndex}
-                            doshas={arduinoData.doshas}
-                            insightText={arduinoData.insightText}
-                            finding={arduinoData.finding}
-                        />
-                    </div>
-                )}
+                <div className="flex-1 min-h-[250px] rounded-3xl bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl overflow-hidden p-1 relative">
+                    {!arduinoData.isConnected && (
+                        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-4 text-center bg-black/60 backdrop-blur-md">
+                            <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-2 animate-pulse">
+                                <span className="text-xl">🔌</span>
+                            </div>
+                            <h4 className="text-[10px] text-white/80 font-bold tracking-widest uppercase mb-2">Sensor Disconnected</h4>
+                            <button
+                                onClick={connectArduino}
+                                className="px-4 py-2 bg-green-500/20 hover:bg-green-500/40 text-green-400 border border-green-500/50 rounded-full text-[10px] font-black tracking-tighter transition-all"
+                            >
+                                CONNECT SENSOR
+                            </button>
+                        </div>
+                    )}
+
+                    <BioAnalyticsPanel
+                        heartRate={arduinoData.heartRate}
+                        spo2={arduinoData.spo2}
+                        beatDetected={arduinoData.beatDetected}
+                        energyLevel={uiEnergies[3]}
+                        stressLevel={1.0 - (uiEnergies[6] || 0.5)}
+                        focusScore={uiEnergies[5] || 0.5}
+                        isConnected={arduinoData.isConnected}
+                        hrvIndex={arduinoData.hrvIndex}
+                        doshas={arduinoData.doshas}
+                        insightText={arduinoData.insightText}
+                        finding={arduinoData.finding}
+                    />
+                </div>
             </div>
 
             {/* Right HUD: Guidance */}
@@ -1063,6 +1076,18 @@ export default function YogaCanvas() {
                     SYSTEM STATUS: OK // SYNCED
                 </div>
                 <div className="flex items-center gap-6 pointer-events-auto">
+                    {/* [NEW] Persistent Arduino Connect Button */}
+                    <button
+                        onClick={connectArduino}
+                        className={`group relative flex items-center gap-3 px-6 py-2 rounded-full text-[10px] font-black tracking-widest transition-all border
+                            ${arduinoData.isConnected
+                                ? 'bg-green-500/20 text-green-400 border-green-500/50'
+                                : 'bg-red-500/20 text-red-400 border-red-500/50 animate-pulse'}`}
+                    >
+                        <span className="relative z-10">{arduinoData.isConnected ? "SENSOR: ONLINE" : "CONNECT SENSOR"}</span>
+                        <div className={`absolute inset-0 rounded-full blur-md transition-opacity group-hover:opacity-100 ${arduinoData.isConnected ? 'bg-green-500/10 opacity-0' : 'bg-red-500/20 opacity-40'}`}></div>
+                    </button>
+
                     <button
                         onClick={() => {
                             // Run in next frame to prevent event handler from blocking current UI update
