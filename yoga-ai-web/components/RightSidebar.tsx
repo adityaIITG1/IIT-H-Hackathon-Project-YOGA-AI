@@ -41,8 +41,8 @@ export default function RightSidebar({ activeGesture }: RightSidebarProps) {
             </div>
 
             {/* Header */}
-            <div className="bg-black/20 backdrop-blur-md border border-white/10 rounded-xl p-2 shadow-sm">
-                <h2 className="text-white font-bold text-xs uppercase tracking-widest flex items-center gap-2">
+            <div className="bg-black/40 backdrop-blur-md border border-white/20 rounded-xl p-2 shadow-sm">
+                <h2 className="text-white font-black text-xs uppercase tracking-widest flex items-center gap-2 drop-shadow-[0_0_8px_rgba(34,197,94,0.4)]">
                     <span className="relative flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
@@ -62,31 +62,31 @@ export default function RightSidebar({ activeGesture }: RightSidebarProps) {
                             className={`
                                 relative flex items-center justify-between px-3 py-2 rounded-lg border transition-all duration-500
                                 ${isActive
-                                    ? "bg-green-900/60 border-green-400 shadow-[0_0_15px_rgba(74,222,128,0.2)] scale-105 z-10 translate-x-[-2px]"
-                                    : "bg-black/20 border-white/5 opacity-80 hover:bg-black/40 hover:border-white/20"
+                                    ? "bg-green-600/40 border-green-400 shadow-[0_0_20px_rgba(74,222,128,0.3)] scale-105 z-10 translate-x-[-2px]"
+                                    : "bg-black/60 border-white/10 opacity-100 hover:bg-black/80 hover:border-white/30"
                                 }
-                                backdrop-blur-sm
+                                backdrop-blur-md
                             `}
                         >
                             {/* Active Glow Line */}
                             {isActive && (
-                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-green-400 rounded-l-lg shadow-[0_0_5px_#4ade80]"></div>
+                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-green-400 rounded-l-lg shadow-[0_0_10px_#4ade80]"></div>
                             )}
 
                             <div className="flex flex-col pl-1">
-                                <span className={`text-sm font-bold tracking-wide ${isActive ? "text-white" : "text-gray-300"}`}>
+                                <span className={`text-sm font-black tracking-wide ${isActive ? "text-white" : "text-white/90"}`}>
                                     {m.name}
                                 </span>
-                                <span className={`text-[10px] uppercase tracking-wider font-medium ${isActive ? "text-green-200" : "text-gray-500"}`}>
+                                <span className={`text-[10px] uppercase tracking-wider font-black ${isActive ? "text-green-300" : "text-white/60"}`}>
                                     {m.desc}
                                 </span>
                             </div>
 
                             <div className={`
-                                p-1 rounded-md transition-all duration-300
-                                ${isActive ? "bg-green-400/20" : "bg-white/5"}
+                                p-1.5 rounded-md transition-all duration-300
+                                ${isActive ? "bg-green-400/30" : "bg-white/10"}
                             `}>
-                                <MudraIcon name={m.name} className={`w-6 h-6 ${isActive ? "text-green-300" : "text-gray-500"}`} />
+                                <MudraIcon name={m.name} className={`w-6 h-6 ${isActive ? "text-green-300" : "text-white/80"}`} />
                             </div>
                         </div>
                     );
@@ -94,23 +94,23 @@ export default function RightSidebar({ activeGesture }: RightSidebarProps) {
             </div>
 
             {/* Info Panel (HUD Style) */}
-            <div className="bg-black/40 backdrop-blur-md border-t border-green-500/50 rounded-xl p-3 shadow-lg pointer-events-auto">
-                <h3 className="text-green-400 font-bold text-[10px] uppercase tracking-widest mb-2 flex justify-between items-center border-b border-white/5 pb-1">
+            <div className="bg-black/80 backdrop-blur-md border border-green-500/50 rounded-xl p-3 shadow-2xl pointer-events-auto">
+                <h3 className="text-green-400 font-black text-[11px] uppercase tracking-widest mb-2 flex justify-between items-center border-b border-white/10 pb-1.5">
                     AI Coach
-                    <span className="text-[8px] bg-green-500/20 border border-green-500/30 px-1.5 py-0.5 rounded text-green-300">ONLINE</span>
+                    <span className="text-[9px] bg-green-500/30 border border-green-500/50 px-2 py-0.5 rounded font-black text-green-300 shadow-[0_0_10px_rgba(34,197,94,0.3)]">ONLINE</span>
                 </h3>
-                <div className="text-xs text-gray-300 space-y-1.5 font-light">
+                <div className="text-[12px] text-white/90 space-y-2 font-bold leading-tight">
                     <div className="flex items-start gap-2">
-                        <span className="text-green-500 mt-0.5 text-[10px]">▶</span>
-                        <span>Sit in <span className="text-white font-semibold">Lotus Pose</span></span>
+                        <span className="text-green-500 mt-0.5 text-[10px] drop-shadow-[0_0_5px_#22c55e]">▶</span>
+                        <span>Sit in <span className="text-cyan-400 font-black">Lotus Pose</span></span>
                     </div>
                     <div className="flex items-start gap-2">
-                        <span className="text-green-500 mt-0.5 text-[10px]">▶</span>
-                        <span>Form <span className="text-white font-semibold">Mudras</span> clearly</span>
+                        <span className="text-green-500 mt-0.5 text-[10px] drop-shadow-[0_0_5px_#22c55e]">▶</span>
+                        <span>Form <span className="text-cyan-400 font-black">Mudras</span> clearly</span>
                     </div>
                     <div className="flex items-start gap-2">
-                        <span className="text-green-500 mt-0.5 text-[10px]">▶</span>
-                        <span>Close eyes for <span className="text-white font-semibold">Meditation</span></span>
+                        <span className="text-green-500 mt-0.5 text-[10px] drop-shadow-[0_0_5px_#22c55e]">▶</span>
+                        <span>Close eyes for <span className="text-cyan-400 font-black">Meditation</span></span>
                     </div>
                 </div>
             </div>

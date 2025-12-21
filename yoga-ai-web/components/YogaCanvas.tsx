@@ -1001,9 +1001,9 @@ export default function YogaCanvas() {
             {/* Left HUD: Bio Metrics */}
             <div className="absolute left-4 top-24 bottom-20 w-[240px] z-30 flex flex-col gap-4 animate-fade-in">
                 {/* Energy Bars */}
-                <div className="flex-none p-4 rounded-3xl bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl overflow-hidden">
-                    <h3 className="text-[10px] text-cyan-400 font-bold uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                <div className="flex-none p-4 rounded-3xl bg-black/60 backdrop-blur-3xl border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden">
+                    <h3 className="text-[11px] text-cyan-300 font-black uppercase tracking-[0.25em] mb-4 flex items-center gap-2 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
+                        <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_#22d3ee]"></span>
                         Neural Energies
                     </h3>
                     <div className="h-[280px] flex justify-center">
@@ -1012,7 +1012,7 @@ export default function YogaCanvas() {
                 </div>
 
                 {/* Bio Analytics */}
-                <div className="flex-1 min-h-[250px] rounded-3xl bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl overflow-hidden p-1 relative">
+                <div className="flex-1 min-h-[250px] rounded-3xl bg-black/60 backdrop-blur-3xl border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden p-1 relative">
                     {!arduinoData.isConnected && (
                         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-4 text-center bg-black/60 backdrop-blur-md">
                             <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-2 animate-pulse">
@@ -1046,7 +1046,7 @@ export default function YogaCanvas() {
 
             {/* Right HUD: Guidance */}
             <div className="absolute right-4 top-24 bottom-20 w-[240px] z-30 flex flex-col gap-4 animate-fade-in">
-                <div className="flex-1 rounded-3xl bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl overflow-hidden p-2">
+                <div className="flex-1 rounded-3xl bg-black/60 backdrop-blur-3xl border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden p-2">
                     <RightSidebar activeGesture={gesture} />
                 </div>
             </div>
