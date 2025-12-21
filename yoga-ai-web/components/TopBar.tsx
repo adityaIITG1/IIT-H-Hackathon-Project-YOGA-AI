@@ -6,9 +6,18 @@ interface TopBarProps {
     mood: string;
     posture?: string;
     alignmentMode?: string;
+    isSensorConnected?: boolean;
+    connectSensor?: () => void;
 }
 
-export default function TopBar({ sessionTime, mood, posture = "Good", alignmentMode = "Standard" }: TopBarProps) {
+export default function TopBar({
+    sessionTime,
+    mood,
+    posture = "Good",
+    alignmentMode = "Standard",
+    isSensorConnected = false,
+    connectSensor
+}: TopBarProps) {
     return (
         <div className="absolute top-4 left-0 w-full z-30 flex justify-center pointer-events-none">
             <div className="
@@ -81,6 +90,25 @@ export default function TopBar({ sessionTime, mood, posture = "Good", alignmentM
                         </div>
                     </>
                 )}
+
+                <div className="w-px h-4 bg-white/10"></div>
+
+                {/* Sensor Connection */}
+                <button
+                    onClick={connectSensor}
+                    className={`flex items-center gap-3 px-4 py-1.5 rounded-full transition-all duration-500 pointer-events-auto cursor-pointer border
+                        ${isSensorConnected
+                            ? "bg-green-500/20 border-green-500/40 text-green-300"
+                            : "bg-red-500/30 border-red-500/50 text-red-100 animate-pulse scale-110 shadow-[0_0_20px_rgba(239,68,68,0.4)]"}`}
+                >
+                    <Zap className={`w-4 h-4 transition-transform ${isSensorConnected ? "text-green-400" : "text-white"}`} />
+                    <div className="flex flex-col leading-none">
+                        <span className="text-[8px] text-white/60 uppercase font-black tracking-widest text-left">System</span>
+                        <span className={`text-[10px] drop-shadow-sm font-black tracking-widest ${isSensorConnected ? "text-green-300" : "text-white"}`}>
+                            {isSensorConnected ? "SENSOR: ONLINE" : "SYNC SENSOR"}
+                        </span>
+                    </div>
+                </button>
             </div>
         </div>
     );

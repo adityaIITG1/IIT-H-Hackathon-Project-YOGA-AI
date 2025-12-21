@@ -479,25 +479,33 @@ export default function BioAnalyticsPanel({
     return (
         <div
             onMouseMove={handleMouseMove}
-            className="relative w-[300px] h-[600px] bg-black/20 backdrop-blur-md border border-[#00d7ff]/30 rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,215,255,0.1)] transition-all duration-300 pointer-events-auto"
+            className="relative w-full h-full bg-black/20 backdrop-blur-md rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(0,215,255,0.05)] transition-all duration-300 pointer-events-auto"
         >
             {/* Header */}
-            <div className="absolute top-3 left-0 w-full text-center">
-                <h3 className="text-[#00ffff] font-sans text-xs font-bold tracking-widest opacity-80">BIO-ANALYTICS</h3>
+            <div className="absolute top-3 left-0 w-full text-center z-10">
+                <h3 className="text-[#00ffff] font-sans text-[10px] font-black tracking-[0.2em] opacity-80 uppercase">
+                    Neural Analytics
+                </h3>
             </div>
 
             {/* Numeric Stats */}
-            <div className="absolute top-10 left-5 flex items-center gap-3">
-                {/* Heart Icon */}
-                <div className={`text-2xl ${beatDetected ? 'text-red-600 scale-125' : 'text-red-800'} transition-transform duration-100`}>
-                    ♥
+            <div className="absolute top-10 left-4 right-4 flex items-center justify-between z-10 bg-black/40 backdrop-blur-sm p-2 rounded-xl border border-white/5">
+                <div className="flex items-center gap-2">
+                    {/* Heart Icon */}
+                    <div className={`text-xl ${beatDetected ? 'text-red-500 scale-125' : 'text-red-900'} transition-all duration-100 drop-shadow-[0_0_8px_rgba(239,68,68,0.4)]`}>
+                        ♥
+                    </div>
+                    <div>
+                        <div className="text-xl font-black text-white font-mono leading-none">{heartRate}</div>
+                        <div className="text-[8px] text-cyan-400 font-bold tracking-widest uppercase">BPM</div>
+                    </div>
                 </div>
-                <div>
-                    <div className="text-2xl font-bold text-white font-mono">{heartRate}</div>
-                    <div className="text-[10px] text-cyan-200">BPM</div>
-                </div>
-                <div className="ml-2">
-                    <div className="text-lg font-bold text-blue-400 font-mono">O₂: {spo2}%</div>
+
+                <div className="h-8 w-px bg-white/10"></div>
+
+                <div className="text-right">
+                    <div className="text-base font-black text-blue-400 font-mono leading-none">O₂: {spo2}%</div>
+                    <div className="text-[8px] text-blue-300/60 font-bold tracking-widest uppercase">Saturation</div>
                 </div>
             </div>
 
@@ -506,12 +514,15 @@ export default function BioAnalyticsPanel({
                 ref={canvasRef}
                 width={300}
                 height={600}
-                className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-90"
             />
 
-            {/* Connection Status */}
-            <div className="absolute top-3 right-3">
-                <div className={`w-2 h-2 rounded-full shadow-[0_0_5px_currentColor] ${isConnected ? 'bg-green-500 text-green-500 animate-pulse' : 'bg-red-500 text-red-500'}`}></div>
+            {/* Connection Status Indicator */}
+            <div className="absolute top-3 right-4 z-20">
+                <div className="flex items-center gap-1.5 bg-black/40 px-2 py-0.5 rounded-full border border-white/10">
+                    <span className="text-[7px] text-white/40 font-black tracking-widest uppercase">{isConnected ? 'Link: OK' : 'No Link'}</span>
+                    <div className={`w-1.5 h-1.5 rounded-full shadow-[0_0_5px_currentColor] ${isConnected ? 'bg-green-500 text-green-500 animate-pulse' : 'bg-red-500 text-red-500'}`}></div>
+                </div>
             </div>
         </div>
     );

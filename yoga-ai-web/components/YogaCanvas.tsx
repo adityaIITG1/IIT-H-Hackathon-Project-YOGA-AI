@@ -990,16 +990,19 @@ export default function YogaCanvas() {
             {/* --- FLOATING HUD OVERLAYS --- */}
             {/* Header / Top Bar */}
             <div className="absolute top-0 left-0 w-full p-4 z-40 bg-gradient-to-b from-black/80 to-transparent">
+                {/* HUD: Top Status Bar */}
                 <TopBar
                     sessionTime={sessionTime}
                     mood={mood}
-                    posture={posture}
-                    alignmentMode={alignmentMode}
+                    posture={posture || "Good"}
+                    alignmentMode={alignmentMode || "Standard"}
+                    isSensorConnected={arduinoData.isConnected}
+                    connectSensor={connectArduino}
                 />
             </div>
 
             {/* Left HUD: Bio Metrics */}
-            <div className="absolute left-4 top-24 bottom-20 w-[240px] z-30 flex flex-col gap-4 animate-fade-in">
+            <div className="absolute left-4 top-24 bottom-20 w-[320px] z-30 flex flex-col gap-4 animate-fade-in">
                 {/* Energy Bars */}
                 <div className="flex-none p-4 rounded-3xl bg-black/60 backdrop-blur-3xl border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden">
                     <h3 className="text-[11px] text-cyan-300 font-black uppercase tracking-[0.25em] mb-4 flex items-center gap-2 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
@@ -1045,8 +1048,8 @@ export default function YogaCanvas() {
             </div>
 
             {/* Right HUD: Guidance */}
-            <div className="absolute right-4 top-24 bottom-20 w-[240px] z-30 flex flex-col gap-4 animate-fade-in">
-                <div className="flex-1 rounded-3xl bg-black/60 backdrop-blur-3xl border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden p-2">
+            <div className="absolute right-4 top-24 bottom-20 w-[320px] z-30 flex flex-col gap-4 animate-fade-in">
+                <div className="flex-1 rounded-3xl bg-black/60 backdrop-blur-3xl border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden p-1.5 flex flex-col">
                     <RightSidebar activeGesture={gesture} />
                 </div>
             </div>
