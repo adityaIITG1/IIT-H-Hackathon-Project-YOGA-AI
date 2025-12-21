@@ -1567,7 +1567,8 @@ def draw_mudra_info_panel(frame, mudra_name=None):
     Draws a stylish info panel vertically stacked BELOW the Anjali mudra in the sidebar.
     """
     h, w, _ = frame.shape
-    sidebar_w = 280
+    scale_x = w / 1280.0
+    sidebar_w = int(280 * scale_x)
     
     # Panel Size - Fit within sidebar width
     panel_w = sidebar_w - 20 # 260
@@ -2140,7 +2141,7 @@ class ElementalEffects:
                 self.particles.append([cx, cy, 0, 0, 1.0, "nature", col])
     
     def _draw_glowing_sun(self, frame, hand_list, w, h):
-        if not hand_list or self.sun_img is None: return
+        if not hand_list: return
         
         for hand_lm in hand_list:
             # Calculate Palm Center
@@ -2150,81 +2151,139 @@ class ElementalEffects:
             cx = int((wrist.x + middle_mcp.x) / 2 * w)
             cy = int((wrist.y + middle_mcp.y) / 2 * h)
             
-            # Size of Sun Icon
-            size = 90
-            x1 = cx - size // 2
-            y1 = cy - size // 2
-            x2 = x1 + size
-            y2 = y1 + size
+            # Draw PROCEDURAL Sun (Clean, No PNG artifacts)
+            size = 35  # Reduced from 50 to fit in palm
             
-            # Bounds Check
-            if x1 < 0 or y1 < 0 or x2 >= w or y2 >= h: continue
-            
-            # Resize Sun
-            sun_resized = cv2.resize(self.sun_img, (size, size))
-            
-            # Alpha Blending
-            roi = frame[y1:y2, x1:x2]
-            b_b, b_g, b_r, b_a = cv2.split(sun_resized)
-            mask = b_a / 255.0
-            inv_mask = 1.0 - mask
-            
-            for c in range(3):
-                roi[:, :, c] = (mask * sun_resized[:, :, c] + inv_mask * roi[:, :, c])
-                
-            frame[y1:y2, x1:x2] = roi
-            
-            # Add extra glow (Yellow)
+            # Outer glow
             overlay = frame.copy()
-            cv2.circle(overlay, (cx, cy), size // 2 + 15, (0, 255, 255), -1) 
+            cv2.circle(overlay, (cx, cy), size + 15, (0, 255, 255), -1)  # Yellow glow (reduced)
             cv2.addWeighted(overlay, 0.4, frame, 0.6, 0, frame)
+            
+            # Sun rays (8 rays)
+            import math
+            for i in range(8):
+                angle = i * (2 * math.pi / 8)
+                x1 = int(cx + (size + 3) * math.cos(angle))
+                y1 = int(cy + (size + 3) * math.sin(angle))
+                x2 = int(cx + (size + 15) * math.cos(angle))
+                y2 = int(cy + (size + 15) * math.sin(angle))
+                cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 255), 3)  # Yellow rays
+            
+            # Main sun circle
+            cv2.circle(frame, (cx, cy), size, (0, 200, 255), -1)  # Filled golden
+            cv2.circle(frame, (cx, cy), size, (0, 255, 255), 3)  # Bright yellow outline
+            
+            # Inner glow
+            cv2.circle(frame, (cx, cy), size - 15, (100, 255, 255), -1)  # Lighter center
+            
+            # Highlight
+            cv2.circle(frame, (cx - 10, cy - 10), 12, (200, 255, 255), -1)  # White highlight
 
     def _draw_glowing_brain(self, frame, hand_list, w, h):
-        if not hand_list or self.brain_img is None: return
+        if not hand_list: return
         
         for hand_lm in hand_list:
-            # Calculate Palm Center (Approx between Wrist 0 and Middle MCP 9)
+            # Calculate Palm Center
             wrist = hand_lm.landmark[0]
             middle_mcp = hand_lm.landmark[9]
             
             cx = int((wrist.x + middle_mcp.x) / 2 * w)
             cy = int((wrist.y + middle_mcp.y) / 2 * h)
             
-            # Size of Brain Icon
-            size = 80
-            x1 = cx - size // 2
-            y1 = cy - size // 2
-            x2 = x1 + size
-            y2 = y1 + size
+            # Draw PROCEDURAL Brain (Clean, No PNG artifacts)
+            size = 40  # Reduced from 60 to fit in palm
             
-            # Bounds Check
-            if x1 < 0 or y1 < 0 or x2 >= w or y2 >= h: continue
-            
-            # Resize Brain
-            brain_resized = cv2.resize(self.brain_img, (size, size))
-            
-            # Alpha Blending
-            roi = frame[y1:y2, x1:x2]
-            
-            # Separate channels
-            b_b, b_g, b_r, b_a = cv2.split(brain_resized)
-            
-            # Create mask
-            mask = b_a / 255.0
-            inv_mask = 1.0 - mask
-            
-            # Blend
-            for c in range(3):
-                roi[:, :, c] = (mask * brain_resized[:, :, c] + inv_mask * roi[:, :, c])
-                
-            frame[y1:y2, x1:x2] = roi
-            
-            # Add extra glow (simple circle behind)
+            # Outer glow
             overlay = frame.copy()
-            cv2.circle(overlay, (cx, cy), size // 2 + 10, (255, 255, 0), -1) # Cyan/Yellow glow
+            cv2.circle(overlay, (cx, cy), size + 12, (255, 255, 0), -1)  # Cyan glow (reduced)
             cv2.addWeighted(overlay, 0.3, frame, 0.7, 0, frame)
+            
+            # Brain shape - simplified clean design
+            # Main brain circle
+            cv2.circle(frame, (cx, cy), size, (255, 200, 0), -1)  # Filled cyan
+            cv2.circle(frame, (cx, cy), size, (255, 255, 255), 3)  # White outline
+            
+            # Left hemisphere curve
+            cv2.ellipse(frame, (cx - 10, cy), (17, 23), 0, 0, 180, (200, 150, 0), 2)
+            # Right hemisphere curve  
+            cv2.ellipse(frame, (cx + 10, cy), (17, 23), 0, 0, 180, (200, 150, 0), 2)
+            
+            # Brain folds (simplified)
+            cv2.ellipse(frame, (cx - 13, cy - 7), (10, 13), 30, 0, 180, (150, 100, 0), 1)
+            cv2.ellipse(frame, (cx + 13, cy - 7), (10, 13), -30, 0, 180, (150, 100, 0), 1)
+            cv2.ellipse(frame, (cx, cy + 10), (13, 10), 0, 0, 180, (150, 100, 0), 1)
+            
+            # Center highlight
+            cv2.circle(frame, (cx, cy - 10), 5, (255, 255, 255), -1)  # White highlight
+            
+            # Outer ring for emphasis
+            cv2.circle(frame, (cx, cy), size + 5, (255, 255, 200), 2)
 
 elemental_effects = ElementalEffects()
+
+# --- LEVEL & MEDAL SYSTEM ---
+def draw_medal_at_neck(frame, pose_landmarks, level):
+    """
+    Draws a procedural golden medal at the neck area when level >= 4
+    """
+    if not pose_landmarks or level < 4:
+        return
+    
+    h, w, _ = frame.shape
+    lm = pose_landmarks.landmark
+    
+    # Get shoulder positions (landmarks 11 and 12)
+    left_shoulder = lm[11]
+    right_shoulder = lm[12]
+    
+    # Calculate neck position (midpoint between shoulders, slightly above)
+    neck_x = int(((left_shoulder.x + right_shoulder.x) / 2) * w)
+    neck_y = int(((left_shoulder.y + right_shoulder.y) / 2) * h) - 30  # 30px above shoulders
+    
+    # Medal size based on level
+    base_size = 25
+    size = base_size + (level - 4) * 3  # Grows with level
+    
+    # Outer glow
+    overlay = frame.copy()
+    cv2.circle(overlay, (neck_x, neck_y), size + 15, (0, 215, 255), -1)  # Golden glow
+    cv2.addWeighted(overlay, 0.3, frame, 0.7, 0, frame)
+    
+    # Medal circle (golden)
+    cv2.circle(frame, (neck_x, neck_y), size, (0, 180, 255), -1)  # Filled gold
+    cv2.circle(frame, (neck_x, neck_y), size, (0, 215, 255), 3)  # Bright gold outline
+    
+    # Inner circle
+    cv2.circle(frame, (neck_x, neck_y), size - 8, (50, 200, 255), 2)  # Inner ring
+    
+    # Star in center (5-pointed)
+    star_size = size - 12
+    points = []
+    for i in range(10):
+        angle = (i * math.pi / 5) - (math.pi / 2)  # Start from top
+        r = star_size if i % 2 == 0 else star_size * 0.4
+        px = int(neck_x + r * math.cos(angle))
+        py = int(neck_y + r * math.sin(angle))
+        points.append([px, py])
+    
+    # Draw star
+    star_pts = np.array(points, np.int32)
+    cv2.fillPoly(frame, [star_pts], (255, 255, 255))  # White star
+    cv2.polylines(frame, [star_pts], True, (0, 215, 255), 2)  # Gold outline
+    
+    # Level number in center
+    cv2.putText(frame, str(level), (neck_x - 8, neck_y + 6), 
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)  # Black outline
+    cv2.putText(frame, str(level), (neck_x - 8, neck_y + 6), 
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 215, 255), 1)  # Gold text
+    
+    # Sparkles around medal
+    t = time.time()
+    for i in range(6):
+        angle = (i * math.pi / 3) + t * 2
+        sx = int(neck_x + (size + 20) * math.cos(angle))
+        sy = int(neck_y + (size + 20) * math.sin(angle))
+        cv2.circle(frame, (sx, sy), 3, (255, 255, 255), -1)
 
 # --- THIRD EYE INTERFACE ---
 class ThirdEyeController:
@@ -4247,6 +4306,15 @@ def main():
         # Only if Energy > 90%
         if avg_energy > 0.9:
              draw_om_effect(frame, avg_energy)
+
+        # [NEW] Level & Medal System
+        # Calculate level based on session time (1 minute = 1 level)
+        session_duration_minutes = (time.time() - session_start) / 60.0
+        current_level = int(session_duration_minutes) + 1  # Start at level 1
+        
+        # Draw medal at neck if level >= 4 (after crossing level 3)
+        if pose_res.pose_landmarks:
+            draw_medal_at_neck(frame, pose_res.pose_landmarks, current_level)
 
         # Namaste Detection for Screenshot (Replaces Mode Toggle)
         # [FIX] Robust Detection with Grace Period & Visual Feedback

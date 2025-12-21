@@ -38,6 +38,13 @@ A true agent must **Perceive**, **Reason**, and **Act**. Here is how Yoga AI ful
 - **Heart & SpO2 Monitoring**: Integrates with hardware sensors to display real-time **Heart Rate (BPM)**.
 - **Energy Coherence Radar**: Visualizes the harmony between your mind and body.
 
+### 🎖️ HYPER-SYNC v2.5 Updates (Latest)
+- **Level & Medal System**: Earn golden medals displayed at your neck after crossing level 3, with animated sparkles and level progression
+- **Procedural Mudra Effects**: Clean, artifact-free brain and sun icons for Gyan and Surya mudras that fit perfectly in your palm
+- **Responsive HUD**: All UI elements scale dynamically with camera resolution for perfect visibility on any screen
+- **Enhanced Instruction Panel**: Properly aligned meditation guide with highlighted keywords (Lotus Pose, Hand Mudras, Eyes, Breath)
+- **Immersive Branding**: Unified "YOGA AI: HYPER-SYNC v2.5 // IMMERSIVE" theme across Python backend and React frontend
+
 ---
 
 ## 📸 Visual Demonstrations
