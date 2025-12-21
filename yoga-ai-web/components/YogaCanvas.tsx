@@ -955,6 +955,8 @@ export default function YogaCanvas() {
         };
     }, [handLandmarker, faceLandmarker, isLoading, hasLoadedRef, addLog, analyzeFace]);
 
+    const avgEnergy = uiEnergies.length > 0 ? uiEnergies.reduce((a, b) => a + b, 0) / uiEnergies.length : 0;
+
     return (
         <div className="fixed inset-0 bg-black overflow-hidden font-sans select-none text-white z-0">
             {isLoading && (
@@ -1009,7 +1011,7 @@ export default function YogaCanvas() {
                         <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_#22d3ee]"></span>
                         Neural Energies
                     </h3>
-                    <div className="h-[280px] flex justify-center">
+                    <div className="h-[520px] flex justify-center">
                         <LeftSidebar energies={uiEnergies} />
                     </div>
                 </div>
@@ -1035,14 +1037,15 @@ export default function YogaCanvas() {
                         heartRate={arduinoData.heartRate}
                         spo2={arduinoData.spo2}
                         beatDetected={arduinoData.beatDetected}
-                        energyLevel={uiEnergies[3]}
-                        stressLevel={1.0 - (uiEnergies[6] || 0.5)}
-                        focusScore={uiEnergies[5] || 0.5}
+                        energyLevel={avgEnergy}
+                        stressLevel={100 - (arduinoData.hrvIndex || 50)}
+                        focusScore={arduinoData.hrvIndex || 50}
                         isConnected={arduinoData.isConnected}
                         hrvIndex={arduinoData.hrvIndex}
                         doshas={arduinoData.doshas}
                         insightText={arduinoData.insightText}
                         finding={arduinoData.finding}
+                        onConnect={connectArduino}
                     />
                 </div>
             </div>

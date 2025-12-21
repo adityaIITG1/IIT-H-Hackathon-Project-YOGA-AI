@@ -13,6 +13,7 @@ interface BioAnalyticsPanelProps {
     doshas: { vata: number; pitta: number; kapha: number; };
     insightText: string;
     finding: string;
+    onConnect?: () => void;
 }
 
 export default function BioAnalyticsPanel({
@@ -26,7 +27,8 @@ export default function BioAnalyticsPanel({
     hrvIndex,
     doshas,
     insightText,
-    finding
+    finding,
+    onConnect
 }: BioAnalyticsPanelProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -524,6 +526,23 @@ export default function BioAnalyticsPanel({
                     <div className={`w-1.5 h-1.5 rounded-full shadow-[0_0_5px_currentColor] ${isConnected ? 'bg-green-500 text-green-500 animate-pulse' : 'bg-red-500 text-red-500'}`}></div>
                 </div>
             </div>
+
+            {/* Reconnect Call to Action Overlay */}
+            {!isConnected && onConnect && (
+                <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all duration-500">
+                    <button
+                        onClick={onConnect}
+                        className="group relative px-6 py-2 bg-cyan-500/10 border border-cyan-500/50 rounded-full overflow-hidden transition-all duration-300 hover:bg-cyan-500/20 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] active:scale-95"
+                    >
+                        <div className="relative z-10 flex items-center gap-2">
+                            <span className="text-[10px] text-cyan-400 font-black uppercase tracking-[0.2em]">Connect Bio-Sensor</span>
+                            <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></div>
+                        </div>
+                        {/* Hover Glow */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/10 to-transparent -translate-x-full group-hover:translate-x-full duration-700 transition-transform"></div>
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
